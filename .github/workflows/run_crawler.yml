@@ -1,9 +1,9 @@
 name: Run Stock Crawler
 
 on:
-  workflow_dispatch: # 讓你可以隨時手動在網頁上按鈕執行
+  workflow_dispatch:
   schedule:
-    - cron: '30 9 * * 1-5' # 臺北時間每週一到週五晚上 5:30 自動執行 (UTC 9:30)
+    - cron: '30 9 * * 1-5'
 
 jobs:
   run-python:
@@ -29,6 +29,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global http.version HTTP/1.1
           git add tw_stocks_history.json
-          git commit -m "Auto-update stock history json via Python" || exit 0
-          git push
+          git diff --staged --quiet || git commit -m "Auto-update stock history json via Python"
+          git push origin main || true
