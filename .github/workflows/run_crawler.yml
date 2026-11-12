@@ -3,8 +3,8 @@ name: Run Stock Crawler
 on:
   workflow_dispatch:
   schedule:
-    # GitHub Actions 採用 UTC 時間！
-    # UTC 09:30 等於台灣時間 (UTC+8) 下午 17:30（正好在台股收盤與盤後資料更新後）
+    # GitHub Actions 採用 UTC 時間
+    # UTC 09:30 等於台灣時間 (UTC+8) 下午 17:30（適合在台股收盤、盤後資料更新後執行）
     - cron: '30 9 * * 1-5'
 
 jobs:
@@ -25,7 +25,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests
+          pip install requests yfinance pandas
 
       - name: Run crawler script
         run: |
