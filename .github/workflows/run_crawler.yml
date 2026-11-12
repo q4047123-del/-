@@ -23,7 +23,7 @@ jobs:
 
       - name: Run crawler script
         run: |
-          python crawler.py
+          python fetch_tw_sectors.py
 
       - name: Commit and push updated json
         run: |
