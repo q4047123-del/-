@@ -1,0 +1,34 @@
+name: Run Stock Crawler
+
+on:
+  workflow_dispatch: # 讓你可以隨時手動在網頁上按鈕執行
+  schedule:
+    - cron: '30 9 * * 1-5' # 臺北時間每週一到週五晚上 5:30 自動執行 (UTC 9:30)
+
+jobs:
+  run-python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Run crawler script
+        run: |
+          python crawler.py
+
+      - name: Commit and push updated json
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add tw_stocks_history.json
+          git commit -m "Auto-update stock history json via Python" || exit 0
+          git push
