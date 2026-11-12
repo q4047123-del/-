@@ -3,158 +3,701 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>【傳奇大師賽博炒股 V15.0】精細交割帳本(滑價/手續費/證交稅/借券日息累積扣款)・總經雷達多空完全體</title>
+  <title>【傳奇大師賽博炒股 V19.0】量化統計檢定(MDD/勝率分佈/p-value/Excel讀寫)・精細交割帳本・總經雷達多空完全體</title>
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&display=swap" rel="stylesheet">
+  <!-- 引入 SheetJS 支援直接匯出與讀取 .xlsx Excel 檔案 -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root {
-      --bg-retro-olive: #687864; --bg-grid-line: #5c6b58; --win-shell: #d4d0c4;
-      --card-cream: #f6f2e4; --card-inner: #ebe5d3; --pixel-black: #181818;
-      --pixel-white: #ffffff; --pixel-gray: #808078;
-      --hdr-buffett: #1e4d8c; --hdr-simons: #2b6e46; --hdr-livermore: #b8860b;
-      --hdr-kitty: #b71c1c; --hdr-cramer: #6a1b9a; --hdr-leopold: #143642;
-      --tw-up: #d61a1a; --tw-up-bg: #ffe5e5; --tw-down: #0c8428; --tw-down-bg: #e2f9e8;
-      --div-gold: #b8860b; --div-gold-bg: #fff4c2;
-      --alloc-tw-stock: #2e5cb8; --alloc-us-asset: #00897b; --alloc-short: #c62828;
-      --alloc-futures: #e65100; --alloc-warrant: #9c27b0; --alloc-cash: #8d99ae;
+      --bg-retro-olive: #687864;
+      --bg-grid-line: #5c6b58;
+      --win-shell: #d4d0c4;
+      --card-cream: #f6f2e4;
+      --card-inner: #ebe5d3;
+      --pixel-black: #181818;
+      --pixel-white: #ffffff;
+      --pixel-gray: #808078;
+      --hdr-buffett: #1e4d8c;
+      --hdr-simons: #2b6e46;
+      --hdr-livermore: #b8860b;
+      --hdr-kitty: #b71c1c;
+      --hdr-cramer: #6a1b9a;
+      --hdr-leopold: #143642;
+      --tw-up: #d61a1a;
+      --tw-up-bg: #ffe5e5;
+      --tw-down: #0c8428;
+      --tw-down-bg: #e2f9e8;
+      --div-gold: #b8860b;
+      --div-gold-bg: #fff4c2;
+      --alloc-tw-stock: #2e5cb8;
+      --alloc-us-asset: #00897b;
+      --alloc-short: #c62828;
+      --alloc-futures: #e65100;
+      --alloc-warrant: #9c27b0;
+      --alloc-cash: #8d99ae;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; image-rendering: pixelated; user-select: none; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      image-rendering: pixelated;
+      user-select: none;
+    }
     body {
       background-color: var(--bg-retro-olive);
       background-image: linear-gradient(var(--bg-grid-line) 2px, transparent 2px), linear-gradient(90deg, var(--bg-grid-line) 2px, transparent 2px);
-      background-size: 24px 24px; font-family: 'DotGothic16', 'VT323', monospace; color: var(--pixel-black);
-      min-height: 100vh; padding: 10px; display: flex; flex-direction: column;
+      background-size: 24px 24px;
+      font-family: 'Microsoft JhengHei', 'PingFang TC', 'Noto Sans TC', 'DotGothic16', sans-serif !important;
+      font-size: 14px;
+      line-height: 1.55 !important;
+      color: var(--pixel-black);
+      min-height: 100vh;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
     }
     .pixel-window {
-      background: var(--win-shell); border: 4px solid var(--pixel-black);
+      background: var(--win-shell);
+      border: 4px solid var(--pixel-black);
       box-shadow: inset 3px 3px 0px var(--pixel-white), inset -3px -3px 0px var(--pixel-gray), 8px 8px 0px rgba(0,0,0,0.45);
-      max-width: 1740px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; flex: 1;
+      max-width: 1740px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
     }
-    .pixel-box { background: var(--card-cream); border: 3px solid var(--pixel-black); box-shadow: 4px 4px 0px var(--pixel-black); }
-    .pixel-inset { background: var(--pixel-white); border: 3px solid var(--pixel-black); box-shadow: inset 3px 3px 0px rgba(0,0,0,0.18); }
+    .pixel-box {
+      background: var(--card-cream);
+      border: 3px solid var(--pixel-black);
+      box-shadow: 4px 4px 0px var(--pixel-black);
+    }
+    .pixel-inset {
+      background: var(--pixel-white);
+      border: 3px solid var(--pixel-black);
+      box-shadow: inset 3px 3px 0px rgba(0,0,0,0.18);
+    }
     .sys-titlebar {
-      background: linear-gradient(90deg, #1b3329, #2f5c49); color: #e8f5e9; padding: 8px 14px;
-      border-bottom: 4px solid var(--pixel-black); display: flex; justify-content: space-between; align-items: center;
-      font-size: 0.92rem; font-weight: bold;
+      background: linear-gradient(90deg, #1b3329, #2f5c49);
+      color: #e8f5e9;
+      padding: 8px 14px;
+      border-bottom: 4px solid var(--pixel-black);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.92rem;
+      font-weight: bold;
     }
-    .title-controls { display: flex; align-items: center; gap: 10px; }
-    .win-ctrl-btns { display: flex; gap: 4px; }
+    .title-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .win-ctrl-btns {
+      display: flex;
+      gap: 4px;
+    }
     .win-ctrl-btn {
-      width: 22px; height: 22px; background: var(--win-shell); color: var(--pixel-black); border: 2px solid var(--pixel-black);
-      display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer;
+      width: 22px;
+      height: 22px;
+      background: var(--win-shell);
+      color: var(--pixel-black);
+      border: 2px solid var(--pixel-black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
     }
-    .main-workspace { display: grid; grid-template-columns: 445px 1fr; gap: 14px; padding: 12px; flex: 1; }
-    @media (max-width: 1220px) { .main-workspace { grid-template-columns: 1fr; } }
-    .sidebar-col { display: flex; flex-direction: column; gap: 10px; }
-    .rule-panel { padding: 10px; background: var(--card-cream); font-size: 0.78rem; line-height: 1.38; }
-    .section-title { font-weight: bold; font-size: 0.85rem; border-bottom: 3px dashed var(--pixel-black); padding-bottom: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-    .fee-rule-banner { background: #fff4c2; border: 2px solid var(--pixel-black); padding: 5px 7px; margin-bottom: 7px; font-size: 0.66rem; line-height: 1.36; }
+    .main-workspace {
+      display: grid;
+      grid-template-columns: 445px 1fr;
+      gap: 14px;
+      padding: 12px;
+      flex: 1;
+    }
+    @media (max-width: 1220px) {
+      .main-workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+    .sidebar-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .rule-panel {
+      padding: 10px;
+      background: var(--card-cream);
+      font-size: 0.85rem !important;
+      line-height: 1.55 !important;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 0.85rem;
+      border-bottom: 3px dashed var(--pixel-black);
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .fee-rule-banner {
+      background: #fff4c2;
+      border: 2px solid var(--pixel-black);
+      padding: 5px 7px;
+      margin-bottom: 7px;
+      font-size: 0.78rem !important;
+      line-height: 1.5 !important;
+    }
     .gba-lcd-screen {
-      background: #203020; color: #9bbc0f; border: 3px solid var(--pixel-black); box-shadow: inset 3px 3px 0px #0f1a0f;
-      padding: 6px 10px; margin-bottom: 7px; display: flex; justify-content: space-between; align-items: center; font-family: 'VT323', 'DotGothic16', monospace;
+      background: #203020;
+      color: #9bbc0f;
+      border: 3px solid var(--pixel-black);
+      box-shadow: inset 3px 3px 0px #0f1a0f;
+      padding: 6px 10px;
+      margin-bottom: 7px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'VT323', 'DotGothic16', monospace;
     }
-    .lcd-date { font-size: 1.28rem; font-weight: bold; text-shadow: 0 0 4px rgba(155,188,15,0.5); }
-    .lcd-fx-box { background: #0f1f14; border: 1.5px solid #9bbc0f; padding: 2px 7px; text-align: right; }
-    .lcd-badge { background: #9bbc0f; color: #0f380f; padding: 2px 7px; font-weight: bold; font-size: 0.76rem; border: 2px solid #0f380f; }
-
+    .lcd-date {
+      font-size: 1.28rem;
+      font-weight: bold;
+      text-shadow: 0 0 4px rgba(155,188,15,0.5);
+    }
+    .lcd-fx-box {
+      background: #0f1f14;
+      border: 1.5px solid #9bbc0f;
+      padding: 2px 7px;
+      text-align: right;
+    }
+    .lcd-badge {
+      background: #9bbc0f;
+      color: #0f380f;
+      padding: 2px 7px;
+      font-weight: bold;
+      font-size: 0.76rem;
+      border: 2px solid #0f380f;
+    }
     .macro-radar-box {
-      background: #101d24; color: #e0f7fa; border: 3px solid var(--pixel-black);
-      box-shadow: inset 2px 2px 0px #071014; padding: 7px 9px; margin-bottom: 6px;
+      background: #101d24;
+      color: #e0f7fa;
+      border: 3px solid var(--pixel-black);
+      box-shadow: inset 2px 2px 0px #071014;
+      padding: 7px 9px;
+      margin-bottom: 6px;
     }
     .macro-regime-bar {
-      display: flex; justify-content: space-between; align-items: center;
-      border-bottom: 1.5px dashed #26a69a; padding-bottom: 4px; margin-bottom: 6px; font-size: 0.74rem; font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1.5px dashed #26a69a;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+      font-size: 0.74rem;
+      font-weight: bold;
     }
-    .macro-regime-pill { padding: 1px 6px; border: 1.5px solid #000; font-weight: bold; font-size: 0.7rem; color: #000; }
-    .macro-indicators-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; text-align: center; }
-    .macro-ind-cell { background: #1a2c35; border: 1.5px solid #37474f; padding: 3px 2px; }
-    .macro-ind-label { font-size: 0.58rem; color: #80cbc4; display: block; }
-    .macro-ind-val { font-family: 'VT323', monospace; font-size: 1.02rem; font-weight: bold; color: #ffea00; }
-
+    .macro-regime-pill {
+      padding: 1px 6px;
+      border: 1.5px solid #000;
+      font-weight: bold;
+      font-size: 0.7rem;
+      color: #000;
+    }
+    .macro-indicators-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      text-align: center;
+    }
+    .macro-ind-cell {
+      background: #1a2c35;
+      border: 1.5px solid #37474f;
+      padding: 3px 2px;
+    }
+    .macro-ind-label {
+      font-size: 0.58rem;
+      color: #80cbc4;
+      display: block;
+    }
+    .macro-ind-val {
+      font-family: 'VT323', monospace;
+      font-size: 1.02rem;
+      font-weight: bold;
+      color: #ffea00;
+    }
     .pixel-btn {
-      width: 100%; padding: 6px 10px; margin-bottom: 5px; font-family: inherit; font-size: 0.76rem; font-weight: bold;
-      background: #e5dec9; color: var(--pixel-black); border: 3px solid var(--pixel-black); box-shadow: 3px 3px 0px var(--pixel-black);
-      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%;
+      padding: 6px 10px;
+      margin-bottom: 5px;
+      font-family: inherit;
+      font-size: 0.76rem;
+      font-weight: bold;
+      background: #e5dec9;
+      color: var(--pixel-black);
+      border: 3px solid var(--pixel-black);
+      box-shadow: 3px 3px 0px var(--pixel-black);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
-    .pixel-btn:hover { background: #fff6d6; }
-    .pixel-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px var(--pixel-black); }
-    .pixel-btn.gold { background: #ffda66; }
-    .pixel-btn.green { background: #a8e6b4; }
-    .pixel-btn.div-btn { background: #ffe082; }
-    .btn-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .pool-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 6px; }
-    .pool-tab-btn { padding: 4px 2px; font-family: inherit; font-size: 0.68rem; font-weight: bold; background: #dcd5c0; border: 2.5px solid var(--pixel-black); cursor: pointer; text-align: center; }
-    .pool-tab-btn.active { background: #ffda66; box-shadow: inset 2px 2px 0px #fff; }
-    .pixel-select, .pixel-search { width: 100%; padding: 5px 8px; margin-bottom: 6px; font-family: inherit; font-size: 0.76rem; font-weight: bold; background: #fff; border: 3px solid var(--pixel-black); }
-    .market-table-wrap { max-height: 205px; overflow-y: auto; }
-    .market-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; background: #fff; }
-    .market-table th, .market-table td { border: 2px solid #b8b2a2; padding: 3px 5px; text-align: left; }
-    .market-table th { background: #dcd5c0; color: #000; position: sticky; top: 0; border-bottom: 2px solid var(--pixel-black); }
-    .ex-div-tag { display: inline-block; background: #ffda66; color: #000; border: 1.5px solid #000; padding: 0px 4px; font-size: 0.6rem; font-weight: bold; }
-    .short-ok-tag { display: inline-block; background: #e1bee7; color: #4a148c; border: 1px solid #4a148c; padding: 0px 3px; font-size: 0.6rem; font-weight: bold; }
-    .short-ban-tag { display: inline-block; background: #ffcdd2; color: #b71c1c; border: 1px solid #b71c1c; padding: 0px 3px; font-size: 0.6rem; font-weight: bold; }
-    .macro-fut-row { background: #fff8e6; }
-    .us-bond-row { background: #e8f5e9; }
-    .news-scroll-box { height: 210px; overflow-y: auto; padding: 7px; background: #fdfbf2; font-size: 0.72rem; line-height: 1.4; flex: 1; }
-    .news-row { padding: 4px 0; border-bottom: 2px dashed #ccc5b4; }
-    .news-row.macro-highlight { background: #fff8e1; padding: 4px 5px; border-left: 4px solid #ff6f00; margin-bottom: 3px; }
-    .news-pill { display: inline-block; padding: 1px 5px; font-size: 0.64rem; font-weight: bold; color: #fff; border: 1.5px solid var(--pixel-black); margin-right: 4px; }
-    .agents-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; align-content: start; }
-    @media (max-width: 920px) { .agents-grid { grid-template-columns: 1fr; } }
-    .agent-card { background: var(--card-cream); border: 3.5px solid var(--pixel-black); box-shadow: 6px 6px 0px rgba(0,0,0,0.45); display: flex; flex-direction: column; position: relative; }
-    .agent-card.speaking-active { outline: 3px solid #ffea00; }
-    .agent-header { padding: 6px 10px; border-bottom: 3.5px solid var(--pixel-black); display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.81rem; color: #fff; text-shadow: 1px 1px 0px #000; }
-    .hdr-theme-buffett { background: var(--hdr-buffett); }
-    .hdr-theme-simons { background: var(--hdr-simons); }
-    .hdr-theme-livermore { background: var(--hdr-livermore); color: #000; text-shadow: none; }
-    .hdr-theme-kitty { background: var(--hdr-kitty); }
-    .hdr-theme-cramer { background: var(--hdr-cramer); }
-    .hdr-theme-leopold { background: linear-gradient(90deg, #0f2027, #203a43, #2c5364); color: #00ffcc; }
-    .agent-body { padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
-    .persona-stage { display: flex; align-items: center; gap: 10px; background: var(--card-inner); border: 2.5px solid var(--pixel-black); padding: 6px 8px; position: relative; }
-    .sprite-stage-box { width: 62px; height: 62px; background: #d8e2c8; border: 3px solid var(--pixel-black); box-shadow: inset 2px 2px 0px #8f9c80; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; flex-shrink: 0; }
-    .sprite-stage-box.sa-radar-bg { background: #102526; box-shadow: inset 2px 2px 0px #071212; }
-    @keyframes pixelFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-3px); } }
-    @keyframes pixelHappyJump { 0%, 100% { transform: translateY(0px); } 25% { transform: translateY(-5px); } 75% { transform: translateY(-2px); } }
-    @keyframes pixelPanicShake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-2px,1px); } 50% { transform: translate(2px,-1px); } 75% { transform: translate(-2px,0); } }
-    .sprite-canvas { width: 54px; height: 54px; animation: pixelFloat 1.4s steps(2, end) infinite; }
-    .sprite-canvas.mood-win { animation: pixelHappyJump 0.8s steps(2, end) infinite; }
-    .sprite-canvas.mood-lose { animation: pixelPanicShake 0.45s steps(2, end) infinite; }
-    .mood-emote-badge { position: absolute; top: 2px; right: 2px; font-size: 0.6rem; background: #fff; border: 1.5px solid var(--pixel-black); padding: 0px 3px; font-weight: bold; z-index: 2; }
-    .persona-tags { flex: 1; display: flex; flex-direction: column; gap: 3px; }
-    .azhou-tag-group { display: flex; flex-wrap: wrap; gap: 4px; }
-    .azhou-tag { background: #ffffff; border: 2px solid var(--pixel-black); box-shadow: 2px 2px 0px var(--pixel-black); padding: 1px 5px; font-size: 0.67rem; font-weight: bold; }
-    .azhou-tag.name { background: #ffe49e; }
-    .azhou-tag.job { background: #d7ecff; }
-    .azhou-tag.style { background: #e8d7ff; }
-    .azhou-tag.sa-special { background: #00ffcc; color: #000; }
-    .strategy-desc { font-size: 0.66rem; color: #333; line-height: 1.24; }
-    .alloc-box { background: #f2ede0; border: 2px solid var(--pixel-black); padding: 4px 7px; display: flex; flex-direction: column; gap: 3px; }
-    .alloc-header-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.63rem; font-weight: bold; }
-    .alloc-bar-track { height: 9px; width: 100%; background: var(--alloc-cash); border: 2px solid var(--pixel-black); display: flex; overflow: hidden; }
-    .alloc-seg-tw { background: var(--alloc-tw-stock); height: 100%; }
-    .alloc-seg-us { background: var(--alloc-us-asset); height: 100%; }
-    .alloc-seg-short { background: var(--alloc-short); height: 100%; }
-    .alloc-seg-futures { background: var(--alloc-futures); height: 100%; }
-    .alloc-seg-warrant { background: var(--alloc-warrant); height: 100%; }
-    .alloc-seg-cash { background: var(--alloc-cash); height: 100%; }
-    .alloc-legend-row { display: flex; justify-content: space-between; font-size: 0.6rem; color: #222; font-weight: bold; flex-wrap: wrap; }
-    .legend-dot { display: inline-block; width: 7px; height: 7px; border: 1px solid #000; margin-right: 2px; vertical-align: middle; }
-    .metrics-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; background: #e4decb; border: 2.5px solid var(--pixel-black); padding: 4px 6px; }
-    .metric-item { display: flex; flex-direction: column; border-right: 2px dashed #9e9888; padding-right: 3px; }
-    .metric-item:last-child { border-right: none; }
-    .metric-label { font-size: 0.57rem; color: #4a463d; font-weight: bold; }
-    .metric-val { font-family: 'VT323', monospace; font-size: 1.05rem; font-weight: bold; line-height: 1.1; }
-    .val-positive { color: var(--tw-up); }
-    .val-negative { color: var(--tw-down); }
-    .val-dividend { color: #9c640c; }
-    .val-usd { color: #00695c; }
-    .val-fee { color: #555555; }
-    .info-row { display: grid; grid-template-columns: 1.38fr 0.62fr; gap: 8px; }
-    .sub-box { background: #fffdf7; border: 2px solid var(--pixel-black); padding: 5px 7px; min-height: 52px; display: flex; flex-direction: column; gap: 3px; }
-    .sub-box-title { font-size: 0.64rem; font-weight: bold; color: #444; border-bottom: 1px solid #ddd; padding-bottom: 2px; display: flex; justify-content: space-between; align-items: center; }
-    .holding-chip { display: inline-flex; align-items: center; gap: 3px; background: #f2efe4; border: 2px solid var(--pixel-black); box-shadow: 2px 2px 0px var(--pixel-black); padding: 2px 5px; margin: 2px 3px 1px 0; font-size: 0.64rem; font-weight: bold; cursor: pointer; }
-    .holding-chip:hover { background: #ffea9f; transform: translate(-1px, -1px); box-shadow: 3px 3px 0px var(--pixel-black); }
-    .inst-badge { padding: 0px 4px; font-size: 0.57rem; border: 1px solid #000; color: #fff; }
+    .pixel-btn:hover {
+      background: #fff6d6;
+    }
+    .pixel-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px var(--pixel-black);
+    }
+    .pixel-btn.gold {
+      background: #ffda66;
+    }
+    .pixel-btn.green {
+      background: #a8e6b4;
+    }
+    .pixel-btn.div-btn {
+      background: #ffe082;
+    }
+    .btn-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .pool-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+    .pool-tab-btn {
+      padding: 4px 2px;
+      font-family: inherit;
+      font-size: 0.68rem;
+      font-weight: bold;
+      background: #dcd5c0;
+      border: 2.5px solid var(--pixel-black);
+      cursor: pointer;
+      text-align: center;
+    }
+    .pool-tab-btn.active {
+      background: #ffda66;
+      box-shadow: inset 2px 2px 0px #fff;
+    }
+    .pixel-select, .pixel-search {
+      width: 100%;
+      padding: 5px 8px;
+      margin-bottom: 6px;
+      font-family: inherit;
+      font-size: 0.76rem;
+      font-weight: bold;
+      background: #fff;
+      border: 3px solid var(--pixel-black);
+    }
+    .market-table-wrap {
+      max-height: 205px;
+      overflow-y: auto;
+    }
+    .market-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem !important;
+      line-height: 1.5 !important;
+      background: #fff;
+    }
+    .market-table th, .market-table td {
+      border: 2px solid #b8b2a2;
+      padding: 5px 7px !important;
+      text-align: left;
+    }
+    .market-table th {
+      background: #dcd5c0;
+      color: #000;
+      position: sticky;
+      top: 0;
+      border-bottom: 2px solid var(--pixel-black);
+      z-index: 1;
+    }
+    .ex-div-tag {
+      display: inline-block;
+      background: #ffda66;
+      color: #000;
+      border: 1.5px solid #000;
+      padding: 0px 4px;
+      font-size: 0.6rem;
+      font-weight: bold;
+    }
+    .short-ok-tag {
+      display: inline-block;
+      background: #e1bee7;
+      color: #4a148c;
+      border: 1px solid #4a148c;
+      padding: 0px 3px;
+      font-size: 0.6rem;
+      font-weight: bold;
+    }
+    .short-ban-tag {
+      display: inline-block;
+      background: #ffcdd2;
+      color: #b71c1c;
+      border: 1px solid #b71c1c;
+      padding: 0px 3px;
+      font-size: 0.6rem;
+      font-weight: bold;
+    }
+    .macro-fut-row {
+      background: #fff8e6;
+    }
+    .us-bond-row {
+      background: #e8f5e9;
+    }
+    .news-scroll-box {
+      height: 210px;
+      overflow-y: auto;
+      padding: 7px;
+      background: #fdfbf2;
+      font-size: 0.84rem !important;
+      line-height: 1.55 !important;
+      flex: 1;
+    }
+    .news-row {
+      padding: 4px 0;
+      border-bottom: 2px dashed #ccc5b4;
+    }
+    .news-row.macro-highlight {
+      background: #fff8e1;
+      padding: 4px 5px;
+      border-left: 4px solid #ff6f00;
+      margin-bottom: 3px;
+    }
+    .news-pill {
+      display: inline-block;
+      padding: 1px 5px;
+      font-size: 0.64rem;
+      font-weight: bold;
+      color: #fff;
+      border: 1.5px solid var(--pixel-black);
+      margin-right: 4px;
+    }
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      align-content: start;
+    }
+    @media (max-width: 920px) {
+      .agents-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .agent-card {
+      background: var(--card-cream);
+      border: 3.5px solid var(--pixel-black);
+      box-shadow: 6px 6px 0px rgba(0,0,0,0.45);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .agent-card.speaking-active {
+      outline: 3px solid #ffea00;
+    }
+    .agent-header {
+      padding: 8px 12px !important;
+      border-bottom: 3.5px solid var(--pixel-black);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      font-size: 0.9rem !important;
+      color: #fff;
+      text-shadow: 1px 1px 0px #000;
+    }
+    .hdr-theme-buffett {
+      background: var(--hdr-buffett);
+    }
+    .hdr-theme-simons {
+      background: var(--hdr-simons);
+    }
+    .hdr-theme-livermore {
+      background: var(--hdr-livermore);
+      color: #000;
+      text-shadow: none;
+    }
+    .hdr-theme-kitty {
+      background: var(--hdr-kitty);
+    }
+    .hdr-theme-cramer {
+      background: var(--hdr-cramer);
+    }
+    .hdr-theme-leopold {
+      background: linear-gradient(90deg, #0f2027, #203a43, #2c5364);
+      color: #00ffcc;
+    }
+    .agent-body {
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+    .persona-stage {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card-inner);
+      border: 2.5px solid var(--pixel-black);
+      padding: 6px 8px;
+      position: relative;
+    }
+    .sprite-stage-box {
+      width: 62px;
+      height: 62px;
+      background: #d8e2c8;
+      border: 3px solid var(--pixel-black);
+      box-shadow: inset 2px 2px 0px #8f9c80;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .sprite-stage-box.sa-radar-bg {
+      background: #102526;
+      box-shadow: inset 2px 2px 0px #071212;
+    }
+    @keyframes pixelFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-3px); }
+    }
+    @keyframes pixelHappyJump {
+      0%, 100% { transform: translateY(0px); }
+      25% { transform: translateY(-5px); }
+      75% { transform: translateY(-2px); }
+    }
+    @keyframes pixelPanicShake {
+      0%, 100% { transform: translate(0,0); }
+      25% { transform: translate(-2px,1px); }
+      50% { transform: translate(2px,-1px); }
+      75% { transform: translate(-2px,0); }
+    }
+    .sprite-canvas {
+      width: 54px;
+      height: 54px;
+      animation: pixelFloat 1.4s steps(2, end) infinite;
+    }
+    .sprite-canvas.mood-win {
+      animation: pixelHappyJump 0.8s steps(2, end) infinite;
+    }
+    .sprite-canvas.mood-lose {
+      animation: pixelPanicShake 0.45s steps(2, end) infinite;
+    }
+    .mood-emote-badge {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      font-size: 0.6rem;
+      background: #fff;
+      border: 1.5px solid var(--pixel-black);
+      padding: 0px 3px;
+      font-weight: bold;
+      z-index: 2;
+    }
+    .persona-tags {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .azhou-tag-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .azhou-tag {
+      background: #ffffff;
+      border: 2px solid var(--pixel-black);
+      box-shadow: 2px 2px 0px var(--pixel-black);
+      padding: 2px 6px !important;
+      font-size: 0.78rem !important;
+      font-weight: bold;
+    }
+    .azhou-tag.name {
+      background: #ffe49e;
+    }
+    .azhou-tag.job {
+      background: #d7ecff;
+    }
+    .azhou-tag.style {
+      background: #e8d7ff;
+    }
+    .azhou-tag.sa-special {
+      background: #00ffcc;
+      color: #000;
+    }
+    .strategy-desc {
+      font-size: 0.8rem !important;
+      color: #222 !important;
+      line-height: 1.48 !important;
+    }
+    .alloc-box {
+      background: #f2ede0;
+      border: 2px solid var(--pixel-black);
+      padding: 4px 7px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .alloc-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.76rem !important;
+      font-weight: bold;
+    }
+    .alloc-bar-track {
+      height: 9px;
+      width: 100%;
+      background: var(--alloc-cash);
+      border: 2px solid var(--pixel-black);
+      display: flex;
+      overflow: hidden;
+    }
+    .alloc-seg-tw {
+      background: var(--alloc-tw-stock);
+      height: 100%;
+    }
+    .alloc-seg-us {
+      background: var(--alloc-us-asset);
+      height: 100%;
+    }
+    .alloc-seg-short {
+      background: var(--alloc-short);
+      height: 100%;
+    }
+    .alloc-seg-futures {
+      background: var(--alloc-futures);
+      height: 100%;
+    }
+    .alloc-seg-warrant {
+      background: var(--alloc-warrant);
+      height: 100%;
+    }
+    .alloc-seg-cash {
+      background: var(--alloc-cash);
+      height: 100%;
+    }
+    .alloc-legend-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.74rem !important;
+      color: #222;
+      font-weight: bold;
+      flex-wrap: wrap;
+    }
+    .legend-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border: 1px solid #000;
+      margin-right: 2px;
+      vertical-align: middle;
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+      background: #e4decb;
+      border: 2.5px solid var(--pixel-black);
+      padding: 4px 6px;
+    }
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      border-right: 2px dashed #9e9888;
+      padding-right: 3px;
+    }
+    .metric-item:last-child {
+      border-right: none;
+    }
+    .metric-label {
+      font-size: 0.7rem !important;
+      color: #4a463d;
+      font-weight: bold;
+    }
+    .metric-val {
+      font-family: 'VT323', monospace !important;
+      font-size: 1.24rem !important;
+      font-weight: bold;
+      line-height: 1.1;
+      letter-spacing: 0.3px;
+    }
+    .val-positive {
+      color: var(--tw-up);
+    }
+    .val-negative {
+      color: var(--tw-down);
+    }
+    .val-dividend {
+      color: #9c640c;
+    }
+    .val-usd {
+      color: #00695c;
+    }
+    .val-fee {
+      color: #555555;
+    }
+    .info-row {
+      display: grid;
+      grid-template-columns: 1.38fr 0.62fr;
+      gap: 8px;
+    }
+    .sub-box {
+      background: #fffdf7;
+      border: 2px solid var(--pixel-black);
+      padding: 5px 7px;
+      min-height: 52px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .sub-box-title {
+      font-size: 0.78rem !important;
+      font-weight: bold;
+      color: #444;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 4px !important;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .holding-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: #f2efe4;
+      border: 2px solid var(--pixel-black);
+      box-shadow: 2px 2px 0px var(--pixel-black);
+      padding: 4px 8px !important;
+      margin: 3px 4px 2px 0 !important;
+      font-size: 0.8rem !important;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .holding-chip:hover {
+      background: #ffea9f;
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px var(--pixel-black);
+    }
+    .inst-badge {
+      padding: 1px 5px !important;
+      font-size: 0.7rem !important;
+      border: 1px solid #000;
+      color: #fff;
+    }
     .inst-stock { background: var(--alloc-tw-stock); }
     .inst-us-stock { background: #00695c; }
     .inst-us-bond { background: #2e7d32; }
@@ -165,39 +708,213 @@
     .inst-fut-long { background: var(--alloc-futures); }
     .inst-fut-short { background: #1b5e20; color: #ffea00; }
     .inst-warrant { background: var(--alloc-warrant); }
-    .div-earned-pill { background: #ffda66; color: #000; border: 1px solid #000; padding: 0px 3px; font-size: 0.56rem; }
-    .mr-warn-pill { background: #ff1744; color: #fff; border: 1px solid #000; padding: 0px 3px; font-size: 0.56rem; animation: blinkCursor 0.5s infinite; }
-    .mr-safe-pill { background: #e0f2f1; color: #004d40; border: 1px solid #004d40; padding: 0px 3px; font-size: 0.56rem; }
-    .lot-count-badge { background: #181818; color: #ffea00; padding: 0px 4px; font-size: 0.57rem; border-radius: 2px; }
-    .action-badge { display: inline-block; padding: 2px 5px; font-size: 0.64rem; font-weight: bold; border: 1.5px solid var(--pixel-black); width: fit-content; }
-    .rpg-dialogue-box { background: #141c18; color: #e6f9e6; border: 3px solid var(--pixel-black); outline: 2px solid #8ba892; outline-offset: -5px; padding: 6px 10px; min-height: 48px; position: relative; font-size: 0.71rem; line-height: 1.35; cursor: pointer; }
-    .rpg-dialogue-box.sa-terminal { background: #09141a; color: #80ffea; outline-color: #00ffcc; }
-    .rpg-speaker-tag { color: #ffd952; font-weight: bold; margin-right: 4px; }
-    .rpg-cursor { display: inline-block; margin-left: 4px; color: #ffd952; font-weight: bold; animation: blinkCursor 0.65s steps(2, start) infinite; }
-    @keyframes blinkCursor { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-    .bottom-chapter-bar { background: #c8c2b2; border-top: 4px solid var(--pixel-black); padding: 6px 12px; display: flex; gap: 6px; }
-    .chapter-step { flex: 1; text-align: center; padding: 5px 4px; font-size: 0.73rem; font-weight: bold; background: #dedad0; border: 2.5px solid var(--pixel-black); box-shadow: 2px 2px 0px var(--pixel-black); }
-    .chapter-step.active { background: #76c888; color: #000; }
+    .div-earned-pill {
+      background: #ffda66;
+      color: #000;
+      border: 1px solid #000;
+      padding: 0px 3px;
+      font-size: 0.56rem;
+    }
+    .mr-warn-pill {
+      background: #ff1744;
+      color: #fff;
+      border: 1px solid #000;
+      padding: 0px 3px;
+      font-size: 0.56rem;
+      animation: blinkCursor 0.5s infinite;
+    }
+    .mr-safe-pill {
+      background: #e0f2f1;
+      color: #004d40;
+      border: 1px solid #004d40;
+      padding: 0px 3px;
+      font-size: 0.56rem;
+    }
+    .lot-count-badge {
+      background: #181818;
+      color: #ffea00;
+      padding: 0px 4px;
+      font-size: 0.57rem;
+      border-radius: 2px;
+    }
+    .rpg-dialogue-box {
+      background: #141c18;
+      color: #e6f9e6;
+      border: 3px solid var(--pixel-black);
+      outline: 2px solid #8ba892;
+      outline-offset: -5px;
+      padding: 8px 12px !important;
+      min-height: 48px;
+      position: relative;
+      font-size: 0.84rem !important;
+      line-height: 1.55 !important;
+      cursor: pointer;
+    }
+    .rpg-dialogue-box.sa-terminal {
+      background: #09141a;
+      color: #80ffea;
+      outline-color: #00ffcc;
+    }
+    .rpg-speaker-tag {
+      color: #ffd952;
+      font-weight: bold;
+      margin-right: 4px;
+    }
+    .rpg-cursor {
+      display: inline-block;
+      margin-left: 4px;
+      color: #ffd952;
+      font-weight: bold;
+      animation: blinkCursor 0.65s steps(2, start) infinite;
+    }
+    @keyframes blinkCursor {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .bottom-chapter-bar {
+      background: #c8c2b2;
+      border-top: 4px solid var(--pixel-black);
+      padding: 6px 12px;
+      display: flex;
+      gap: 6px;
+    }
+    .chapter-step {
+      flex: 1;
+      text-align: center;
+      padding: 5px 4px;
+      font-size: 0.73rem;
+      font-weight: bold;
+      background: #dedad0;
+      border: 2.5px solid var(--pixel-black);
+      box-shadow: 2px 2px 0px var(--pixel-black);
+    }
+    .chapter-step.active {
+      background: #76c888;
+      color: #000;
+    }
 
-    /* V15.0 擴充版 8 格總覽與 9 欄精細帳本彈窗 */
-    .ledger-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 12px; }
-    .ledger-modal-backdrop.open { display: flex; }
-    .ledger-modal-win { background: var(--card-cream); border: 4px solid var(--pixel-black); box-shadow: inset 3px 3px 0px #fff, inset -3px -3px 0px #888, 10px 10px 0px #000; width: 100%; max-width: 1180px; display: flex; flex-direction: column; }
-    .ledger-modal-header { background: linear-gradient(90deg, #1b3329, #2f5c49); color: #fff; padding: 8px 12px; border-bottom: 4px solid var(--pixel-black); display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.94rem; }
-    .ledger-modal-body { padding: 11px 14px; display: flex; flex-direction: column; gap: 9px; }
-    .ledger-summary-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: var(--card-inner); border: 2.5px solid var(--pixel-black); padding: 6px 9px; }
-    @media (min-width: 980px) { .ledger-summary-bar { grid-template-columns: repeat(8, 1fr); } }
-    .ledger-sum-cell { display: flex; flex-direction: column; border-right: 1.5px dashed #aaa; padding-right: 4px; }
-    .ledger-sum-cell:last-child { border-right: none; }
-    .ledger-sum-label { font-size: 0.61rem; color: #444; font-weight: bold; }
-    .ledger-sum-val { font-family: 'VT323', monospace; font-size: 1.08rem; font-weight: bold; }
-    .kline-chart-panel { background: #141c18; border: 3px solid var(--pixel-black); padding: 6px 10px; color: #9bbc0f; display: flex; flex-direction: column; gap: 4px; }
-    .kline-chart-header { display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: bold; }
-    .ledger-table-wrap { max-height: 250px; overflow-y: auto; border: 3px solid var(--pixel-black); background: #fff; }
-    .ledger-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
-    .ledger-table th, .ledger-table td { border: 1.5px solid #bbb; padding: 4px 6px; text-align: left; vertical-align: middle; }
-    .ledger-table th { background: #dcd5c0; border-bottom: 2.5px solid var(--pixel-black); font-weight: bold; position: sticky; top: 0; z-index: 1; }
-    .lot-type-badge { display: inline-block; padding: 1px 5px; font-size: 0.64rem; font-weight: bold; border: 1.5px solid var(--pixel-black); }
+    /* 交割帳本與統計彈窗樣式 */
+    .ledger-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 12px;
+    }
+    .ledger-modal-backdrop.open {
+      display: flex;
+    }
+    .ledger-modal-win {
+      background: var(--card-cream);
+      border: 4px solid var(--pixel-black);
+      box-shadow: inset 3px 3px 0px #fff, inset -3px -3px 0px #888, 10px 10px 0px #000;
+      width: 100%;
+      max-width: 1360px !important;
+      display: flex;
+      flex-direction: column;
+    }
+    .ledger-modal-header {
+      background: linear-gradient(90deg, #1b3329, #2f5c49);
+      color: #fff;
+      padding: 8px 12px;
+      border-bottom: 4px solid var(--pixel-black);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      font-size: 0.94rem;
+    }
+    .ledger-modal-body {
+      padding: 11px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .ledger-summary-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      background: var(--card-inner);
+      border: 2.5px solid var(--pixel-black);
+      padding: 6px 9px;
+    }
+    @media (min-width: 980px) {
+      .ledger-summary-bar {
+        grid-template-columns: repeat(8, 1fr);
+      }
+    }
+    .ledger-sum-cell {
+      display: flex;
+      flex-direction: column;
+      border-right: 1.5px dashed #aaa;
+      padding-right: 4px;
+    }
+    .ledger-sum-cell:last-child {
+      border-right: none;
+    }
+    .ledger-sum-label {
+      font-size: 0.72rem !important;
+      color: #444;
+      font-weight: bold;
+    }
+    .ledger-sum-val {
+      font-family: 'VT323', monospace !important;
+      font-size: 1.25rem !important;
+      font-weight: bold;
+    }
+    .kline-chart-panel {
+      background: #141c18;
+      border: 3px solid var(--pixel-black);
+      padding: 6px 10px;
+      color: #9bbc0f;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .kline-chart-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      font-weight: bold;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .ledger-table-wrap {
+      max-height: 290px !important;
+      overflow-y: auto;
+      border: 3px solid var(--pixel-black);
+      background: #fff;
+    }
+    .ledger-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem !important;
+      line-height: 1.52 !important;
+    }
+    .ledger-table th, .ledger-table td {
+      border: 1.5px solid #bbb;
+      padding: 6px 8px !important;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .ledger-table th {
+      background: #dcd5c0;
+      border-bottom: 2.5px solid var(--pixel-black);
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .lot-type-badge {
+      display: inline-block;
+      padding: 2px 6px !important;
+      font-size: 0.76rem !important;
+      font-weight: bold;
+      border: 1.5px solid var(--pixel-black);
+    }
     .lot-init { background: #ffe49e; color: #000; }
     .lot-add { background: #ffb8b8; color: #900; }
     .lot-short { background: #e1bee7; color: #4a148c; }
@@ -206,128 +923,240 @@
     .lot-div { background: #ffda66; color: #000; box-shadow: 1px 1px 0px #000; }
     .lot-warn { background: #ff5252; color: #fff; }
     .lot-accrual { background: #f3e5f5; color: #6a1b9a; border-style: dashed; }
-    .slip-pill { display: inline-block; background: #eceff1; color: #37474f; border: 1px solid #90a4ae; padding: 0 3px; font-size: 0.6rem; }
-    .cum-borrow-pill { display: inline-block; background: #fce4ec; color: #880e4f; border: 1px solid #ad1457; padding: 0 3px; font-size: 0.6rem; font-weight: bold; }
-/* ==================== V17.0 護眼大字體與字體分流升級 ==================== */
-    body {
-      font-family: 'Microsoft JhengHei', 'PingFang TC', 'Noto Sans TC', 'DotGothic16', sans-serif !important;
-      font-size: 14px;
-      line-height: 1.55 !important;
+    .slip-pill {
+      display: inline-block;
+      background: #eceff1;
+      color: #37474f;
+      border: 1px solid #90a4ae;
+      padding: 1px 5px !important;
+      font-size: 0.72rem !important;
     }
-    .rule-panel { font-size: 0.85rem !important; line-height: 1.55 !important; }
-    .fee-rule-banner { font-size: 0.78rem !important; line-height: 1.5 !important; }
-    .market-table { font-size: 0.82rem !important; line-height: 1.5 !important; }
-    .market-table th, .market-table td { padding: 5px 7px !important; }
-    .news-scroll-box { font-size: 0.84rem !important; line-height: 1.55 !important; }
-    .agent-header { font-size: 0.9rem !important; padding: 8px 12px !important; }
-    .azhou-tag { font-size: 0.78rem !important; padding: 2px 6px !important; }
-    .strategy-desc { font-size: 0.8rem !important; line-height: 1.48 !important; color: #222 !important; }
-    .alloc-header-row { font-size: 0.76rem !important; }
-    .alloc-legend-row { font-size: 0.74rem !important; }
-    .metric-label { font-size: 0.7rem !important; }
-    .metric-val { font-family: 'VT323', monospace !important; font-size: 1.24rem !important; letter-spacing: 0.3px; }
-    .sub-box-title { font-size: 0.78rem !important; padding-bottom: 4px !important; }
-    .holding-chip { font-size: 0.8rem !important; padding: 4px 8px !important; margin: 3px 4px 2px 0 !important; }
-    .inst-badge { font-size: 0.7rem !important; padding: 1px 5px !important; }
-    .rpg-dialogue-box { font-size: 0.84rem !important; line-height: 1.55 !important; padding: 8px 12px !important; }
-
-    /* 帳本彈窗加寬與表格護眼放大 */
-    .ledger-modal-win { max-width: 1360px !important; }
-    .ledger-sum-label { font-size: 0.72rem !important; }
-    .ledger-sum-val { font-family: 'VT323', monospace !important; font-size: 1.25rem !important; }
-    .ledger-table-wrap { max-height: 290px !important; }
-    .ledger-table { font-size: 0.83rem !important; line-height: 1.52 !important; }
-    .ledger-table th, .ledger-table td { padding: 6px 8px !important; }
-    .lot-type-badge { font-size: 0.76rem !important; padding: 2px 6px !important; }
-    .slip-pill, .cum-borrow-pill { font-size: 0.72rem !important; padding: 1px 5px !important; }
-
-    /* V17.0 新增：帳本上方「日期切換導覽列」與「今日戰果快報 (Today's P&L & Trades)」 */
+    .cum-borrow-pill {
+      display: inline-block;
+      background: #fce4ec;
+      color: #880e4f;
+      border: 1px solid #ad1457;
+      padding: 1px 5px !important;
+      font-size: 0.72rem !important;
+      font-weight: bold;
+    }
     .ledger-date-nav-bar {
-      display: flex; justify-content: space-between; align-items: center; gap: 10px;
-      background: #1b3329; color: #fff; border: 3px solid var(--pixel-black); padding: 6px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: #1b3329;
+      color: #fff;
+      border: 3px solid var(--pixel-black);
+      padding: 6px 10px;
     }
     .nav-day-btn {
-      background: #ffda66; color: #000; border: 2px solid #000; padding: 4px 12px;
-      font-weight: bold; font-size: 0.82rem; cursor: pointer; box-shadow: 2px 2px 0 #000;
+      background: #ffda66;
+      color: #000;
+      border: 2px solid #000;
+      padding: 4px 12px;
+      font-weight: bold;
+      font-size: 0.82rem;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 #000;
     }
-    .nav-day-btn:hover { background: #fff; }
+    .nav-day-btn:hover {
+      background: #fff;
+    }
     .nav-day-select {
-      padding: 4px 10px; font-weight: bold; font-size: 0.84rem; border: 2px solid #000; background: #fff; color: #000;
+      padding: 4px 10px;
+      font-weight: bold;
+      font-size: 0.84rem;
+      border: 2px solid #000;
+      background: #fff;
+      color: #000;
     }
     .today-battle-report {
-      display: grid; grid-template-columns: 230px 1fr 1fr 1fr; gap: 8px;
-      background: #fffdf7; border: 3px solid var(--pixel-black); box-shadow: 4px 4px 0 rgba(0,0,0,0.2); padding: 8px 10px;
+      display: grid;
+      grid-template-columns: 230px 1fr 1fr 1fr;
+      gap: 8px;
+      background: #fffdf7;
+      border: 3px solid var(--pixel-black);
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+      padding: 8px 10px;
     }
-    @media (max-width: 980px) { .today-battle-report { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 980px) {
+      .today-battle-report {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
     .battle-pnl-hero {
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
-      background: #141c18; color: #fff; border: 2px solid #000; padding: 6px 8px; text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #141c18;
+      color: #fff;
+      border: 2px solid #000;
+      padding: 6px 8px;
+      text-align: center;
     }
-    .battle-pnl-val { font-family: 'VT323', monospace; font-size: 1.75rem; font-weight: bold; line-height: 1.05; }
+    .battle-pnl-val {
+      font-family: 'VT323', monospace;
+      font-size: 1.75rem;
+      font-weight: bold;
+      line-height: 1.05;
+    }
     .battle-col-box {
-      border: 2px solid #000; padding: 5px 8px; font-size: 0.8rem; line-height: 1.48;
-      display: flex; flex-direction: column; gap: 3px; max-height: 92px; overflow-y: auto;
+      border: 2px solid #000;
+      padding: 5px 8px;
+      font-size: 0.8rem;
+      line-height: 1.48;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      max-height: 92px;
+      overflow-y: auto;
     }
     .battle-col-buy { background: #e8f8f0; border-color: #0c8428; }
     .battle-col-sell { background: #fff0f0; border-color: #d61a1a; }
     .battle-col-fee { background: #fff9db; border-color: #b8860b; }
-    .battle-col-title { font-weight: bold; font-size: 0.82rem; border-bottom: 1.5px dashed rgba(0,0,0,0.25); padding-bottom: 2px; }
-
-    /* 獨立「實現損益」欄位高亮樣式 */
+    .battle-col-title {
+      font-weight: bold;
+      font-size: 0.82rem;
+      border-bottom: 1.5px dashed rgba(0,0,0,0.25);
+      padding-bottom: 2px;
+    }
     .pnl-win-box {
-      background: var(--tw-up-bg); color: var(--tw-up); border: 1.5px solid var(--tw-up);
-      padding: 2px 6px; font-family: 'VT323', monospace; font-size: 1.1rem; font-weight: bold; display: inline-block;
+      background: var(--tw-up-bg);
+      color: var(--tw-up);
+      border: 1.5px solid var(--tw-up);
+      padding: 2px 6px;
+      font-family: 'VT323', monospace;
+      font-size: 1.1rem;
+      font-weight: bold;
+      display: inline-block;
     }
     .pnl-lose-box {
-      background: var(--tw-down-bg); color: var(--tw-down); border: 1.5px solid var(--tw-down);
-      padding: 2px 6px; font-family: 'VT323', monospace; font-size: 1.1rem; font-weight: bold; display: inline-block;
+      background: var(--tw-down-bg);
+      color: var(--tw-down);
+      border: 1.5px solid var(--tw-down);
+      padding: 2px 6px;
+      font-family: 'VT323', monospace;
+      font-size: 1.1rem;
+      font-weight: bold;
+      display: inline-block;
     }
     .card-today-digest {
-      background: #f5f0e1; border: 2px solid var(--pixel-black); padding: 5px 8px;
-      font-size: 0.8rem; line-height: 1.45; display: flex; flex-direction: column; gap: 3px;
+      background: #f5f0e1;
+      border: 2px solid var(--pixel-black);
+      padding: 5px 8px;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
     }
-/* ==================== V17.2 手機版 (Mobile RWD) 專屬優化 ==================== */
+
+    /* 量化統計彈窗專屬樣式 */
+    .quant-modal-win {
+      max-width: 1440px !important;
+    }
+    .quant-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+    }
+    @media (max-width: 1100px) {
+      .quant-kpi-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 680px) {
+      .quant-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .quant-kpi-card {
+      background: #fffdf7;
+      border: 2.5px solid var(--pixel-black);
+      box-shadow: 3px 3px 0px var(--pixel-black);
+      padding: 7px 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .quant-kpi-hdr {
+      font-weight: bold;
+      font-size: 0.82rem;
+      padding: 2px 6px;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+    }
+    .quant-charts-row {
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 10px;
+    }
+    @media (max-width: 980px) {
+      .quant-charts-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    .quant-canvas-box {
+      background: #0d1612;
+      color: #9bbc0f;
+      border: 3px solid var(--pixel-black);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .sig-pill-pass {
+      background: #ffda66;
+      color: #000;
+      border: 1.5px solid #000;
+      padding: 1px 6px;
+      font-weight: bold;
+      font-size: 0.74rem;
+    }
+    .sig-pill-marginal {
+      background: #b2ebf2;
+      color: #004d40;
+      border: 1.5px solid #004d40;
+      padding: 1px 6px;
+      font-weight: bold;
+      font-size: 0.74rem;
+    }
+    .sig-pill-ns {
+      background: #e0e0e0;
+      color: #555;
+      border: 1px solid #888;
+      padding: 1px 6px;
+      font-size: 0.72rem;
+    }
+
+    /* 手機版 RWD */
     @media (max-width: 768px) {
       body { padding: 4px !important; font-size: 13.5px !important; }
       .pixel-window { border-width: 2.5px !important; box-shadow: none !important; }
-      .sys-titlebar {
-        flex-direction: column; align-items: flex-start; gap: 6px;
-        font-size: 0.82rem !important; padding: 8px 10px !important;
-      }
+      .sys-titlebar { flex-direction: column; align-items: flex-start; gap: 6px; font-size: 0.82rem !important; padding: 8px 10px !important; }
       .title-controls { width: 100%; justify-content: space-between; }
       .main-workspace { grid-template-columns: 1fr !important; padding: 6px !important; gap: 10px !important; }
       .agents-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
-
-      /* 總經雷達：手機改為 3+2 排列 */
       .macro-indicators-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 4px !important; }
       .gba-lcd-screen { flex-wrap: wrap; gap: 6px; padding: 6px 8px !important; }
       .lcd-date { font-size: 1.1rem !important; }
-
-      /* 商品池 4 個分頁按鈕：手機改為 2x2 網格，好按不擠 */
       .pool-tabs { grid-template-columns: repeat(2, 1fr) !important; gap: 5px !important; }
       .pool-tab-btn { padding: 6px 4px !important; font-size: 0.78rem !important; }
-
-      /* 大師卡片：頭像與介紹、6格財務指標、持倉與戰果摘要 全面響應式展開 */
       .agent-header { flex-direction: column; align-items: flex-start; gap: 3px; font-size: 0.85rem !important; }
       .persona-stage { flex-direction: row; align-items: flex-start; padding: 6px !important; }
       .alloc-header-row { flex-direction: column; align-items: flex-start; gap: 2px; }
       .alloc-legend-row { justify-content: flex-start; gap: 8px; }
-
-      /* 關鍵：把原本擠成一排的 6 格財務數據，在手機上改為 3欄 x 2列！ */
       .metrics-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; padding: 6px !important; }
       .metric-item { border-right: none !important; background: #eee8d5; padding: 4px 6px !important; border: 1px solid #c8c2b2; }
       .metric-val { font-size: 1.15rem !important; }
-
-      /* 關鍵：持倉組合與今日戰果在手機上改為上下堆疊 */
       .info-row { grid-template-columns: 1fr !important; gap: 6px !important; }
       .sub-box-title { flex-wrap: wrap; gap: 4px; }
       .holding-chip { width: 100%; justify-content: space-between; font-size: 0.82rem !important; padding: 6px 8px !important; }
-
-      /* 底部章節進度條：手機支援橫向滑動 */
       .bottom-chapter-bar { overflow-x: auto; flex-wrap: nowrap; padding: 6px !important; }
       .chapter-step { min-width: 140px; flex-shrink: 0; font-size: 0.72rem !important; }
-
-      /* 交割帳本彈窗 (Modal)：手機滿版可滑動、表格支援左右流暢滑動 */
       .ledger-modal-backdrop { padding: 4px !important; align-items: flex-start; overflow-y: auto; }
       .ledger-modal-win { max-width: 100% !important; margin: auto 0; }
       .ledger-modal-header { font-size: 0.84rem !important; padding: 8px 10px !important; }
@@ -338,18 +1167,18 @@
       .today-battle-report { grid-template-columns: 1fr !important; gap: 6px !important; }
       .ledger-summary-bar { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
       .ledger-table-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch; max-height: 260px !important; }
-      .ledger-table { min-width: 820px; } /* 讓 10 欄帳本在手機上保持整齊可左右滑動，不擠成一團 */
+      .ledger-table { min-width: 820px; }
     }
-</style>
+  </style>
 </head>
 <body>
 
   <div class="pixel-window">
     <div class="sys-titlebar">
-      <div>🎮 [傳奇大師賽博炒股 V15.0] 精細交割帳本(穿價滑價/手續費/證交稅/借券日息累積扣款)・總經雷達(CPI/非農/Fed/法說會)</div>
+      <div>🎮 [傳奇大師賽博炒股 V19.0] 量化統計檢定(MDD/勝率分佈/p-value/Excel讀寫)・精細交割帳本・總經雷達</div>
       <div class="title-controls">
         <span id="marketPoolBadge" style="font-size:0.76rem; background:#0f2018; padding:2px 8px; border:1.5px solid #00ffcc; color:#00ffcc;">
-          GRANULAR LEDGER & SLIPPAGE ENGINE V15.0
+          QUANT STATS &amp; EXCEL ENGINE V19.0
         </span>
         <div class="win-ctrl-btns">
           <div class="win-ctrl-btn">_</div>
@@ -427,6 +1256,28 @@
             <button class="pixel-btn div-btn" onclick="triggerManualExDividendToday()">💰 觸發除息＆代墊股息</button>
           </div>
 
+          <button class="pixel-btn" style="background:#e1bee7; color:#4a148c;" onclick="triggerManualWarrantMaturityToday()">
+            🔔 強制今日權證到期結算 (測試價內領現 / 價外歸零)
+          </button>
+
+          <div class="btn-row-2" style="margin-top:2px;">
+            <button class="pixel-btn" style="background:#00ffcc; color:#002b24; border-color:#000;" onclick="openQuantStatsModal()">
+              📊 統計圖表 / MDD / p-value 檢定
+            </button>
+            <button class="pixel-btn" style="background:#b9f6ca; color:#003300; border-color:#000;" onclick="exportFullQuantExcel()">
+              📥 匯出完整 Excel (.xlsx) 四工作表
+            </button>
+          </div>
+
+          <button class="pixel-btn" style="background:#d1c4e9; color:#311b92;" onclick="document.getElementById('excelUploader').click()">
+            📂 讀取外部 Excel (.xlsx / .csv) 進行統計與顯著性檢定
+          </button>
+          <input type="file" id="excelUploader" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handleExcelUploadForStats(event)">
+
+          <button class="pixel-btn" style="background:#80deea; color:#00363a;" onclick="downloadCleanSelfHtml()">
+            💾 下載乾淨修復版 .html 檔案 (可直接上傳 GitHub)
+          </button>
+
           <div class="btn-row-2">
             <button class="pixel-btn" style="margin-bottom:0;" onclick="replayAllTypewriters()">💬 重播大師獨白</button>
             <button class="pixel-btn" style="margin-bottom:0;" onclick="resetSimulatorMemory()">🔄 重置初始資金</button>
@@ -474,11 +1325,11 @@
       <div class="chapter-step active" id="chapDay1">Day1 非農軟著陸＋法說大好(多空建倉)</div>
       <div class="chapter-step active" id="chapDay2">Day2 CPI反彈＋借券日息逐日累積扣款</div>
       <div class="chapter-step active" id="chapWeek2">Day3 Fed轉鴿降息＋空單回補/軋空結算</div>
-      <div class="chapter-step active" id="chapFinal">點擊持倉看[📊滑價/手續費/證交稅/借券息累積帳本]</div>
+      <div class="chapter-step active" id="chapFinal">點左側[📊統計圖表/MDD/p-value]或匯出Excel</div>
     </div>
   </div>
 
-  <!-- V15.0 擴充版：逐筆滑價、手續費、證交稅、融券/SBL借券利息累積扣款與像素 K 線圖彈窗 -->
+  <!-- 交割帳本彈窗 -->
   <div class="ledger-modal-backdrop" id="ledgerModal" onclick="if(event.target===this) closeLedgerModal()">
     <div class="ledger-modal-win">
       <div class="ledger-modal-header">
@@ -487,7 +1338,7 @@
       </div>
       <div class="ledger-modal-body">
         <div class="ledger-summary-bar" id="modalSummaryBar"></div>
-        <div id="modalContractSpecText" style="font-size:0.71rem; font-weight:bold; color:#1e4d8c; background:#e3f2fd; padding:5px 8px; border:2px solid #000;"></div>
+        <div id="modalContractSpecText" style="font-size:0.78rem; font-weight:bold; color:#1e4d8c; background:#e3f2fd; padding:5px 8px; border:2px solid #000;"></div>
 
         <div class="kline-chart-panel">
           <div class="kline-chart-header">
@@ -503,13 +1354,14 @@
               <tr>
                 <th>#</th>
                 <th>日期 (匯率)</th>
-                <th>動作與總經 / 交易策略依據</th>
+                <th>標的與交易策略依據</th>
                 <th>數量變動</th>
-                <th>理論價 ➔ 實際成交價 (滑價耗損)</th>
+                <th>理論價 ➔ 實際成交價 (滑價)</th>
                 <th>券商手續費</th>
-                <th>法定交易稅 (證交/期交/SEC)</th>
-                <th>借券費 / 日息 / 代墊息 (累積扣款)</th>
-                <th>本金/保證金變動 ＆ 維持率</th>
+                <th>法定交易稅</th>
+                <th>借券息 / 代墊息 (累計)</th>
+                <th>💰 實現損益 / 建倉vs結算價</th>
+                <th>本金/保證金 ＆ 維持率</th>
               </tr>
             </thead>
             <tbody id="modalTableBody"></tbody>
@@ -522,48 +1374,167 @@
     </div>
   </div>
 
+  <!-- 量化統計圖表、MDD、勝率分佈與 p-value 顯著性檢定中心彈窗 -->
+  <div class="ledger-modal-backdrop" id="quantStatsModal" onclick="if(event.target===this) closeQuantStatsModal()">
+    <div class="ledger-modal-win quant-modal-win">
+      <div class="ledger-modal-header" style="background:linear-gradient(90deg,#0f2027,#203a43,#2c5364);">
+        <span id="quantModalTitle">📊 傳奇大師量化統計檢定中心：最大回撤 (MDD)・勝率分佈・Sharpe・t-Stat &amp; p-value 顯著性檢定</span>
+        <div class="win-ctrl-btn" onclick="closeQuantStatsModal()">✕</div>
+      </div>
+      <div class="ledger-modal-body" style="max-height:88vh; overflow-y:auto;">
+        <!-- 頂部工具列 -->
+        <div class="ledger-date-nav-bar" style="background:#142830;">
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span style="font-weight:bold; color:#00ffcc;" id="quantDataSourceLabel">📡 資料來源：模擬器內建實盤時間軸</span>
+            <span style="font-size:0.78rem; color:#cfd8dc;">無風險年利率假設 Rf = 1.50%｜顯著水準 α = 0.05 (** 代表 p &lt; 0.05 具統計顯著超額報酬)</span>
+          </div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="nav-day-btn" style="background:#b9f6ca;" onclick="exportFullQuantExcel()">📥 匯出 .xlsx 統計報表 (直接用 Excel 開啟)</button>
+            <button class="nav-day-btn" style="background:#ffe082;" onclick="exportCsvForExcel()">📄 匯出 UTF-8 BOM .csv</button>
+            <button class="nav-day-btn" style="background:#d1c4e9;" onclick="document.getElementById('excelUploader').click()">📂 載入外部 Excel 檢定</button>
+            <button class="nav-day-btn" style="background:#ffcdd2;" onclick="resetCustomQuantSource()">🔄 切回模擬器內建數據</button>
+          </div>
+        </div>
+
+        <!-- 六位大師核心量化指標卡片 -->
+        <div class="quant-kpi-grid" id="quantKpiGrid"></div>
+
+        <!-- 雙統計圖表：左為淨值曲線 + 水下回撤圖 (Underwater Drawdown)，右為勝率分佈 -->
+        <div class="quant-charts-row">
+          <div class="quant-canvas-box">
+            <div class="kline-chart-header">
+              <span>📈 累積淨值曲線 (Equity Curve) ＆ 🌊 水下回撤深度圖 (Underwater Drawdown %)</span>
+              <span style="color:#ffd54f;">上方：總淨值走勢 ｜ 下方：回撤幅度 DD(t) 與最大回撤 MDD</span>
+            </div>
+            <canvas id="quantEquityMddCanvas" width="820" height="250" style="width:100%; height:250px; background:#08100c; border:1.5px solid #2e4c3d;"></canvas>
+          </div>
+          <div class="quant-canvas-box">
+            <div class="kline-chart-header">
+              <span>🎯 交易勝率 / 單日勝率分佈 ＆ H₀=50% 檢定基準線</span>
+              <span style="color:#80ffea;">實心柱：日勝率% ｜ 半透明框柱：部位平倉勝率%</span>
+            </div>
+            <canvas id="quantWinDistCanvas" width="460" height="250" style="width:100%; height:250px; background:#08100c; border:1.5px solid #2e4c3d;"></canvas>
+          </div>
+        </div>
+
+        <!-- 統計顯著性檢定總表 -->
+        <div class="sub-box-title" style="font-size:0.86rem; color:#1b3329; margin-top:4px;">
+          <span>🔬 表一：六大傳奇大師量化風險報酬與顯著性檢定總表 (H₀: μ_日報酬 = 0 vs H₁: μ_日報酬 ≠ 0)</span>
+          <span style="font-size:0.75rem; color:#b71c1c;">點擊「📥 匯出 .xlsx」可於 Excel 取得完整四張工作表與原始數值</span>
+        </div>
+        <div class="ledger-table-wrap" style="max-height:245px;">
+          <table class="ledger-table" id="quantStatsTable">
+            <thead>
+              <tr>
+                <th>大師名稱</th>
+                <th>最終淨值 (累積ROI)</th>
+                <th>最大回撤 (MDD %)</th>
+                <th>日報酬均值 ± 標準差</th>
+                <th>夏普值 Sharpe / Sortino</th>
+                <th>日勝率 (勝/負/平)</th>
+                <th>已平倉筆數勝率 (Profit Factor)</th>
+                <th>t-Statistic (d.f.)</th>
+                <th>雙尾 p-value (t-test)</th>
+                <th>勝率二項檢定 p-value</th>
+                <th>統計顯著性結論 (α=0.05)</th>
+              </tr>
+            </thead>
+            <tbody id="quantStatsTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- 兩兩大師策略差異之 Welch's t-test p-value 矩陣 -->
+        <div class="sub-box-title" style="font-size:0.86rem; color:#1b3329; margin-top:4px;">
+          <span>⚔️ 表二：大師對決 — 兩兩策略日報酬差異之 Welch's t-test 雙尾 p-value 顯著性矩陣 (H₀: μ_A - μ_B = 0)</span>
+          <span style="font-size:0.75rem; color:#444;">數值為 t-stat (p-value)，黃底代表兩位大師表現差異達統計顯著 (p &lt; 0.05)</span>
+        </div>
+        <div class="ledger-table-wrap" style="max-height:210px;">
+          <table class="ledger-table" id="quantPairwiseTable"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 自訂通知提示框 (取代 alert) -->
+  <div class="ledger-modal-backdrop" id="customNoticeModal" onclick="if(event.target===this) closeNoticeModal()">
+    <div class="ledger-modal-win" style="max-width:480px !important;">
+      <div class="ledger-modal-header">
+        <span>📢 系統訊息通知</span>
+        <div class="win-ctrl-btn" onclick="closeNoticeModal()">✕</div>
+      </div>
+      <div class="ledger-modal-body">
+        <div id="customNoticeText" style="font-size:0.92rem; line-height:1.6; padding:8px 4px; color:#111;"></div>
+        <button class="pixel-btn gold" style="margin-bottom:0;" onclick="closeNoticeModal()">✅ 確定</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    function showSystemNotice(msg) {
+      const textEl = document.getElementById('customNoticeText');
+      const modalEl = document.getElementById('customNoticeModal');
+      if (textEl && modalEl) {
+        textEl.textContent = msg;
+        modalEl.classList.add('open');
+      }
+    }
+
+    function closeNoticeModal() {
+      const modalEl = document.getElementById('customNoticeModal');
+      if (modalEl) modalEl.classList.remove('open');
+    }
+
+    function downloadCleanSelfHtml() {
+      const rawHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML.replace(/[\u00A0\u2000-\u200B\uFEFF]/g, ' ');
+      const blob = new Blob([rawHtml], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'index.html';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
     /* =========================================================================
        1. 台灣與美國實務證券/期貨交易規範、滑價 (Slippage) 與放空費率常數
        ========================================================================= */
-    const TW_STOCK_FEE_RATE = 0.0004;              // 台股手續費：2.8折
-    const TW_STOCK_SELL_TAX_RATE = 0.003;         // 台灣證交稅：0.3%
-    const TW_MARGIN_SHORT_INIT_RATE = 0.90;       // 台灣融券保證金：90%
-    const TW_MARGIN_SHORT_FEE_RATE = 0.0008;      // 台灣融券借券費：0.08%
-    const TW_MARGIN_COLLATERAL_INT_RATE = 0.0015; // 台灣融券擔保品年息：0.15%
+    const TW_STOCK_FEE_RATE = 0.0004;               // 台股手續費：2.8折
+    const TW_STOCK_SELL_TAX_RATE = 0.003;           // 台灣證交稅：0.3%
+    const TW_MARGIN_SHORT_INIT_RATE = 0.90;         // 台灣融券保證金：90%
+    const TW_MARGIN_SHORT_FEE_RATE = 0.0008;        // 台灣融券借券費：0.08%
+    const TW_MARGIN_COLLATERAL_INT_RATE = 0.0015;   // 台灣融券擔保品年息：0.15%
     const STOCK_SHORT_MAINT_CALL_RATIO = 130.0;
     const STOCK_SHORT_STOPOUT_RATIO = 120.0;
 
     const TW_WARRANT_FEE_RATE = 0.002;
     const TW_WARRANT_SELL_TAX_RATE = 0.001;
 
-    const TW_FUTURES_FIXED_FEE = 20;              // 期貨每口單邊手續費：$20 TWD
-    const TW_FUTURES_TAX_RATE = 0.00002;          // 台灣期交稅：0.002%
+    const TW_FUTURES_FIXED_FEE = 20;                // 期貨每口單邊手續費：$20 TWD
+    const TW_FUTURES_TAX_RATE = 0.00002;            // 台灣期交稅：0.002%
     const FUTURES_MAINT_MARGIN_RATIO = 0.75;
     const FUTURES_STOPOUT_RISK_RATIO = 25.0;
 
-    const US_SUBBROKER_FEE_RATE = 0.001;          // 美股複委託手續費：0.1%
-    const US_SEC_SELL_FEE_RATE = 0.0000278;       // 美國 SEC 規費：0.00278%
-    const US_REGT_SHORT_ADD_MARGIN = 0.50;        // 美股 Reg T 自備保證金：50% (總擔保150%)
+    const US_SUBBROKER_FEE_RATE = 0.001;            // 美股複委託手續費：0.1%
+    const US_SEC_SELL_FEE_RATE = 0.0000278;         // 美國 SEC 規費：0.00278%
+    const US_REGT_SHORT_ADD_MARGIN = 0.50;          // 美股 Reg T 自備保證金：50% (總擔保150%)
     const US_STOCK_DIV_TAX_RATE = 0.30;
     const US_BOND_DIV_TAX_RATE = 0.0;
     const FX_SPREAD_RATE = 0.0005;
 
-    /* V15.0 新增：各類金融商品實盤穿價滑價率 (Slippage Basis Points) */
     const SLIPPAGE_BPS_MAP = {
-      'STOCK': 5,             // 台股現股：5 bps (0.05%)
-      'TW_BOND': 3,           // 台股債券ETF：3 bps (0.03%)
-      'SHORT_TW_MARGIN': 6,   // 台股融券放空：6 bps (0.06%)
-      'SHORT_TW_SBL': 5,      // 台股SBL借券：5 bps (0.05%)
-      'US_STOCK': 3,          // 美股現股：3 bps (0.03%)
-      'US_BOND': 1.5,         // 美國公債ETF：1.5 bps (0.015%)
-      'SHORT_US_REGT': 4,     // 美股RegT放空：4 bps (0.04%)
-      'FUTURES_LONG': 2,      // 期貨做多：2 bps (0.02%)
-      'FUTURES_SHORT': 2,     // 期貨做空：2 bps (0.02%)
-      'WARRANT': 25           // 6碼權證：25 bps (0.25% 造市商價差)
+      'STOCK': 5,
+      'TW_BOND': 3,
+      'SHORT_TW_MARGIN': 6,
+      'SHORT_TW_SBL': 5,
+      'US_STOCK': 3,
+      'US_BOND': 1.5,
+      'SHORT_US_REGT': 4,
+      'FUTURES_LONG': 2,
+      'FUTURES_SHORT': 2,
+      'WARRANT': 25
     };
 
-const TAIFEX_OFFICIAL_FUTURES = {
+    const TAIFEX_OFFICIAL_FUTURES = {
       '2330': { futCode: 'QFF', futName: '小型台積電期貨', underlying: '2330 台積電', sharesPerContract: 100, marginRate: 0.135 },
       '2317': { futCode: 'DHF', futName: '鴻海期貨', underlying: '2317 鴻海', sharesPerContract: 2000, marginRate: 0.135 },
       '2454': { futCode: 'DVF', futName: '聯發科期貨', underlying: '2454 聯發科', sharesPerContract: 2000, marginRate: 0.135 },
@@ -573,11 +1544,10 @@ const TAIFEX_OFFICIAL_FUTURES = {
       '3037': { futCode: 'IRF', futName: '欣興期貨', underlying: '3037 欣興', sharesPerContract: 2000, marginRate: 0.135 }
     };
 
-    const STORAGE_KEY = 'AZHOU_ULTIMATE_V16_SPOT_FX_HEDGE';
+    const STORAGE_KEY = 'AZHOU_ULTIMATE_V19_CLEAN_FINAL';
     const WEEKDAYS = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
     let currentPoolTab = 'STOCK';
 
-    /* 預設內建 3 個連續交易日（無虛構外匯期貨，100% 透過真實台幣/美金雙幣現貨換匯進行避險與投資） */
     const BUILTIN_SCENARIOS = [
       {
         date: '2026-11-06',
@@ -741,7 +1711,7 @@ const TAIFEX_OFFICIAL_FUTURES = {
     ];
 
     /* =========================================================================
-       2. 六大傳奇大師設定（整合「純現貨換匯避險與匯差套利 Spot FX Hedging」+ 空單 12% 停損紀律）
+       2. 六大傳奇大師設定
        ========================================================================= */
     const BASE_AGENTS = [
       {
@@ -921,16 +1891,12 @@ const TAIFEX_OFFICIAL_FUTURES = {
       return { allowed: false, borrowRate: 0, tagText: '不可放空' };
     }
 
-/* =========================================================================
-       3-B. V16.2 真實雙幣現貨換匯避險、精確含滑價部位計算器與 100% 真實交割引擎
-       ========================================================================= */
-    const MIN_USD_RESERVE_FOR_US_HOLDERS = 800; // 持有美股/RegT空單時保留 US$800 合理扣息儲備即可
+    const MIN_USD_RESERVE_FOR_US_HOLDERS = 800;
 
     function hasActiveUsPositions(agent) {
       return Object.values(agent.holdings || {}).some(p => p.currency === 'USD' && p.qty > 0);
     }
 
-    // 計算「真正可用於買台股/權證/期貨」的可支配台幣（只計入超過 US$800 儲備門檻、真正能結匯過來的美金！）
     function getSpendableTwdForTwMarket(agent, fxRate) {
       const bidFx = fxRate * (1 - FX_SPREAD_RATE);
       const minKeepUsd = hasActiveUsPositions(agent) ? MIN_USD_RESERVE_FOR_US_HOLDERS : 0;
@@ -938,7 +1904,6 @@ const TAIFEX_OFFICIAL_FUTURES = {
       return Math.max(0, agent.cash) + Math.floor(convertibleUsd * bidFx * 0.98);
     }
 
-    // 計算「真正可用於買美股/RegT放空」的可支配美金（預留台幣最低生活費與美金儲備）
     function getSpendableUsdForUsMarket(agent, fxRate, reserveTwdToKeep = 150000) {
       const askFx = fxRate * (1 + FX_SPREAD_RATE);
       const convertibleTwd = Math.max(0, agent.cash - reserveTwdToKeep);
@@ -947,10 +1912,6 @@ const TAIFEX_OFFICIAL_FUTURES = {
       return freeExistingUsd + (convertibleTwd / askFx) * 0.98;
     }
 
-    /* 關鍵修復：預先把「穿價滑價 (bps) + 手續費 + 交易稅 + 融券費」算進單價，保證算出來的張數/股數 100% 買得起、絕不退單！ */
-/* V17.2 實務修正：
-       1. 美股 (US_STOCK / US_BOND / SHORT_US_REGT) 以「1 股」為最小單位。
-       2. 台股融券 (SHORT_TW_MARGIN) 與台股 SBL 借券 (SHORT_TW_SBL) 依法規禁止零股信用交易，強制以「1 張 (1,000 股)」為最小單位！ */
     function calcMaxAffordableQty(budgetNative, theoPrice, multiplier, marginRate, instType, isBuyingAction) {
       if (budgetNative <= 0 || theoPrice <= 0) return 0;
       const { execPrice } = computeExecutionSlippage(theoPrice, instType, isBuyingAction);
@@ -974,13 +1935,12 @@ const TAIFEX_OFFICIAL_FUTURES = {
       const costPerUnit = unitNotional * (marginRate + feeAndTaxRate);
       const rawQty = Math.floor((budgetNative * 0.995) / costPerUnit);
 
-      // 關鍵實務規則：台股融券放空與 SBL 借券賣出必須以「1 張 (1,000 股)」為最小整數單位！
       if (instType === 'SHORT_TW_MARGIN' || instType === 'SHORT_TW_SBL') {
         return Math.floor(rawQty / 1000) * 1000;
       }
       return rawQty;
     }
-    /* 大師主動執行「台幣買美金現貨 (TWD ➔ USD)」進行匯率避險或投資 */
+
     function executeSpotBuyUsdHedge(agent, twdAmountToConvert, fxRate, reasonLabel, actionTags, monologueParts) {
       if (agent.cash < twdAmountToConvert || twdAmountToConvert < 10000) return 0;
       const askRate = fxRate * (1 + FX_SPREAD_RATE);
@@ -996,7 +1956,6 @@ const TAIFEX_OFFICIAL_FUTURES = {
       return boughtUsd;
     }
 
-    /* 大師主動執行「美金結匯換回台幣 (USD ➔ TWD)」鎖定匯差獲利或規避美元貶值風險 */
     function executeSpotSellUsdHedge(agent, usdAmountToSell, fxRate, reasonLabel, actionTags, monologueParts) {
       const minKeepUsd = hasActiveUsPositions(agent) ? MIN_USD_RESERVE_FOR_US_HOLDERS : 0;
       const maxSellableUsd = Math.max(0, (agent.usdCash || 0) - minKeepUsd);
@@ -1024,7 +1983,6 @@ const TAIFEX_OFFICIAL_FUTURES = {
       let missingUsd = +(targetUsdWithBuffer - (agent.usdCash || 0)).toFixed(2);
       let requiredTwd = Math.ceil(missingUsd * askRate);
 
-      // 若台幣不足以同時補足 +US$800 儲備，則只換取精確所需金額（只要買得起就一定讓單子成交！）
       if (agent.cash < requiredTwd) {
         if ((agent.usdCash || 0) >= neededUsd) return true;
         missingUsd = +(neededUsd - (agent.usdCash || 0) + 50).toFixed(2);
@@ -1051,7 +2009,6 @@ const TAIFEX_OFFICIAL_FUTURES = {
 
       const minKeepUsd = hasActiveUsPositions(agent) ? MIN_USD_RESERVE_FOR_US_HOLDERS : 0;
       if ((agent.usdCash || 0) - minKeepUsd < neededUsdToSell) {
-        // 若連全部美金都換過來夠不夠？只要夠就優先讓這筆台股/權證單成交！
         if ((agent.usdCash || 0) >= neededUsdToSell) {
           const fxCost = Math.round(neededUsdToSell * fxRate * FX_SPREAD_RATE);
           agent.usdCash = +((agent.usdCash || 0) - neededUsdToSell).toFixed(2);
@@ -1154,39 +2111,256 @@ const TAIFEX_OFFICIAL_FUTURES = {
       return { id: cleanId, code, assetType, open, high, low, price, changePct, volLots, pe, yield: divYield, exDividendDate, cashDividend, fairValue, sentiment, allowMarginShort, allowSBL, sblFeeRate, haltReason: raw.haltReason || '', news };
     }
 
-    function normalizeWarrantItem(raw, index) {
+    const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
+    const TW_WARRANT_EXERCISE_STOCK_TAX = 0.003;
+
+    const DEFAULT_TWSE_WARRANTS_SPEC = [
+      { id: '081524 台積電元大45購01', code: '081524', name: '台積電元大45購01', warrantType: 'CALL', underlyingCode: '2330', underlyingId: '2330 台積電', strikePrice: 1050.0, exerciseRatio: 0.05, lastTradingDate: '2026-11-06', maturityDate: '2026-11-10', basePrice: 2.45 },
+      { id: '042891 鴻海凱基44購02', code: '042891', name: '鴻海凱基44購02', warrantType: 'CALL', underlyingCode: '2317', underlyingId: '2317 鴻海', strikePrice: 210.0, exerciseRatio: 0.20, lastTradingDate: '2026-11-06', maturityDate: '2026-11-10', basePrice: 1.82 },
+      { id: '053108 華城群益46購01', code: '053108', name: '華城群益46購01', warrantType: 'CALL', underlyingCode: '1519', underlyingId: '1519 華城', strikePrice: 640.0, exerciseRatio: 0.05, lastTradingDate: '2026-12-11', maturityDate: '2026-12-15', basePrice: 3.15 },
+      { id: '061882 華城中信43購01', code: '061882', name: '華城中信43購01(深度價外)', warrantType: 'CALL', underlyingCode: '1519', underlyingId: '1519 華城', strikePrice: 820.0, exerciseRatio: 0.05, lastTradingDate: '2026-11-06', maturityDate: '2026-11-10', basePrice: 0.42 },
+      { id: '072341 長榮元富45購01', code: '072341', name: '長榮元富45購01', warrantType: 'CALL', underlyingCode: '2603', underlyingId: '2603 長榮', strikePrice: 205.0, exerciseRatio: 0.15, lastTradingDate: '2026-11-26', maturityDate: '2026-11-30', basePrice: 1.95 },
+      { id: '038912 中信金永豐44購01', code: '038912', name: '中信金永豐44購01', warrantType: 'CALL', underlyingCode: '2891', underlyingId: '2891 中信金', strikePrice: 36.0, exerciseRatio: 0.50, lastTradingDate: '2026-11-06', maturityDate: '2026-11-10', basePrice: 1.15 },
+      { id: '04192P 欣興凱基42售01', code: '04192P', name: '欣興凱基42售01', warrantType: 'PUT', underlyingCode: '3037', underlyingId: '3037 欣興', strikePrice: 160.0, exerciseRatio: 0.15, lastTradingDate: '2026-11-06', maturityDate: '2026-11-10', basePrice: 1.65 },
+      { id: '05821P 台積電富邦43售02', code: '05821P', name: '台積電富邦43售02', warrantType: 'PUT', underlyingCode: '2330', underlyingId: '2330 台積電', strikePrice: 1000.0, exerciseRatio: 0.04, lastTradingDate: '2026-11-06', maturityDate: '2026-11-10', basePrice: 0.55 }
+    ];
+
+    function normalizeWarrantItem(raw, index, matchedStock, currentDateStr) {
       const cleanId = (raw.id || `${raw.code || ''} ${raw.name || ''}`).trim();
       const code = (raw.code || cleanId.split(' ')[0] || `08000${index}`).trim();
       const name = (raw.name || cleanId.replace(code, '')).trim();
       const wType = raw.warrantType || (code.endsWith('P') || name.includes('售') ? 'PUT' : 'CALL');
-      const price = Number(raw.price) || 1.5;
+      const specTpl = DEFAULT_TWSE_WARRANTS_SPEC.find(x => x.code === code) || {};
+
+      const underlyingPrice = matchedStock ? matchedStock.price : (Number(raw.underlyingPrice) || 200);
+      let strikePrice = Number(raw.strikePrice) || specTpl.strikePrice || +(underlyingPrice * (wType === 'PUT' ? 0.96 : 1.02)).toFixed(1);
+      let exerciseRatio = Number(raw.exerciseRatio) || specTpl.exerciseRatio || (underlyingPrice > 500 ? 0.05 : 0.20);
+
+      if (matchedStock && matchedStock.exDividendDate === currentDateStr && matchedStock.cashDividend > 0) {
+        const prevStockP = matchedStock.price + matchedStock.cashDividend;
+        const adjFactor = Math.max(0.85, (prevStockP - matchedStock.cashDividend) / prevStockP);
+        strikePrice = +(strikePrice * adjFactor).toFixed(2);
+        exerciseRatio = +(exerciseRatio / adjFactor).toFixed(4);
+      }
+
+      const maturityDate = raw.maturityDate || specTpl.maturityDate || '2026-11-10';
+      const lastTradingDate = raw.lastTradingDate || specTpl.lastTradingDate || '2026-11-06';
+
+      const settlementPrice60m = matchedStock
+        ? +((matchedStock.high + matchedStock.low + matchedStock.price * 2) / 4).toFixed(2)
+        : underlyingPrice;
+
+      const intrinsicUnitVal = wType === 'CALL'
+        ? Math.max(0, (underlyingPrice - strikePrice) * exerciseRatio)
+        : Math.max(0, (strikePrice - underlyingPrice) * exerciseRatio);
+
+      const settleIntrinsicUnitVal = wType === 'CALL'
+        ? Math.max(0, (settlementPrice60m - strikePrice) * exerciseRatio)
+        : Math.max(0, (strikePrice - settlementPrice60m) * exerciseRatio);
+
+      const isMaturedToday = Boolean(currentDateStr && currentDateStr >= maturityDate);
+      const isHaltedBeforeMaturity = Boolean(currentDateStr && currentDateStr > lastTradingDate && currentDateStr < maturityDate);
+
+      let price = Number(raw.price) || specTpl.basePrice || 1.5;
+      if (isMaturedToday) {
+        price = settleIntrinsicUnitVal > 0 ? +(settleIntrinsicUnitVal).toFixed(2) : 0.01;
+      }
+
       const changePct = Number(raw.changePct) || 0;
-      const prevClose = +(price / (1 + changePct / 100)).toFixed(2);
+      const prevClose = +(Math.max(0.05, price / (1 + changePct / 100))).toFixed(2);
       const open = Number(raw.open) || +(prevClose * (1 + (changePct * 0.3) / 100)).toFixed(2);
       const high = Number(raw.high) || +(Math.max(open, price) * 1.02).toFixed(2);
       const low = Number(raw.low) || +(Math.min(open, price) * 0.98).toFixed(2);
-      return { id: cleanId, code, name, warrantType: wType, underlyingCode: raw.underlyingCode || '', underlyingId: raw.underlyingId || '', open, high, low, price, changePct, volLots: Number(raw.volLots) || 1000 };
+
+      const moneynessPct = wType === 'CALL'
+        ? +(((underlyingPrice - strikePrice) / strikePrice) * 100).toFixed(1)
+        : +(((strikePrice - underlyingPrice) / strikePrice) * 100).toFixed(1);
+      const isITM = moneynessPct > 0;
+
+      const effLeverage = price > 0.02
+        ? +Math.min(25, Math.max(1.2, (underlyingPrice * exerciseRatio) / price * (isITM ? 0.78 : 0.42))).toFixed(1)
+        : 0.0;
+
+      return {
+        id: cleanId, code, name, warrantType: wType,
+        underlyingCode: raw.underlyingCode || specTpl.underlyingCode || '',
+        underlyingId: raw.underlyingId || specTpl.underlyingId || '',
+        underlyingPrice, strikePrice, exerciseRatio,
+        lastTradingDate, maturityDate, settlementPrice60m,
+        intrinsicUnitVal: +intrinsicUnitVal.toFixed(3),
+        settleIntrinsicUnitVal: +settleIntrinsicUnitVal.toFixed(3),
+        moneynessPct, isITM, effLeverage,
+        isHaltedBeforeMaturity, isMaturedToday,
+        open, high, low, price, changePct,
+        volLots: Number(raw.volLots) || 12000
+      };
     }
 
-    function syncWarrantsWithStocks(stocks, rawWarrants) {
-      const baseWarrants = (Array.isArray(rawWarrants) && rawWarrants.length > 0)
-        ? rawWarrants.map((w, i) => normalizeWarrantItem(w, i))
-        : JSON.parse(JSON.stringify(BUILTIN_SCENARIOS[0].warrants));
+    function syncWarrantsWithStocks(stocks, rawWarrants, currentDateStr) {
+      const mergedRaw = [...DEFAULT_TWSE_WARRANTS_SPEC];
+      if (Array.isArray(rawWarrants)) {
+        rawWarrants.forEach(rw => {
+          const c = (rw.code || (rw.id || '').split(' ')[0]).trim();
+          const existIdx = mergedRaw.findIndex(m => m.code === c);
+          if (existIdx >= 0) mergedRaw[existIdx] = { ...mergedRaw[existIdx], ...rw };
+          else mergedRaw.push(rw);
+        });
+      }
 
-      return baseWarrants.map((w, idx) => {
+      return mergedRaw.map((w, idx) => {
         const matchedStock = (stocks || []).find(s =>
           (w.underlyingCode && s.code === w.underlyingCode) ||
           (w.underlyingId && s.id === w.underlyingId) ||
-          (s.name && w.name.includes(s.name.slice(0, 2)))
+          (s.id && w.name && s.id.includes(w.name.slice(0, 2)))
         );
-        if (matchedStock && (!rawWarrants || rawWarrants.length === 0)) {
-          const lev = w.warrantType === 'PUT' ? -4.5 : 4.8;
-          const synChangePct = +(matchedStock.changePct * lev).toFixed(2);
-          const synPrice = Math.max(0.15, +(w.price * (1 + synChangePct / 100)).toFixed(2));
-          return normalizeWarrantItem({ ...w, price: synPrice, changePct: synChangePct }, idx);
+        if (matchedStock) {
+          const wType = w.warrantType || (w.code && w.code.endsWith('P') ? 'PUT' : 'CALL');
+          const strike = Number(w.strikePrice) || 200;
+          const cr = Number(w.exerciseRatio) || 0.1;
+          const intrinsic = wType === 'CALL'
+            ? Math.max(0, (matchedStock.price - strike) * cr)
+            : Math.max(0, (strike - matchedStock.price) * cr);
+
+          const isMat = Boolean(currentDateStr && currentDateStr >= (w.maturityDate || '2026-11-10'));
+          let synPrice = Number(w.price || w.basePrice || 1.5);
+          let synChangePct = Number(w.changePct || 0);
+
+          if (isMat) {
+            const settle60m = +((matchedStock.high + matchedStock.low + matchedStock.price * 2) / 4).toFixed(2);
+            const settleInt = wType === 'CALL'
+              ? Math.max(0, (settle60m - strike) * cr)
+              : Math.max(0, (strike - settle60m) * cr);
+            const prevRef = Number(w.basePrice || w.price || 1.2);
+            synPrice = settleInt > 0 ? +settleInt.toFixed(2) : 0.01;
+            synChangePct = +(((synPrice - prevRef) / prevRef) * 100).toFixed(2);
+          } else if (!w.price) {
+            const lev = wType === 'PUT' ? -4.2 : 4.6;
+            synChangePct = +(matchedStock.changePct * lev).toFixed(2);
+            synPrice = Math.max(0.08, +(Math.max(intrinsic + 0.25, (w.basePrice || 1.5) * (1 + synChangePct / 100)))).toFixed(2);
+          }
+
+          return normalizeWarrantItem({ ...w, price: synPrice, changePct: synChangePct }, idx, matchedStock, currentDateStr);
         }
-        return w;
+        return normalizeWarrantItem(w, idx, null, currentDateStr);
       });
+    }
+
+    function processDailyWarrantMaturitySettlement(agent, rec, actionTags, monologueParts) {
+      const todayDate = rec.date;
+      const fx = rec.fxRate || 32.15;
+
+      for (const [instId, pos] of Object.entries(agent.holdings)) {
+        if (!pos || pos.qty <= 0 || pos.instType !== 'WARRANT') continue;
+        const wObj = (rec.warrants || []).find(w => w.id === instId || w.code === instId.split(' ')[0]);
+        if (!wObj) continue;
+
+        const isMatured = Boolean(rec.forceWarrantMaturity || (wObj.maturityDate && todayDate >= wObj.maturityDate));
+        if (!isMatured) continue;
+
+        const lotsHeld = pos.qty;
+        const unitsHeld = lotsHeld * 1000;
+        const settleP = wObj.settlementPrice60m || wObj.underlyingPrice;
+        const strikeP = wObj.strikePrice;
+        const cr = wObj.exerciseRatio;
+        const isCall = wObj.warrantType !== 'PUT';
+
+        const diffPerShare = isCall ? (settleP - strikeP) : (strikeP - settleP);
+        const entryCostTwd = pos.marginDepositedTwd;
+
+        if (diffPerShare > 0) {
+          const grossPayoutTwd = Math.round(diffPerShare * cr * unitsHeld);
+          const exerciseFeeTwd = Math.round(grossPayoutTwd * TW_WARRANT_EXERCISE_FEE_RATE);
+          const notionalStockSettleTwd = settleP * cr * unitsHeld;
+          const exerciseTaxTwd = Math.round(notionalStockSettleTwd * TW_WARRANT_EXERCISE_STOCK_TAX);
+          const totalExerciseFrictionTwd = exerciseFeeTwd + exerciseTaxTwd;
+
+          if (grossPayoutTwd > totalExerciseFrictionTwd) {
+            const netPayoutTwd = grossPayoutTwd - totalExerciseFrictionTwd;
+            const realizedPnlTwd = netPayoutTwd - entryCostTwd;
+            const realizedRoiPct = entryCostTwd > 0 ? +((realizedPnlTwd / entryCostTwd) * 100).toFixed(2) : 0;
+            const netSettleUnitPrice = +(netPayoutTwd / unitsHeld).toFixed(3);
+
+            agent.cash += netPayoutTwd;
+            agent.totalFeesPaid = (agent.totalFeesPaid || 0) + totalExerciseFrictionTwd;
+            pos.cumBrokerFeeTwd = (pos.cumBrokerFeeTwd || 0) + exerciseFeeTwd;
+            pos.cumTaxTwd = (pos.cumTaxTwd || 0) + exerciseTaxTwd;
+            pos.feesPaidOnPosTwd = (pos.feesPaidOnPosTwd || 0) + totalExerciseFrictionTwd;
+
+            pos.history.push({
+              lotNumber: pos.history.length + 1, date: todayDate, fxRate: fx, currency: 'TWD',
+              instId, instType: 'WARRANT',
+              actionType: 'SELL',
+              actionLabel: '🏆 權證到期・價內自動現金履約',
+              qty: -lotsHeld, unitLabel: '張',
+              entryAvgPrice: pos.avgCost,
+              theoPrice: +(grossPayoutTwd / unitsHeld).toFixed(2),
+              price: netSettleUnitPrice,
+              slipBps: 0, slipCostTwd: 0,
+              brokerFeeTwd: exerciseFeeTwd,
+              taxCostTwd: exerciseTaxTwd,
+              borrowOrDivCostTwd: 0, cumBorrowFeeTwd: 0,
+              feePaidTwd: totalExerciseFrictionTwd,
+              feeLabel: `履約費$${exerciseFeeTwd.toLocaleString()}(0.1425%)+標的0.3%證交稅$${exerciseTaxTwd.toLocaleString()}`,
+              realizedPnlTwd, realizedRoiPct,
+              totalCostNative: netPayoutTwd, totalCostTwd: netPayoutTwd,
+              cumQtyAfter: 0, maintRatioAfter: 0,
+              reason: `【TWSE 到期價內現金交割】標的 60 分鐘算術平均結算價 $${settleP} vs 履約價 $${strikeP}（行使比例 ${cr}），履約毛額 $${grossPayoutTwd.toLocaleString()} 扣除履約費與 0.3% 證交稅後，實領現金 +$${netPayoutTwd.toLocaleString()} TWD（淨損益 ${realizedPnlTwd >= 0 ? '+' : ''}$${realizedPnlTwd.toLocaleString()}）！`
+            });
+
+            pos.qty = 0;
+            pos.marginDepositedNative = 0;
+            pos.marginDepositedTwd = 0;
+            if (!agent.closedPositions) agent.closedPositions = {};
+            agent.closedPositions[instId] = JSON.parse(JSON.stringify(pos));
+            delete agent.holdings[instId];
+
+            actionTags.push(`🏆權證到期價內領現 ${wObj.code} (+$${netPayoutTwd.toLocaleString()})`);
+            monologueParts.push(`太爽了！我持有的【${instId}】今日到期進入價內（標的60分鐘結算價 $${settleP} vs 履約價 $${strikeP}），集保自動現金履約入帳 +$${netPayoutTwd.toLocaleString()} TWD！`);
+            continue;
+          }
+        }
+
+        const realizedPnlTwd = -entryCostTwd;
+        pos.history.push({
+          lotNumber: pos.history.length + 1, date: todayDate, fxRate: fx, currency: 'TWD',
+          instId, instType: 'WARRANT',
+          actionType: 'SELL',
+          actionLabel: '💀 權證到期・價外無價值歸零',
+          qty: -lotsHeld, unitLabel: '張',
+          entryAvgPrice: pos.avgCost,
+          theoPrice: 0.0, price: 0.0,
+          slipBps: 0, slipCostTwd: 0,
+          brokerFeeTwd: 0, taxCostTwd: 0,
+          borrowOrDivCostTwd: 0, cumBorrowFeeTwd: 0,
+          feePaidTwd: 0, feeLabel: '價外不具履約價值 ($0 入帳)',
+          realizedPnlTwd, realizedRoiPct: -100.0,
+          totalCostNative: 0, totalCostTwd: 0,
+          cumQtyAfter: 0, maintRatioAfter: 0,
+          reason: `【TWSE 到期價外歸零】標的 60 分鐘算術平均結算價 $${settleP} 未過履約價 $${strikeP}（${isCall ? '認購須高於履約價' : '認售須低於履約價'}），權利金無價值自動歸零除帳，損失全部權利金本金 -$${entryCostTwd.toLocaleString()} TWD (-100%)！`
+        });
+
+        pos.qty = 0;
+        pos.marginDepositedNative = 0;
+        pos.marginDepositedTwd = 0;
+        if (!agent.closedPositions) agent.closedPositions = {};
+        agent.closedPositions[instId] = JSON.parse(JSON.stringify(pos));
+        delete agent.holdings[instId];
+
+        actionTags.push(`💀權證到期價外歸零 ${wObj.code} (-100%)`);
+        monologueParts.push(`慘劇！【${instId}】今日到期但標的結算價 ($${settleP}) 未達履約價 ($${strikeP}) 淪為價外，${lotsHeld} 張權證權利金直接歸零蒸發 -$${entryCostTwd.toLocaleString()} TWD！`);
+      }
+    }
+
+    function triggerManualWarrantMaturityToday() {
+      const rec = appState.records[appState.currentIdx];
+      if (!rec) return;
+      rec.forceWarrantMaturity = true;
+      (rec.warrants || []).forEach(w => {
+        w.maturityDate = rec.date;
+        w.isMaturedToday = true;
+      });
+      recalculateTimeline();
+      renderDashboard(true);
     }
 
     function buildMacroFuturesForDay(rec, dayIdx) {
@@ -1281,9 +2455,6 @@ const TAIFEX_OFFICIAL_FUTURES = {
       return ['SHORT_TW_MARGIN', 'SHORT_TW_SBL', 'SHORT_US_REGT', 'FUTURES_SHORT'].includes(instType);
     }
 
-    /* =========================================================================
-       4. 每日結算：空單借券日息、除息代墊股利、空單 -12% 停損與美金儲備池維護
-       ========================================================================= */
     function processDailyShortAndDividendSettlement(agent, rec, prevDateStr, actionTags, monologueParts) {
       const todayDate = rec.date;
       const fx = rec.fxRate || 32.15;
@@ -1445,9 +2616,6 @@ const TAIFEX_OFFICIAL_FUTURES = {
       };
     }
 
-    /* =========================================================================
-       5. 決策引擎 (V16.2：100% 檢核真實成交回傳值 + 精確含滑價預算分配，杜絕全場假訊號)
-       ========================================================================= */
     function recalculateTimeline() {
       let runningAgents = JSON.parse(JSON.stringify(BASE_AGENTS));
 
@@ -1456,6 +2624,8 @@ const TAIFEX_OFFICIAL_FUTURES = {
         rec.macro = buildMacroForDay(rec, dayIndex);
         rec.macroFutures = buildMacroFuturesForDay(rec, dayIndex);
         rec.usAssets = buildUsAssetsForDay(rec, dayIndex);
+        rec.warrants = syncWarrantsWithStocks(rec.sectors, rec.warrants, rec.date);
+
         const fx = rec.fxRate;
         const prevFx = dayIndex > 0 ? (Number(appState.records[dayIndex - 1].fxRate) || 32.10) : (fx - 0.05);
         const isUsdStrengthening = fx >= prevFx;
@@ -1482,9 +2652,8 @@ const TAIFEX_OFFICIAL_FUTURES = {
             processDailyShortAndDividendSettlement(agent, rec, prevDateStr, actionTags, monologueParts);
           }
 
-          // ===================================================================
-          // 角色 A：華倫·巴菲特（真實成交驗證 + 含滑價預算精算）
-          // ===================================================================
+          processDailyWarrantMaturitySettlement(agent, rec, actionTags, monologueParts);
+
           if (agent.id === 0) {
             const allocB = getAgentAllocationBreakdown(agent, rec);
             const sgov = usBondsOnly.find(u => u.code === 'SGOV') || usBondsOnly[0];
@@ -1534,12 +2703,7 @@ const TAIFEX_OFFICIAL_FUTURES = {
                 }
               }
             });
-          }
-
-          // ===================================================================
-          // 角色 B：吉姆·西蒙斯（真實成交驗證：TLT美債 + SBL借券空單 + 微台指期貨 + 雙幣再平衡）
-          // ===================================================================
-          else if (agent.id === 1) {
+          } else if (agent.id === 1) {
             for (const [instId, pos] of Object.entries(agent.holdings)) {
               const q = findInstrumentQuote(rec, instId, pos.instType);
               if (!q || pos.qty <= 0) continue;
@@ -1590,19 +2754,21 @@ const TAIFEX_OFFICIAL_FUTURES = {
             }
 
             const allocS2 = getAgentAllocationBreakdown(agent, rec);
-            if (!isRateCutRally && allocS2.shortPct < 18) {
-              const overboughtTw = [...pool].filter(s => checkShortEligibility(rec, s, 'SHORT_TW_SBL').allowed).sort((a, b) => b.changePct - a.changePct)[0];
+            if (!isRateCutRally && allocS2.shortPct < 22) {
+              const overboughtTw = [...pool]
+                .filter(s => s.price <= 220 && checkShortEligibility(rec, s, 'SHORT_TW_SBL').allowed)
+                .sort((a, b) => b.changePct - a.changePct)[0];
               if (overboughtTw) {
                 const sblInfo = checkShortEligibility(rec, overboughtTw, 'SHORT_TW_SBL');
-                const twdBudget = Math.max(0, getSpendableTwdForTwMarket(agent, fx) - 220000) * 0.45;
+                const twdBudget = Math.max(0, getSpendableTwdForTwMarket(agent, fx) - 180000) * 0.65;
                 const shortQty = calcMaxAffordableQty(twdBudget, overboughtTw.price, 1, TW_MARGIN_SHORT_INIT_RATE, 'SHORT_TW_SBL', false);
-                if (shortQty >= 10 && openShortPosition(agent, {
+                if (shortQty >= 1000 && openShortPosition(agent, {
                   id: overboughtTw.id, instType: 'SHORT_TW_SBL', currency: 'TWD', fxRate: fx,
                   unitLabel: '股', qty: shortQty, price: overboughtTw.price, multiplier: 1,
                   marginRate: TW_MARGIN_SHORT_INIT_RATE, borrowFeeRate: sblInfo.borrowRate, date: dateStr,
-                  reason: `【量化多空對沖】執行 SBL 借券賣出（年息 ${sblInfo.borrowRate}% 按日計息）對沖 Beta 風險`
+                  reason: `【量化多空對沖】依台股規範以「整張(1,000股)」為單位，執行 SBL 借券賣出 ${shortQty / 1000} 張（${shortQty.toLocaleString()}股，年息 ${sblInfo.borrowRate}%）`
                 })) {
-                  actionTags.push(`SBL借券空 ${overboughtTw.code}×${shortQty}股`);
+                  actionTags.push(`SBL借券空 ${overboughtTw.code}×${shortQty / 1000}張`);
                 }
               }
             }
@@ -1617,12 +2783,7 @@ const TAIFEX_OFFICIAL_FUTURES = {
                 actionTags.push(`總經放鷹空 TMF×2口`);
               }
             }
-          }
-
-          // ===================================================================
-          // 角色 C：傑西·李佛摩（真實成交驗證：融券空單 + 期貨做多/做空 + 現貨順勢換匯）
-          // ===================================================================
-          else if (agent.id === 2) {
+          } else if (agent.id === 2) {
             for (const [instId, pos] of Object.entries(agent.holdings)) {
               const q = findInstrumentQuote(rec, instId, pos.instType);
               if (!q || pos.qty <= 0) continue;
@@ -1663,15 +2824,28 @@ const TAIFEX_OFFICIAL_FUTURES = {
               .sort((a, b) => a.changePct - b.changePct)[0];
 
             if (!isRateCutRally && weakestTw && allocL.shortPct < 24) {
-              const twdBudget = Math.max(0, getSpendableTwdForTwMarket(agent, fx) - 240000) * 0.55;
+              const twdBudget = Math.max(0, getSpendableTwdForTwMarket(agent, fx) - 200000) * 0.65;
               const shortQty = calcMaxAffordableQty(twdBudget, weakestTw.price, 1, TW_MARGIN_SHORT_INIT_RATE, 'SHORT_TW_MARGIN', false);
-              if (shortQty >= 50 && openShortPosition(agent, {
+              if (shortQty >= 1000 && openShortPosition(agent, {
                 id: weakestTw.id, instType: 'SHORT_TW_MARGIN', currency: 'TWD', fxRate: fx,
                 unitLabel: '股', qty: shortQty, price: weakestTw.price, multiplier: 1,
                 marginRate: TW_MARGIN_SHORT_INIT_RATE, borrowFeeRate: 0.08, date: dateStr,
-                reason: `【總經與法說雙空共振】${weakestTw.id} 跌破支撐 (${weakestTw.changePct}%)，執行台股融券賣出放空（90%保證金）`
+                reason: `【總經與法說雙空共振】${weakestTw.id} 跌破支撐 (${weakestTw.changePct}%)，依台股整張規範融券賣出放空 ${shortQty / 1000} 張（${shortQty.toLocaleString()}股，90%保證金）`
               })) {
-                actionTags.push(`融券放空 ${weakestTw.code}×${shortQty}股`);
+                actionTags.push(`融券放空 ${weakestTw.code}×${shortQty / 1000}張`);
+              }
+            }
+
+            const putWarrant = warrantList.find(w => w.warrantType === 'PUT' && !w.isHaltedBeforeMaturity && !w.isMaturedToday);
+            if (!isRateCutRally && putWarrant && getAgentAllocationBreakdown(agent, rec).warrantPct < 10) {
+              const putBudget = Math.min(45000, getSpendableTwdForTwMarket(agent, fx) * 0.15);
+              const buyPutLots = calcMaxAffordableQty(putBudget, putWarrant.price, 1000, 1.0, 'WARRANT', true);
+              if (buyPutLots > 0 && openOrAddPosition(agent, {
+                id: putWarrant.id, instType: 'WARRANT', currency: 'TWD', fxRate: fx,
+                unitLabel: '張', qty: buyPutLots, price: putWarrant.price, multiplier: 1000, marginRate: 1.0, date: dateStr,
+                reason: `【順勢做空認售權證】買進 ${buyPutLots} 張尾碼 P 認售權證【${putWarrant.id}】（履約價 $${putWarrant.strikePrice}）狙擊弱勢股！`
+              })) {
+                actionTags.push(`買認售Put ${putWarrant.code}×${buyPutLots}張`);
               }
             }
 
@@ -1700,18 +2874,13 @@ const TAIFEX_OFFICIAL_FUTURES = {
                 }
               }
             }
-          }
-
-          // ===================================================================
-          // 角色 D：咆哮小貓 Keith Gill（徹底修好「YOLO權證沒買進」問題！優先保留 22% 權證預算 + 含 25bps 滑價精算）
-          // ===================================================================
-          else if (agent.id === 3) {
+          } else if (agent.id === 3) {
             const allocK = getAgentAllocationBreakdown(agent, rec);
             const gme = usStocksOnly.find(u => u.code === 'GME') || usStocksOnly[0];
             const favTw = pool.find(s => s.id.includes('2317')) || pool[0];
-            const favWarrant = (warrantList.filter(w => w.warrantType === 'CALL'))[0] || warrantList[0];
+            const tradableCallWarrants = warrantList.filter(w => w.warrantType === 'CALL' && !w.isHaltedBeforeMaturity && !w.isMaturedToday && w.moneynessPct > -12);
+            const favWarrant = tradableCallWarrants[0] || warrantList.find(w => !w.isMaturedToday);
 
-            // 1. 美股 GME 重倉軋空（約佔 32% 資金，預留充足台幣給台股正股與 6 碼認購權證！）
             if (gme && allocK.usPct < 32) {
               const usdBudget = Math.min(
                 getSpendableUsdForUsMarket(agent, fx, 540000),
@@ -1727,7 +2896,6 @@ const TAIFEX_OFFICIAL_FUTURES = {
               }
             }
 
-            // 2. 台股 6 碼認購權證 YOLO 倍數推進（優先保留 $180,000 台幣預算買進權證，並計入 25bps 權證穿價滑價，保證 100% 成交入帳！）
             const allocK2 = getAgentAllocationBreakdown(agent, rec);
             if (favWarrant && allocK2.warrantPct < 22) {
               const warrantTwdBudget = Math.min(
@@ -1738,14 +2906,13 @@ const TAIFEX_OFFICIAL_FUTURES = {
               if (buyLots > 0 && openOrAddPosition(agent, {
                 id: favWarrant.id, instType: 'WARRANT', currency: 'TWD', fxRate: fx,
                 unitLabel: '張', qty: buyLots, price: favWarrant.price, multiplier: 1000, marginRate: 1.0, date: dateStr,
-                reason: `【Fed降息預期+熱錢噴發】YOLO 買進 ${buyLots} 張 6 碼認購權證【${favWarrant.id}】（已含 25bps 造市商穿價滑價與 0.2% 手續費）！`
+                reason: `【Fed降息預期+熱錢噴發】YOLO 買進 ${buyLots} 張 6 碼認購權證【${favWarrant.id}】（履約價 $${favWarrant.strikePrice} / 行使比 ${favWarrant.exerciseRatio} / 到期日 ${favWarrant.maturityDate}）！`
               })) {
                 actionTags.push(`🔥YOLO權證 ${favWarrant.code}×${buyLots}張`);
-                monologueParts.push(`YOLO！我真正砸錢買進了 ${buyLots} 張【${favWarrant.id}】認購權證搭配【GME】正股，槓桿全開把空頭軋上外太空！💎🙌`);
+                monologueParts.push(`YOLO！我砸錢買進了 ${buyLots} 張【${favWarrant.id}】認購權證（履約價 $${favWarrant.strikePrice}）搭配【GME】正股，坐等價內現金履約！💎🙌`);
               }
             }
 
-            // 3. 台股正股（使用剩餘可支配台幣買進，保留 $90,000 現金緩衝）
             const allocK3 = getAgentAllocationBreakdown(agent, rec);
             if (favTw && allocK3.twPct < 35) {
               const twStockBudget = Math.min(
@@ -1761,12 +2928,7 @@ const TAIFEX_OFFICIAL_FUTURES = {
                 actionTags.push(`台股正股 ${favTw.id.split(' ')[0]}×${buyShares}股`);
               }
             }
-          }
-
-          // ===================================================================
-          // 角色 E：吉姆·克萊默（真實成交驗證：逆勢融券放空 + 散戶追高殺低換匯）
-          // ===================================================================
-          else if (agent.id === 4) {
+          } else if (agent.id === 4) {
             for (const [instId, pos] of Object.entries(agent.holdings)) {
               const q = findInstrumentQuote(rec, instId, pos.instType);
               if (!q || pos.qty <= 0) continue;
@@ -1774,16 +2936,16 @@ const TAIFEX_OFFICIAL_FUTURES = {
                 const ev = evaluatePosition(rec, instId, pos);
                 coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx, `🔥【慘遭軋空強制回補】${instId} 續漲 +${q.changePct}%，維持率掉至 ${ev.maintRatioPct}%，克萊默高檔買進回補認賠！`);
                 actionTags.push(`🚨被軋空回補 ${instId.split(' ')[0]}`);
-              } else if (!isShortPositionType(pos.instType) && (isHawkishMacro || q.changePct < -1.5)) {
+              } else if (!isShortPositionType(pos.instType) && pos.instType !== 'WARRANT' && (isHawkishMacro || q.changePct < -1.5)) {
                 closeOrReducePosition(agent, instId, pos.qty, q.price, dateStr, fx, `【被CPI通膨新聞嚇破膽】恐慌全砍多單`);
                 actionTags.push(`CPI恐慌砍倉 ${instId.split(' ')[0]}`);
               }
             }
 
-            if (isHawkishMacro && agent.cash > 250000) {
+            if (isHawkishMacro && agent.cash > 200000) {
               executeSpotBuyUsdHedge(
                 agent,
-                75000,
+                65000,
                 fx,
                 `【克萊默高點恐慌搶換美金】看到台幣貶到 ${fx} 嚇壞了，趕緊在最高點把台幣換成美金避險！`,
                 actionTags,
@@ -1804,22 +2966,35 @@ const TAIFEX_OFFICIAL_FUTURES = {
             const strongTwToShort = pool.find(s => s.code === '1519' && checkShortEligibility(rec, s, 'SHORT_TW_MARGIN').allowed)
               || [...pool].filter(s => checkShortEligibility(rec, s, 'SHORT_TW_MARGIN').allowed).sort((a, b) => b.changePct - a.changePct)[0];
 
-            if (dayIndex === 0 && strongTwToShort && allocC.shortPct < 30) {
-              const shortBudget = Math.max(0, getSpendableTwdForTwMarket(agent, fx) - 450000) * 0.60;
+            if (dayIndex === 0 && strongTwToShort && allocC.shortPct < 62) {
+              const shortBudget = getSpendableTwdForTwMarket(agent, fx) * 0.65;
               const shortQty = calcMaxAffordableQty(shortBudget, strongTwToShort.price, 1, TW_MARGIN_SHORT_INIT_RATE, 'SHORT_TW_MARGIN', false);
-              if (shortQty >= 20 && openShortPosition(agent, {
+              if (shortQty >= 1000 && openShortPosition(agent, {
                 id: strongTwToShort.id, instType: 'SHORT_TW_MARGIN', currency: 'TWD', fxRate: fx,
                 unitLabel: '股', qty: shortQty, price: strongTwToShort.price, multiplier: 1,
                 marginRate: TW_MARGIN_SHORT_INIT_RATE, borrowFeeRate: 0.08, date: dateStr,
-                reason: `【無視法說利多逆勢摸頭】看【${strongTwToShort.id}】大漲 +${strongTwToShort.changePct}% 去融券放空（自備90%保證金）`
+                reason: `【無視法說利多逆勢摸頭】看【${strongTwToShort.id}】大漲 +${strongTwToShort.changePct}% 去融券放空 ${shortQty / 1000} 張（${shortQty.toLocaleString()}股，自備90%保證金）`
               })) {
-                actionTags.push(`逆勢融券空 ${strongTwToShort.code}×${shortQty}股`);
+                actionTags.push(`逆勢融券空 ${strongTwToShort.code}×${shortQty / 1000}張`);
+              }
+            }
+
+            const deepOtmWarrant = warrantList.find(w => w.code === '061882' && !w.isHaltedBeforeMaturity && !w.isMaturedToday);
+            if (dayIndex === 0 && deepOtmWarrant) {
+              const wBudget = Math.min(42000, getSpendableTwdForTwMarket(agent, fx) * 0.15);
+              const buyLots = calcMaxAffordableQty(wBudget, deepOtmWarrant.price, 1000, 1.0, 'WARRANT', true);
+              if (buyLots > 0 && openOrAddPosition(agent, {
+                id: deepOtmWarrant.id, instType: 'WARRANT', currency: 'TWD', fxRate: fx,
+                unitLabel: '張', qty: buyLots, price: deepOtmWarrant.price, multiplier: 1000, marginRate: 1.0, date: dateStr,
+                reason: `【散戶貪便宜買深度價外權證】看【${deepOtmWarrant.id}】單價只要 $${deepOtmWarrant.price} 就亂買 ${buyLots} 張（殊不知履約價高達 $${deepOtmWarrant.strikePrice}，到期極易歸零）！`
+              })) {
+                actionTags.push(`買深度價外權證 ${deepOtmWarrant.code}×${buyLots}張`);
               }
             }
 
             const tsla = usStocksOnly.find(u => u.code === 'TSLA') || usStocksOnly[0];
             if (!isHawkishMacro && tsla && getAgentAllocationBreakdown(agent, rec).usPct < 25) {
-              const usdBudget = getSpendableUsdForUsMarket(agent, fx, 280000) * 0.65;
+              const usdBudget = getSpendableUsdForUsMarket(agent, fx, 160000) * 0.65;
               const buyQty = calcMaxAffordableQty(usdBudget, tsla.price, 1, 1.0, 'US_STOCK', true);
               if (buyQty > 0 && openOrAddPosition(agent, {
                 id: tsla.id, instType: 'US_STOCK', currency: 'USD', fxRate: fx,
@@ -1829,26 +3004,7 @@ const TAIFEX_OFFICIAL_FUTURES = {
                 actionTags.push(`追高美股 ${tsla.code}×${buyQty}股`);
               }
             }
-
-            const hypeTw = [...pool].sort((a, b) => b.changePct - a.changePct)[0];
-            const allocC2 = getAgentAllocationBreakdown(agent, rec);
-            if (hypeTw && allocC2.twPct < 40) {
-              const twdSpend = Math.max(0, getSpendableTwdForTwMarket(agent, fx) - 180000) * 0.55;
-              const buyQty = calcMaxAffordableQty(twdSpend, hypeTw.price, 1, 1.0, 'STOCK', true);
-              if (buyQty >= 10 && openOrAddPosition(agent, {
-                id: hypeTw.id, instType: 'STOCK', currency: 'TWD', fxRate: fx,
-                unitLabel: '股', qty: buyQty, price: hypeTw.price, multiplier: 1, marginRate: 1.0, date: dateStr,
-                reason: `【結匯轉戰台股】追買台股漲幅王【${hypeTw.id}】`
-              })) {
-                actionTags.push(`追買台股 ${hypeTw.code}×${buyQty}股`);
-              }
-            }
-          }
-
-          // ===================================================================
-          // 角色 F：利奧波德·阿申布倫納（真實成交驗證：NVDA + 台積電 + RegT 空 INTC + 現貨換匯）
-          // ===================================================================
-          else if (agent.id === 5) {
+          } else if (agent.id === 5) {
             const allocSA = getAgentAllocationBreakdown(agent, rec);
 
             const intc = usStocksOnly.find(u => u.code === 'INTC' && checkShortEligibility(rec, u, 'SHORT_US_REGT').allowed);
@@ -1944,9 +3100,6 @@ const TAIFEX_OFFICIAL_FUTURES = {
       renderDashboard(true);
     }
 
-    /* =========================================================================
-       6. V16.2 實務「做多建倉」與「放空開倉 & 回補」核心引擎（強制回傳 true/false 交割結果）
-       ========================================================================= */
     function openShortPosition(agent, params) {
       const { id, instType, currency = 'TWD', fxRate = 32.15, unitLabel, qty, price, multiplier, marginRate, fixedMarginReq, borrowFeeRate = 0, date, reason } = params;
       if (qty <= 0) return false;
@@ -1977,12 +3130,12 @@ const TAIFEX_OFFICIAL_FUTURES = {
       } else if (instType === 'SHORT_TW_SBL') {
         feeNative = Math.round(shortProceedsNative * TW_STOCK_FEE_RATE);
         taxNative = Math.round(shortProceedsNative * TW_STOCK_SELL_TAX_RATE);
-        feeBreakdownLabel = `手續費$${feeNative.toLocaleString()}(0.2%)+證交稅$${taxNative.toLocaleString()}(0.3%)+SBL年息${borrowFeeRate}%`;
+        feeBreakdownLabel = `手續費$${feeNative.toLocaleString()}+證交稅$${taxNative.toLocaleString()}(0.3%)+SBL年息${borrowFeeRate}%`;
       } else {
         feeNative = Math.round(shortProceedsNative * TW_STOCK_FEE_RATE);
         taxNative = Math.round(shortProceedsNative * TW_STOCK_SELL_TAX_RATE);
         borrowInitFeeNative = Math.round(shortProceedsNative * TW_MARGIN_SHORT_FEE_RATE);
-        feeBreakdownLabel = `手續費$${feeNative.toLocaleString()}(0.2%)+證交稅$${taxNative.toLocaleString()}(0.3%)+融券費$${borrowInitFeeNative.toLocaleString()}(0.08%)`;
+        feeBreakdownLabel = `手續費$${feeNative.toLocaleString()}+證交稅$${taxNative.toLocaleString()}(0.3%)+融券費$${borrowInitFeeNative.toLocaleString()}(0.08%)`;
       }
 
       const totalFeeAndTaxNative = +(feeNative + taxNative + borrowInitFeeNative).toFixed(2);
@@ -2042,9 +3195,11 @@ const TAIFEX_OFFICIAL_FUTURES = {
 
       const lotEntry = {
         lotNumber: h.lots.length + 1, date, fxRate, currency,
+        instId: id, instType,
         actionType: 'SHORT_INIT',
         actionLabel: `${actTag}`,
         qty: -qty, unitLabel,
+        entryAvgPrice: execPrice,
         theoPrice: price, price: execPrice,
         slipBps, slipCostTwd,
         brokerFeeTwd, taxCostTwd,
@@ -2064,7 +3219,7 @@ const TAIFEX_OFFICIAL_FUTURES = {
       return true;
     }
 
-function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateStr, fxRate, reasonText) {
+    function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateStr, fxRate, reasonText) {
       const h = agent.holdings[instId];
       if (!h || h.qty <= 0) return false;
       const actual = Math.min(h.qty, coverQty);
@@ -2093,7 +3248,7 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
         feeBreakdownLabel = `期貨平倉費 $${feeNative} + 期交稅 $${taxNative} (0.002%)`;
       } else {
         feeNative = Math.round(coverNotionalNative * TW_STOCK_FEE_RATE);
-        feeBreakdownLabel = `融券回補手續費 $${feeNative.toLocaleString()} (0.2%，免證交稅)`;
+        feeBreakdownLabel = `融券回補手續費 $${feeNative.toLocaleString()} (免證交稅)`;
       }
 
       const shortGrossPnlNative = (entryAvgPrice - execPrice) * actual * h.multiplier;
@@ -2181,7 +3336,7 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
         feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()} (0.2%)`;
       } else {
         feeNative = Math.round(notionalNative * TW_STOCK_FEE_RATE);
-        feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()} (0.2%)`;
+        feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()}`;
       }
 
       const requiredPrincipalNative = fixedMarginReq
@@ -2297,11 +3452,11 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
       } else if (h.instType === 'TW_BOND') {
         feeNative = Math.round(closeNotionalNative * TW_STOCK_FEE_RATE);
         taxNative = 0;
-        feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()}(0.2%) + 債券ETF免證交稅($0)`;
+        feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()} + 債券ETF免證交稅($0)`;
       } else {
         feeNative = Math.round(closeNotionalNative * TW_STOCK_FEE_RATE);
         taxNative = Math.round(closeNotionalNative * TW_STOCK_SELL_TAX_RATE);
-        feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()}(0.2%) + 台灣證交稅 $${taxNative.toLocaleString()}(0.3%)`;
+        feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()} + 台灣證交稅 $${taxNative.toLocaleString()}(0.3%)`;
       }
 
       const grossPnlNative = (execPrice - entryAvgPrice) * actual * h.multiplier;
@@ -2403,12 +3558,8 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
       }
     }
 
-    /* =========================================================================
-       7. V17.0 「今日戰果快報生成器」與「含日期篩選器 + 獨立實現損益欄」10欄帳本引擎
-       ========================================================================= */
     let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
 
-    /* 彙整某位大師在指定日期 (targetDate) 的所有買進、賣出實現損益與被扣稅費明細 */
     function compileAgentDailyBattleReport(agent, targetDate) {
       const allPosMap = { ...(agent.closedPositions || {}), ...(agent.holdings || {}) };
       const buys = [];
@@ -2439,7 +3590,8 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
             todayRealizedPnlTwd += rPnl;
             const pSign = rPnl >= 0 ? '+' : '';
             const pColor = rPnl >= 0 ? 'var(--tw-up)' : 'var(--tw-down)';
-            sells.push(`<strong>${shortName}</strong> 平倉 ${Math.abs(item.qty).toLocaleString()}${item.unitLabel} ➔ <span style="color:${pColor};font-weight:bold;">${pSign}$${rPnl.toLocaleString()} (${pSign}${rRoi}%)</span>`);
+            const tagTitle = item.actionLabel.includes('價內') ? '🏆到期價內領現' : item.actionLabel.includes('歸零') ? '💀到期價外歸零' : '平倉';
+            sells.push(`<strong>${shortName}</strong> ${tagTitle} ${Math.abs(item.qty).toLocaleString()}${item.unitLabel} ➔ <span style="color:${pColor};font-weight:bold;">${pSign}$${rPnl.toLocaleString()} (${pSign}${rRoi}%)</span>`);
           }
         });
       }
@@ -2536,13 +3688,12 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
             ctx.fillText(`▲${ev.actionType === 'INIT' ? '建倉' : '加碼'}`, cx - 20, Math.min(H - 20, lowY + 14 + eIdx * 12));
           } else if (ev.actionType === 'SELL') {
             ctx.fillStyle = '#ff5252';
-            ctx.fillText(`▼賣出平倉`, cx - 26, Math.max(12, highY - 6));
+            ctx.fillText(ev.actionLabel.includes('價內') ? `🏆到期領現` : ev.actionLabel.includes('歸零') ? `💀到期歸零` : `▼賣出平倉`, cx - 26, Math.max(12, highY - 6));
           }
         });
       });
     }
 
-    /* 帳本內一鍵切換前一天 / 後一天 / 指定日期篩選 */
     function stepModalFilterDate(delta) {
       const dates = appState.records.slice(0, appState.currentIdx + 1).map(r => r.date);
       if (dates.length === 0) return;
@@ -2570,30 +3721,11 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
       activeModalState.instId = instId || 'ALL_PORTFOLIO';
       activeModalState.filterDate = customFilterDate !== undefined ? customFilterDate : 'ALL';
 
-      // 支援查看「單一持倉」或「全帳戶總覽 (含已平倉歷史股票)」
       const isAllPortfolio = activeModalState.instId === 'ALL_PORTFOLIO';
       const allPosMap = { ...(agent.closedPositions || {}), ...(agent.holdings || {}) };
       const pos = isAllPortfolio ? null : allPosMap[instId];
       if (!isAllPortfolio && !pos) return;
 
-      // 動態確保表頭升為 10 欄（新增第 9 欄：💰 實現損益 ＆ 建倉vs現價 ROI）
-      const theadTr = document.querySelector('#ledgerModal .ledger-table thead tr');
-      if (theadTr && theadTr.children.length === 9) {
-        theadTr.innerHTML = `
-          <th>#</th>
-          <th>日期 (匯率)</th>
-          <th>標的與交易策略依據</th>
-          <th>數量變動</th>
-          <th>理論價 ➔ 實際成交價 (滑價)</th>
-          <th>券商手續費</th>
-          <th>法定交易稅</th>
-          <th>借券息 / 代墊息 (累計)</th>
-          <th>💰 實現損益 / 建倉vs結算價</th>
-          <th>本金/保證金 ＆ 維持率</th>
-        `;
-      }
-
-      // 動態注入「日期切換導覽列」與「今日戰果快報看板」容器
       const modalBody = document.querySelector('#ledgerModal .ledger-modal-body');
       let battleContainer = document.getElementById('modalBattleReportWrap');
       if (!battleContainer && modalBody) {
@@ -2623,7 +3755,7 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
             </div>
             <div style="display:flex; gap:6px;">
               <button class="nav-day-btn" style="background:${isAllPortfolio ? '#00ffcc' : '#e5dec9'};" onclick="openHoldingLedgerModal(${agentId}, 'ALL_PORTFOLIO', '${activeModalState.filterDate}')">
-                📒 全帳戶歷史總帳本 (含已平倉)
+                📒 全帳戶歷史總帳本 (含已平倉/到期權證)
               </button>
               <button class="nav-day-btn" style="background:${activeModalState.filterDate === rec.date ? '#ffea00' : '#e5dec9'};" onclick="openHoldingLedgerModal(${agentId}, '${activeModalState.instId.replace(/'/g, "\\'")}', '${rec.date}')">
                 ⚡ 只看今日 (${rec.date.slice(5)})
@@ -2637,15 +3769,15 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
               <span class="battle-pnl-val" style="color:${bPnlColor};">
                 ${battle.todayRealizedPnlTwd >= 0 ? '+' : ''}$${battle.todayRealizedPnlTwd.toLocaleString()} TWD
               </span>
-              <span style="font-size:0.7rem; color:#cfd8dc; margin-top:2px;">(已扣除滑價/手續費/證交稅後淨利)</span>
+              <span style="font-size:0.7rem; color:#cfd8dc; margin-top:2px;">(含權證到期履約/歸零＆平倉淨利)</span>
             </div>
             <div class="battle-col-box battle-col-buy">
               <div class="battle-col-title" style="color:#0c8428;">🟢 當日買進 / 新開倉 (${battle.buys.length}筆)</div>
               <div>${battle.buys.length > 0 ? battle.buys.join('<br>') : '<span style="color:#777;">當日無買進或新開倉動作</span>'}</div>
             </div>
             <div class="battle-col-box battle-col-sell">
-              <div class="battle-col-title" style="color:#d61a1a;">🔴 當日賣出 / 回補實現損益 (${battle.sells.length}筆)</div>
-              <div>${battle.sells.length > 0 ? battle.sells.join('<br>') : '<span style="color:#777;">當日無賣出或平倉回補動作</span>'}</div>
+              <div class="battle-col-title" style="color:#d61a1a;">🔴 當日賣出 / 到期履約 / 歸零 (${battle.sells.length}筆)</div>
+              <div>${battle.sells.length > 0 ? battle.sells.join('<br>') : '<span style="color:#777;">當日無賣出或到期結算動作</span>'}</div>
             </div>
             <div class="battle-col-box battle-col-fee">
               <div class="battle-col-title" style="color:#9c640c;">🟡 當日被扣款項總計 (-$${battle.todayFeesDeductedTwd.toLocaleString()})</div>
@@ -2655,14 +3787,13 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
         `;
       }
 
-      // 若為單一標的模式，繪製 K 線圖與 8 格標頭；若為全帳戶模式則彙整全帳戶總數據
       const klinePanel = document.querySelector('#ledgerModal .kline-chart-panel');
       let historyLogs = [];
 
       if (isAllPortfolio) {
         if (klinePanel) klinePanel.style.display = 'none';
-        document.getElementById('modalTitleText').textContent = `📒 【${agent.name}】全帳戶歷史交割與已實現損益總帳本（含已平倉股票）`;
-        document.getElementById('modalContractSpecText').textContent = `💡 目前顯示【${agent.name}】名下所有持倉與已平倉股票之完整交割紀錄。點擊上方日期按鈕可單獨篩選某一天之買賣與實現損益！`;
+        document.getElementById('modalTitleText').textContent = `📒 【${agent.name}】全帳戶歷史交割與已實現損益總帳本（含到期履約/歸零權證與已平倉股票）`;
+        document.getElementById('modalContractSpecText').textContent = `💡 目前顯示【${agent.name}】名下所有持倉與已結算/平倉標的之完整交割紀錄。點擊上方日期按鈕可單獨篩選某一天之買賣與實現損益！`;
 
         let totSlip = 0, totBroker = 0, totTax = 0, totBorrow = 0, totRealizedPnl = 0;
         for (const [kId, pObj] of Object.entries(allPosMap)) {
@@ -2695,7 +3826,7 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
         const isUsd = pos.currency === 'USD';
         const isShort = isShortPositionType(pos.instType);
         const sym = isUsd ? 'US$' : '$';
-        const { curPrice, unrealizedPnlTwd, roiPct, maintRatioPct, isMarginCall } = evaluatePosition(rec, instId, pos);
+        const { curPrice, unrealizedPnlTwd, roiPct } = evaluatePosition(rec, instId, pos);
 
         const divEarnedTwd = pos.dividendsReceivedTwd || 0;
         const feesPaidTwd = pos.feesPaidOnPosTwd || 0;
@@ -2707,7 +3838,6 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
           ? (unrealizedPnlTwd + divEarnedTwd - feesPaidTwd)
           : (pos.history || []).reduce((acc, x) => acc + (x.realizedPnlTwd || 0), 0);
         const pnlColor = totalNetGainTwd >= 0 ? 'var(--tw-up)' : 'var(--tw-down)';
-        const theoAvg = pos.theoAvgCost || pos.avgCost;
 
         document.getElementById('modalTitleText').textContent = `📒 【${agent.name}】持有「${instId}」精細交割帳本（滑價 / 手續費 / 證交稅 / 實現損益）`;
         document.getElementById('modalContractSpecText').textContent = `📌 點擊上方【◀ 前一天 / 後一天 ▶】可單獨篩選特定日期之交易；下方第 9 欄直接對比「建倉價 vs 現價/結算價」與稅後實現淨損益！`;
@@ -2715,7 +3845,7 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
         document.getElementById('modalSummaryBar').innerHTML = `
           <div class="ledger-sum-cell">
             <span class="ledger-sum-label">部位狀態與數量</span>
-            <span class="ledger-sum-val">${pos.qty > 0 ? (isShort ? '📉空單' : '📈多單') + ' ' + pos.qty.toLocaleString() + pos.unitLabel : '✅已全數平倉'}</span>
+            <span class="ledger-sum-val">${pos.qty > 0 ? (isShort ? '📉空單' : '📈多單') + ' ' + pos.qty.toLocaleString() + pos.unitLabel : '✅已結算/平倉'}</span>
           </div>
           <div class="ledger-sum-cell">
             <span class="ledger-sum-label">建倉均價 ➔ 當日現價</span>
@@ -2809,7 +3939,6 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
             borrowAndDivCell = `<span style="color:var(--div-gold);font-weight:bold;">+$${Number(item.totalCostTwd).toLocaleString()} TWD (股息)</span>`;
           }
 
-          // 第 9 欄：獨立「實現損益 (Realized P&L)」與「建倉價 vs 結算價 (ROI%)」直觀對比
           let pnlAndCompareCell = `<span style="color:#888;">—</span>`;
           const qLatest = findInstrumentQuote(rec, item.instId || instId, refPos.instType);
           const latestP = qLatest ? qLatest.price : execP;
@@ -2824,7 +3953,7 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
             pnlAndCompareCell = `
               <div class="${boxCls}">💰實現 ${sign}$${rPnl.toLocaleString()} TWD (${sign}${rRoi}%)</div>
               <div style="font-size:0.74rem; color:#333; margin-top:2px;">
-                建倉均價 <strong>${itemSym}${entryP.toFixed(2)}</strong> ➔ 平倉 <strong>${itemSym}${Number(execP).toFixed(2)}</strong>
+                建倉均價 <strong>${itemSym}${entryP.toFixed(2)}</strong> ➔ 結算/平倉 <strong>${itemSym}${Number(execP).toFixed(2)}</strong>
               </div>
             `;
           } else if (isOpenTrade) {
@@ -2884,9 +4013,6 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
       document.getElementById('ledgerModal').classList.remove('open');
     }
 
-    /* =========================================================================
-       8. 六大傳奇大師像素立繪動畫引擎與總經雷達介面渲染
-       ========================================================================= */
     function drawAnimatedPixelAgent(canvasId, agent, animTick) {
       const cvs = document.getElementById(canvasId);
       if (!cvs) return;
@@ -3059,15 +4185,17 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
 
     function renderMarketTable() {
       const rec = appState.records[appState.currentIdx] || appState.records[0];
-      const kw = (document.getElementById('stockFilterInput').value || '').trim().toLowerCase();
+      const filterEl = document.getElementById('stockFilterInput');
+      const kw = (filterEl ? filterEl.value : '').trim().toLowerCase();
       const thead = document.getElementById('marketTableHead');
       const tbody = document.getElementById('marketTableBody');
+      if (!thead || !tbody) return;
 
       if (currentPoolTab === 'STOCK') {
         thead.innerHTML = `<tr><th>台股標的</th><th>收盤</th><th>漲跌</th><th>可空性 / 借券年息 / 除息</th></tr>`;
         const sourcePool = (kw && Array.isArray(rec.allStocks) && rec.allStocks.length > 0) ? rec.allStocks : rec.sectors;
         const list = kw ? sourcePool.filter(s => s.id.toLowerCase().includes(kw)).slice(0, 60) : rec.sectors;
-        document.getElementById('stockCountText').textContent = `台股 ${list.length} 檔 (滑價5bps/融券90%)`;
+        document.getElementById('stockCountText').textContent = `台股 ${list.length} 檔 (滑價5bps/融券整張1000股)`;
 
         tbody.innerHTML = list.map(s => {
           const isUp = s.changePct >= 0;
@@ -3086,7 +4214,7 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
           `;
         }).join('');
       } else if (currentPoolTab === 'US') {
-        thead.innerHTML = `<tr><th>美股 / 美債</th><th>收盤(USD)</th><th>漲跌</th><th>RegT可空性 & 借券年息</th></tr>`;
+        thead.innerHTML = `<tr><th>美股 / 美債</th><th>收盤(USD)</th><th>漲跌</th><th>RegT可空性 &amp; 借券年息</th></tr>`;
         const uList = (rec.usAssets || []).filter(u => !kw || u.id.toLowerCase().includes(kw));
         document.getElementById('stockCountText').textContent = `美股/美債 ${uList.length} 檔 (滑價3bps/RegT)`;
 
@@ -3130,19 +4258,41 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
           `;
         }).join('');
       } else {
-        thead.innerHTML = `<tr><th>證交所 6 碼真實權證</th><th>收盤價</th><th>單日漲跌</th><th>台灣權證稅則</th></tr>`;
-        const wList = (rec.warrants || []).filter(w => !kw || w.id.toLowerCase().includes(kw));
-        document.getElementById('stockCountText').textContent = `真實6碼權證 ${wList.length} 檔 (滑價25bps)`;
+        thead.innerHTML = `<tr><th>證交所6碼權證 (購/售P)</th><th>市價/漲跌</th><th>履約價 / 行使比 / 價內外</th><th>最後交易日 ➔ 到期結算狀態</th></tr>`;
+        const wList = syncWarrantsWithStocks(rec.sectors, rec.warrants, rec.date).filter(w => !kw || w.id.toLowerCase().includes(kw));
+        document.getElementById('stockCountText').textContent = `TWSE 6碼權證 ${wList.length} 檔 (含認購/認售P・到期自動現金履約/歸零)`;
 
         tbody.innerHTML = wList.map(w => {
           const isUp = w.changePct >= 0;
           const color = isUp ? 'var(--tw-up)' : 'var(--tw-down)';
+          const typeBadge = w.warrantType === 'PUT'
+            ? `<span class="short-ban-tag" style="background:#4a148c;color:#fff;">認售PUT(尾碼P)</span>`
+            : `<span class="ex-div-tag" style="background:#ffe082;">認購CALL</span>`;
+          const itmBadge = w.isITM
+            ? `<span style="color:var(--tw-up);font-weight:bold;">價內+${w.moneynessPct}%</span>`
+            : `<span style="color:var(--tw-down);">價外${w.moneynessPct}%</span>`;
+
+          let statusCell = `<span style="color:#0c8428;font-weight:bold;">🟢可交易</span><div style="font-size:0.7rem;color:#555;">最後交易:${w.lastTradingDate}<br>到期日:${w.maturityDate}</div>`;
+          if (w.isMaturedToday) {
+            statusCell = w.isITM
+              ? `<span class="ex-div-tag" style="background:#ffda66;">🏆今日到期・價內現金履約</span><div style="font-size:0.7rem;color:#333;">60m結算價:$${w.settlementPrice60m}</div>`
+              : `<span class="short-ban-tag">💀今日到期・價外歸零(-100%)</span><div style="font-size:0.7rem;color:#555;">60m結算價:$${w.settlementPrice60m} (未達$${w.strikePrice})</div>`;
+          } else if (w.isHaltedBeforeMaturity) {
+            statusCell = `<span class="short-ok-tag">⏸️停牌待結算(已過最後交易日)</span><div style="font-size:0.7rem;color:#555;">將於 ${w.maturityDate} 自動結算</div>`;
+          }
+
           return `
             <tr>
-              <td><strong>${w.id}</strong></td>
-              <td style="font-family:'VT323'; font-size:1.1rem;">$${w.price.toFixed(2)}</td>
-              <td style="color:${color}; font-weight:bold;">${isUp ? '+' : ''}${w.changePct.toFixed(2)}%</td>
-              <td style="color:#666; font-size:0.74rem;">費0.2% / 賣出稅0.1%</td>
+              <td>${typeBadge}<br><strong>${w.id}</strong><div style="font-size:0.7rem;color:#555;">標的:${w.underlyingId} ($${w.underlyingPrice})</div></td>
+              <td style="font-family:'VT323'; font-size:1.1rem; font-weight:bold;">
+                $${w.price.toFixed(2)}<br>
+                <span style="color:${color}; font-size:0.95rem;">${isUp ? '+' : ''}${w.changePct.toFixed(1)}% (${w.effLeverage}x槓桿)</span>
+              </td>
+              <td style="font-size:0.75rem; line-height:1.4;">
+                履約價: <strong>$${w.strikePrice}</strong><br>
+                行使比: <strong>${w.exerciseRatio}</strong> ｜ ${itmBadge}
+              </td>
+              <td style="font-size:0.75rem;">${statusCell}</td>
             </tr>
           `;
         }).join('');
@@ -3166,7 +4316,7 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
         });
       }
 
-      html += `<div class="news-row"><span class="news-pill" style="background:#101d24;">💱雙向自動換匯</span><span>今日 USD/TWD 報 <strong>${Number(rec.fxRate || 32.15).toFixed(2)}</strong>｜已啟用 <strong>Auto-FX & Cash Sweep</strong> 雙向換匯與零透支自動歸集機制。</span></div>`;
+      html += `<div class="news-row"><span class="news-pill" style="background:#101d24;">💱雙向自動換匯</span><span>今日 USD/TWD 報 <strong>${Number(rec.fxRate || 32.15).toFixed(2)}</strong>｜已啟用 <strong>Auto-FX &amp; Cash Sweep</strong> 雙向換匯與零透支自動歸集機制。</span></div>`;
 
       rec.sectors.forEach(s => {
         (s.news || []).forEach(n => {
@@ -3223,7 +4373,10 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
           else if (pos.instType === 'SHORT_US_REGT') instTag = '<span class="inst-badge inst-short-us">📉美股RegT空</span>';
           else if (pos.instType === 'FUTURES_SHORT') instTag = '<span class="inst-badge inst-fut-short">⚡期貨·做空</span>';
           else if (pos.instType === 'FUTURES_LONG') instTag = '<span class="inst-badge inst-fut-long">⚡期貨·做多</span>';
-          else if (pos.instType === 'WARRANT') instTag = '<span class="inst-badge inst-warrant">🔥權證</span>';
+          else if (pos.instType === 'WARRANT') {
+            const isPut = instId.split(' ')[0].endsWith('P');
+            instTag = `<span class="inst-badge inst-warrant">🔥${isPut ? '認售Put' : '認購Call'}</span>`;
+          }
 
           const statusPill = isShort
             ? (isMarginCall
@@ -3233,19 +4386,20 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
               ? `<span class="div-earned-pill">💰息$${pos.dividendsReceivedTwd.toLocaleString()}</span>`
               : '');
 
+          const lotNote = (pos.instType === 'SHORT_TW_MARGIN' || pos.instType === 'SHORT_TW_SBL') ? ` (${pos.qty / 1000}張)` : '';
+
           holdingsHtml += `
-            <span class="holding-chip" title="點擊查看 V17.0 精細交割帳本：今日戰果快報、滑價、手續費、證交稅與獨立實現損益" onclick="openHoldingLedgerModal(${ag.id}, '${safeInstId}', 'ALL')">
+            <span class="holding-chip" title="點擊查看精細交割帳本：今日戰果快報、滑價、手續費、證交稅與獨立實現損益" onclick="openHoldingLedgerModal(${ag.id}, '${safeInstId}', 'ALL')">
               ${instTag}
-              <span>${instId.split(' ')[0]} × ${pos.qty.toLocaleString()}${pos.unitLabel}</span>
+              <span>${instId.split(' ')[0]} × ${pos.qty.toLocaleString()}${pos.unitLabel}${lotNote}</span>
               <span style="color:${pColor}; font-family:'VT323'; font-size:1.05rem;">(${roiPct >= 0 ? '+' : ''}${roiPct}%)</span>
               ${statusPill}
               <span class="lot-count-badge">${lotCount}筆 📊</span>
             </span>
           `;
         }
-        if (!holdingsHtml) holdingsHtml = '<span style="color:#777; font-size:0.8rem;">目前空手觀望中（可點右側按鈕查看歷史已平倉總帳本）</span>';
+        if (!holdingsHtml) holdingsHtml = '<span style="color:#777; font-size:0.8rem;">目前空手觀望中（可點右側按鈕查看歷史已平倉/到期權證總帳本）</span>';
 
-        // 產生卡片內嵌「今日買賣與損益摘要區 (Today's P&L & Trades)」
         const todayBattle = compileAgentDailyBattleReport(ag, rec.date);
         const rPnl = todayBattle.todayRealizedPnlTwd;
         const rColor = rPnl > 0 ? 'var(--tw-up)' : rPnl < 0 ? 'var(--tw-down)' : '#555';
@@ -3329,8 +4483,8 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
               <div class="info-row">
                 <div class="sub-box">
                   <div class="sub-box-title">
-                    <span>📦 多空持倉組合 (點擊任一持倉看 K 線與獨立實現損益帳本)</span>
-                    <button class=" short-ok-tag" style="cursor:pointer; font-size:0.72rem; padding:1px 6px;" onclick="openHoldingLedgerModal(${ag.id}, 'ALL_PORTFOLIO', '${rec.date}')">
+                    <span>📦 多空持倉組合 (點擊看 K 線與帳本)</span>
+                    <button class="short-ok-tag" style="cursor:pointer; font-size:0.72rem; padding:1px 6px;" onclick="openHoldingLedgerModal(${ag.id}, 'ALL_PORTFOLIO', '${rec.date}')">
                       📒 今日戰果＆全帳戶總帳本
                     </button>
                   </div>
@@ -3343,7 +4497,7 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
                   </div>
                   <div class="card-today-digest">
                     <div>🟢 <strong>買進</strong>：${todayBattle.buys.length > 0 ? todayBattle.buys.join('、') : '無'}</div>
-                    <div>🔴 <strong>賣出</strong>：${todayBattle.sells.length > 0 ? todayBattle.sells.join('、') : '無'}</div>
+                    <div>🔴 <strong>賣出/結算</strong>：${todayBattle.sells.length > 0 ? todayBattle.sells.join('、') : '無'}</div>
                     <div>🟡 <strong>扣款</strong>：-$${todayBattle.todayFeesDeductedTwd.toLocaleString()} TWD (${ag.todayAction})</div>
                   </div>
                 </div>
@@ -3358,7 +4512,7 @@ function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateSt
         `;
       }).join('');
 
-if (triggerTypewriter) replayAllTypewriters();
+      if (triggerTypewriter) replayAllTypewriters();
       else {
         agentsToRender.forEach(ag => {
           const el = document.getElementById(`rpg_text_${ag.id}`);
@@ -3371,6 +4525,7 @@ if (triggerTypewriter) replayAllTypewriters();
       appState.currentIdx = (appState.currentIdx + 1) % appState.records.length;
       renderDashboard(true);
     }
+
     function switchTradingDate(idxStr) {
       appState.currentIdx = Number(idxStr) || 0;
       renderDashboard(true);
@@ -3383,53 +4538,17 @@ if (triggerTypewriter) replayAllTypewriters();
       reader.onload = function(e) {
         try {
           const data = JSON.parse(e.target.result);
-          if (Array.isArray(data.records) && data.records.length > 0) {
-            appState.records = data.records.map((r, rIdx) => {
-              const dStr = r.date || new Date().toISOString().slice(0, 10);
-              const wStr = r.weekday || WEEKDAYS[new Date(dStr).getDay()] || '';
-              const normSectors = (r.sectors || []).map((s, i) => normalizeStockItem(s, i));
-              return {
-                date: dStr, weekday: wStr, fullDateLabel: r.fullDateLabel || `${dStr} (${wStr})`,
-                fxRate: Number(r.fxRate) || (32.10 + rIdx * 0.12),
-                macro: r.macro || null,
-                totalMarketCount: r.totalMarketCount || normSectors.length,
-                macroFutures: r.macroFutures || null,
-                usAssets: Array.isArray(r.usAssets) && r.usAssets.length > 0 ? r.usAssets : null,
-                sectors: normSectors,
-                warrants: syncWarrantsWithStocks(normSectors, r.warrants),
-                allStocks: Array.isArray(r.allStocks) ? r.allStocks.map((s, i) => normalizeStockItem(s, i)) : null
-              };
-            });
-          } else if (Array.isArray(data.sectors) && data.sectors.length > 0) {
-            const dStr = data.updateDate || new Date().toISOString().slice(0, 10);
-            const wStr = WEEKDAYS[new Date(dStr).getDay()] || '';
-            const normSectors = data.sectors.map((s, i) => normalizeStockItem(s, i));
-            const newRec = {
-              date: dStr, weekday: wStr, fullDateLabel: `${dStr} (${wStr})`,
-              fxRate: Number(data.fxRate) || 32.25,
-              macro: data.macro || null,
-              totalMarketCount: normSectors.length,
-              macroFutures: null, usAssets: data.usAssets || null,
-              sectors: normSectors,
-              warrants: syncWarrantsWithStocks(normSectors, data.warrants),
-              allStocks: null
-            };
-            const existIdx = appState.records.findIndex(r => r.date === dStr);
-            if (existIdx >= 0) appState.records[existIdx] = newRec;
-            else {
-              appState.records.push(newRec);
-              appState.records.sort((a, b) => a.date.localeCompare(b.date));
-            }
+          if (applyRawJsonDataToState(data)) {
+            customUploadedQuantSeries = null;
+            recalculateTimeline();
+            appState.currentIdx = appState.records.length - 1;
+            renderDashboard(true);
+            showSystemNotice(`✅ 成功載入 ${appState.records.length} 個交易日之總經雷達、TWSE 權證到期結算與精細交割帳本！`);
           } else {
-            alert('JSON 格式不符！');
-            return;
+            showSystemNotice('JSON 格式不符！');
           }
-          recalculateTimeline();
-          appState.currentIdx = appState.records.length - 1;
-          renderDashboard(true);
-          alert(`✅ 成功載入 ${appState.records.length} 個交易日之總經雷達、雙向換匯與精細交割帳本參數！`);
         } catch (err) {
-          alert('JSON 解析失敗：' + err.message);
+          showSystemNotice('JSON 解析失敗：' + err.message);
         }
         event.target.value = '';
       };
@@ -3450,6 +4569,7 @@ if (triggerTypewriter) replayAllTypewriters();
 
     function resetSimulatorMemory() {
       localStorage.removeItem(STORAGE_KEY);
+      customUploadedQuantSeries = null;
       appState.records = JSON.parse(JSON.stringify(BUILTIN_SCENARIOS));
       recalculateTimeline();
       appState.currentIdx = appState.records.length - 1;
@@ -3460,13 +4580,11 @@ if (triggerTypewriter) replayAllTypewriters();
     setInterval(() => {
       globalAnimTick++;
       const rec = appState.records[appState.currentIdx] || appState.records[0];
+      if (!rec) return;
       const snapshots = rec.agentSnapshots || BASE_AGENTS;
       snapshots.forEach(ag => drawAnimatedPixelAgent(`sprite_cvs_${ag.id}`, ag, globalAnimTick));
     }, 180);
 
-/* =========================================================================
-       9. V17.1 自動同步 GitHub Actions 最新 tw_stocks_history.json 啟動引擎
-       ========================================================================= */
     function applyRawJsonDataToState(data) {
       if (Array.isArray(data.records) && data.records.length > 0) {
         appState.records = data.records.map((r, rIdx) => {
@@ -3484,7 +4602,7 @@ if (triggerTypewriter) replayAllTypewriters();
             macroFutures: r.macroFutures || null,
             usAssets: Array.isArray(r.usAssets) && r.usAssets.length > 0 ? r.usAssets : null,
             sectors: normSectors,
-            warrants: syncWarrantsWithStocks(normSectors, r.warrants),
+            warrants: syncWarrantsWithStocks(normSectors, r.warrants, dStr),
             allStocks: Array.isArray(r.allStocks) ? r.allStocks.map((s, i) => normalizeStockItem(s, i)) : null
           };
         });
@@ -3504,7 +4622,7 @@ if (triggerTypewriter) replayAllTypewriters();
           macroFutures: null,
           usAssets: data.usAssets || null,
           sectors: normSectors,
-          warrants: syncWarrantsWithStocks(normSectors, data.warrants),
+          warrants: syncWarrantsWithStocks(normSectors, data.warrants, dStr),
           allStocks: null
         };
         const existIdx = appState.records.findIndex(r => r.date === dStr);
@@ -3518,8 +4636,757 @@ if (triggerTypewriter) replayAllTypewriters();
       return false;
     }
 
-async function bootstrap() {
-      // 1. 優先嘗試自動從同目錄讀取 GitHub Actions 產生的最新 tw_stocks_history.json
+    function logGamma(z) {
+      const c = [
+        76.18009172947146, -86.50532032941677, 24.01409824083091,
+        -1.231739572450155, 0.001208650973866179, -0.000005395239384953
+      ];
+      let x = z, y = z;
+      let tmp = x + 5.5;
+      tmp -= (x + 0.5) * Math.log(tmp);
+      let ser = 1.000000000190015;
+      for (let j = 0; j < 6; j++) ser += c[j] / ++y;
+      return -tmp + Math.log(2.5066282746310005 * ser / x);
+    }
+
+    function betacf(a, b, x) {
+      const MAXIT = 150, EPS = 3e-8, FPMIN = 1e-30;
+      let qab = a + b, qap = a + 1, qam = a - 1;
+      let c = 1, d = 1 - qab * x / qap;
+      if (Math.abs(d) < FPMIN) d = FPMIN;
+      d = 1 / d;
+      let h = d;
+      for (let m = 1; m <= MAXIT; m++) {
+        let m2 = 2 * m;
+        let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+        d = 1 + aa * d;
+        if (Math.abs(d) < FPMIN) d = FPMIN;
+        c = 1 + aa / c;
+        if (Math.abs(c) < FPMIN) c = FPMIN;
+        d = 1 / d;
+        h *= d * c;
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+        d = 1 + aa * d;
+        if (Math.abs(d) < FPMIN) d = FPMIN;
+        c = 1 + aa / c;
+        if (Math.abs(c) < FPMIN) c = FPMIN;
+        d = 1 / d;
+        let del = d * c;
+        h *= del;
+        if (Math.abs(del - 1.0) < EPS) break;
+      }
+      return h;
+    }
+
+    function regIncompleteBeta(x, a, b) {
+      if (x <= 0) return 0;
+      if (x >= 1) return 1;
+      const bt = Math.exp(logGamma(a + b) - logGamma(a) - logGamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+      if (x < (a + 1) / (a + b + 2)) return bt * betacf(a, b, x) / a;
+      return 1 - bt * betacf(b, a, 1 - x) / b;
+    }
+
+    function calcTwoTailedTTestPValue(tStat, df) {
+      if (!isFinite(tStat) || df <= 0) return 1.0;
+      const absT = Math.abs(tStat);
+      if (absT === 0) return 1.0;
+      const x = df / (df + absT * absT);
+      const p = regIncompleteBeta(x, df / 2.0, 0.5);
+      return Math.max(0.00001, Math.min(1.0, p));
+    }
+
+    function calcBinomialTwoTailedPValue(kWins, nTrials) {
+      if (nTrials <= 0) return 1.0;
+      const logFact = (n) => {
+        let s = 0;
+        for (let i = 2; i <= n; i++) s += Math.log(i);
+        return s;
+      };
+      const prob = (k) => Math.exp(logFact(nTrials) - logFact(k) - logFact(nTrials - k) - nTrials * Math.log(2));
+      const pObs = prob(kWins);
+      let pSum = 0;
+      for (let k = 0; k <= nTrials; k++) {
+        const pk = prob(k);
+        if (pk <= pObs * 1.000001) pSum += pk;
+      }
+      return Math.min(1.0, pSum);
+    }
+
+    function calcWelchTwoSampleTTest(arrA, arrB) {
+      const n1 = arrA.length, n2 = arrB.length;
+      if (n1 < 2 || n2 < 2) return { tStat: 0, df: 1, pValue: 1.0 };
+      const m1 = arrA.reduce((s, v) => s + v, 0) / n1;
+      const m2 = arrB.reduce((s, v) => s + v, 0) / n2;
+      const v1 = arrA.reduce((s, v) => s + (v - m1) ** 2, 0) / (n1 - 1);
+      const v2 = arrB.reduce((s, v) => s + (v - m2) ** 2, 0) / (n2 - 1);
+      const se = Math.sqrt(v1 / n1 + v2 / n2);
+      if (se < 1e-12) return { tStat: 0, df: n1 + n2 - 2, pValue: 1.0 };
+      const tStat = (m1 - m2) / se;
+      const num = (v1 / n1 + v2 / n2) ** 2;
+      const den = ((v1 / n1) ** 2) / (n1 - 1) + ((v2 / n2) ** 2) / (n2 - 1);
+      const df = den > 0 ? num / den : (n1 + n2 - 2);
+      const pValue = calcTwoTailedTTestPValue(tStat, df);
+      return { tStat, df, pValue };
+    }
+
+    let customUploadedQuantSeries = null;
+
+    function resetCustomQuantSource() {
+      customUploadedQuantSeries = null;
+      const lbl = document.getElementById('quantDataSourceLabel');
+      if (lbl) lbl.textContent = '📡 資料來源：模擬器內建實盤時間軸';
+      renderQuantStatsModalContent();
+    }
+
+    function buildAllAgentsQuantReport() {
+      if (customUploadedQuantSeries) return customUploadedQuantSeries;
+
+      const records = appState.records || [];
+      const dates = ['初始建倉前', ...records.map(r => r.date)];
+      const agentColors = ['#1e4d8c', '#2b6e46', '#b8860b', '#d61a1a', '#6a1b9a', '#00bfa5'];
+
+      const reports = BASE_AGENTS.map((baseAg, agIdx) => {
+        const initCap = baseAg.initialCapital || 1000000;
+        const navSeries = [initCap];
+        const dailyReturnsPct = [];
+        const drawdownSeriesPct = [0];
+
+        let peakNav = initCap;
+        let maxDrawdownPct = 0;
+        let mddPeakDate = '初始';
+        let mddTroughDate = '初始';
+        let currentPeakDate = '初始';
+
+        records.forEach((rec) => {
+          const snapList = rec.agentSnapshots || BASE_AGENTS;
+          const agSnap = snapList.find(a => a.id === baseAg.id) || baseAg;
+          const alloc = getAgentAllocationBreakdown(agSnap, rec);
+          const prevNav = navSeries[navSeries.length - 1];
+          const curNav = alloc.totalNav;
+
+          const rPct = prevNav > 0 ? ((curNav - prevNav) / prevNav) * 100 : 0;
+          dailyReturnsPct.push(rPct);
+          navSeries.push(curNav);
+
+          if (curNav >= peakNav) {
+            peakNav = curNav;
+            currentPeakDate = rec.date;
+          }
+          const ddPct = peakNav > 0 ? ((curNav - peakNav) / peakNav) * 100 : 0;
+          drawdownSeriesPct.push(ddPct);
+          if (ddPct < maxDrawdownPct) {
+            maxDrawdownPct = ddPct;
+            mddPeakDate = currentPeakDate;
+            mddTroughDate = rec.date;
+          }
+        });
+
+        const lastRec = records[records.length - 1] || records[0];
+        const finalAg = (lastRec.agentSnapshots || BASE_AGENTS).find(a => a.id === baseAg.id) || baseAg;
+        const allPosMap = { ...(finalAg.closedPositions || {}), ...(finalAg.holdings || {}) };
+
+        const tradeReturnsPct = [];
+        let grossProfitTwd = 0, grossLossTwd = 0;
+        let winTrades = 0, loseTrades = 0;
+
+        for (const [instId, pos] of Object.entries(allPosMap)) {
+          (pos.history || []).forEach(h => {
+            if (['SELL', 'SHORT_COVER'].includes(h.actionType) && h.realizedPnlTwd !== undefined) {
+              const pnl = Number(h.realizedPnlTwd || 0);
+              const roi = Number(h.realizedRoiPct || 0);
+              tradeReturnsPct.push(roi);
+              if (pnl > 0) { winTrades++; grossProfitTwd += pnl; }
+              else if (pnl < 0) { loseTrades++; grossLossTwd += Math.abs(pnl); }
+            }
+          });
+          if (pos.qty > 0) {
+            const ev = evaluatePosition(lastRec, instId, pos);
+            const netFloat = ev.unrealizedPnlTwd + (pos.dividendsReceivedTwd || 0) - (pos.feesPaidOnPosTwd || 0);
+            tradeReturnsPct.push(ev.roiPct);
+            if (netFloat > 0) { winTrades++; grossProfitTwd += netFloat; }
+            else if (netFloat < 0) { loseTrades++; grossLossTwd += Math.abs(netFloat); }
+          }
+        }
+
+        const nDays = dailyReturnsPct.length;
+        const winDays = dailyReturnsPct.filter(r => r > 0.0001).length;
+        const loseDays = dailyReturnsPct.filter(r => r < -0.0001).length;
+        const flatDays = nDays - winDays - loseDays;
+        const dailyWinRatePct = nDays > 0 ? (winDays / nDays) * 100 : 0;
+
+        const totalTradesCount = winTrades + loseTrades;
+        const tradeWinRatePct = totalTradesCount > 0 ? (winTrades / totalTradesCount) * 100 : dailyWinRatePct;
+        const profitFactor = grossLossTwd > 0 ? +(grossProfitTwd / grossLossTwd).toFixed(2) : (grossProfitTwd > 0 ? 99.9 : 0.0);
+
+        const meanDailyRet = nDays > 0 ? dailyReturnsPct.reduce((s, v) => s + v, 0) / nDays : 0;
+        const sampleVar = nDays > 1
+          ? dailyReturnsPct.reduce((s, v) => s + (v - meanDailyRet) ** 2, 0) / (nDays - 1)
+          : 0;
+        const stdDailyRet = Math.sqrt(sampleVar);
+
+        const rfDailyPct = 1.50 / 252;
+        const downsideSq = dailyReturnsPct.map(r => Math.min(0, r - rfDailyPct) ** 2);
+        const downsideStd = nDays > 0 ? Math.sqrt(downsideSq.reduce((s, v) => s + v, 0) / nDays) : 0;
+
+        const sharpeAnnual = stdDailyRet > 1e-6 ? ((meanDailyRet - rfDailyPct) / stdDailyRet) * Math.sqrt(252) : 0;
+        const sortinoAnnual = downsideStd > 1e-6 ? ((meanDailyRet - rfDailyPct) / downsideStd) * Math.sqrt(252) : (meanDailyRet > 0 ? 9.99 : 0);
+
+        const combinedSample = dailyReturnsPct.length >= 4 ? dailyReturnsPct : [...dailyReturnsPct, ...tradeReturnsPct];
+        const nComb = combinedSample.length;
+        const mComb = nComb > 0 ? combinedSample.reduce((s, v) => s + v, 0) / nComb : 0;
+        const sdComb = nComb > 1
+          ? Math.sqrt(combinedSample.reduce((s, v) => s + (v - mComb) ** 2, 0) / (nComb - 1))
+          : 1;
+        const tStat = sdComb > 1e-8 ? mComb / (sdComb / Math.sqrt(nComb)) : 0;
+        const df = Math.max(1, nComb - 1);
+        const pValueT = calcTwoTailedTTestPValue(tStat, df);
+
+        const binomWins = winDays + winTrades;
+        const binomTrials = (winDays + loseDays) + totalTradesCount;
+        const pValueBinom = calcBinomialTwoTailedPValue(binomWins, binomTrials);
+
+        const finalNav = navSeries[navSeries.length - 1];
+        const totalRoiPct = ((finalNav - initCap) / initCap) * 100;
+        const calmarRatio = Math.abs(maxDrawdownPct) > 0.01 ? +(totalRoiPct / Math.abs(maxDrawdownPct)).toFixed(2) : (totalRoiPct > 0 ? 99.9 : 0);
+
+        return {
+          id: baseAg.id,
+          name: baseAg.name,
+          style: baseAg.style,
+          headerTheme: baseAg.headerTheme,
+          color: agentColors[agIdx % agentColors.length],
+          initCap,
+          finalNav,
+          totalRoiPct: +totalRoiPct.toFixed(2),
+          maxDrawdownPct: +maxDrawdownPct.toFixed(2),
+          mddPeakDate,
+          mddTroughDate,
+          calmarRatio,
+          meanDailyRet: +meanDailyRet.toFixed(3),
+          stdDailyRet: +stdDailyRet.toFixed(3),
+          sharpeAnnual: +sharpeAnnual.toFixed(2),
+          sortinoAnnual: +sortinoAnnual.toFixed(2),
+          winDays, loseDays, flatDays,
+          dailyWinRatePct: +dailyWinRatePct.toFixed(1),
+          winTrades, loseTrades,
+          tradeWinRatePct: +tradeWinRatePct.toFixed(1),
+          profitFactor,
+          tStat: +tStat.toFixed(3),
+          df,
+          pValueT,
+          pValueBinom,
+          dates,
+          navSeries,
+          dailyReturnsPct,
+          drawdownSeriesPct,
+          tradeReturnsPct
+        };
+      });
+
+      return { dates, reports };
+    }
+
+    function openQuantStatsModal() {
+      renderQuantStatsModalContent();
+      document.getElementById('quantStatsModal').classList.add('open');
+    }
+
+    function closeQuantStatsModal() {
+      document.getElementById('quantStatsModal').classList.remove('open');
+    }
+
+    function formatPValBadge(pVal, tStat) {
+      if (pVal < 0.01) {
+        return `<span class="sig-pill-pass">p = ${pVal.toFixed(4)} *** (${tStat > 0 ? '極顯著正Alpha' : '極顯著負報酬'})</span>`;
+      } else if (pVal < 0.05) {
+        return `<span class="sig-pill-pass">p = ${pVal.toFixed(4)} ** (${tStat > 0 ? '顯著正Alpha' : '顯著負報酬'})</span>`;
+      } else if (pVal < 0.10) {
+        return `<span class="sig-pill-marginal">p = ${pVal.toFixed(4)} * (邊際顯著)</span>`;
+      }
+      return `<span class="sig-pill-ns">p = ${pVal.toFixed(4)} (未達顯著 NS)</span>`;
+    }
+
+    function renderQuantStatsModalContent() {
+      const { dates, reports } = buildAllAgentsQuantReport();
+
+      const kpiGrid = document.getElementById('quantKpiGrid');
+      kpiGrid.innerHTML = reports.map(r => {
+        const roiCol = r.totalRoiPct >= 0 ? 'var(--tw-up)' : 'var(--tw-down)';
+        const mddCol = r.maxDrawdownPct < -5 ? '#d61a1a' : '#00695c';
+        const sigStars = r.pValueT < 0.01 ? '***' : r.pValueT < 0.05 ? '**' : r.pValueT < 0.10 ? '*' : 'NS';
+        return `
+          <div class="quant-kpi-card">
+            <div class="quant-kpi-hdr ${r.headerTheme}">
+              <span>${r.name}</span>
+              <span>ROI: ${r.totalRoiPct >= 0 ? '+' : ''}${r.totalRoiPct}%</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.78rem;">
+              <span>🌊 最大回撤 MDD:</span>
+              <strong style="color:${mddCol}; font-family:'VT323'; font-size:1.08rem;">${r.maxDrawdownPct.toFixed(2)}%</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.78rem;">
+              <span>🎯 日勝率 / 部位勝率:</span>
+              <strong style="font-family:'VT323'; font-size:1.05rem;">${r.dailyWinRatePct}% / ${r.tradeWinRatePct}%</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.78rem;">
+              <span>⚡ 年化 Sharpe / Sortino:</span>
+              <strong style="font-family:'VT323'; font-size:1.05rem; color:${roiCol};">${r.sharpeAnnual} / ${r.sortinoAnnual}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.78rem; border-top:1px dashed #ccc; padding-top:2px;">
+              <span>🔬 t=${r.tStat} (df=${r.df})</span>
+              <strong style="color:${r.pValueT < 0.05 ? '#b71c1c' : '#555'};">p=${r.pValueT.toFixed(4)} (${sigStars})</strong>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const tbody = document.getElementById('quantStatsTableBody');
+      tbody.innerHTML = reports.map(r => {
+        const roiColor = r.totalRoiPct >= 0 ? 'var(--tw-up)' : 'var(--tw-down)';
+        return `
+          <tr>
+            <td><strong style="color:${r.color};">■ ${r.name}</strong><div style="font-size:0.7rem;color:#555;">${r.style}</div></td>
+            <td style="font-family:'VT323'; font-size:1.12rem; font-weight:bold; color:${roiColor};">
+              $${r.finalNav.toLocaleString()}<br>(${r.totalRoiPct >= 0 ? '+' : ''}${r.totalRoiPct}%)
+            </td>
+            <td style="font-family:'VT323'; font-size:1.12rem; font-weight:bold; color:#c62828;">
+              ${r.maxDrawdownPct.toFixed(2)}%
+              <div style="font-size:0.68rem; color:#555;">峰:${r.mddPeakDate.slice(5)}➔谷:${r.mddTroughDate.slice(5)}</div>
+            </td>
+            <td style="font-family:'VT323'; font-size:1.06rem;">
+              ${r.meanDailyRet >= 0 ? '+' : ''}${r.meanDailyRet}% ± ${r.stdDailyRet}%
+            </td>
+            <td style="font-family:'VT323'; font-size:1.08rem; font-weight:bold;">
+              Sharpe: ${r.sharpeAnnual}<br><span style="color:#00695c;">Sortino: ${r.sortinoAnnual}</span>
+            </td>
+            <td style="font-family:'VT323'; font-size:1.08rem;">
+              <strong>${r.dailyWinRatePct}%</strong> (${r.winDays}勝/${r.loseDays}負/${r.flatDays}平)
+            </td>
+            <td style="font-family:'VT323'; font-size:1.08rem;">
+              <strong>${r.tradeWinRatePct}%</strong> (${r.winTrades}勝/${r.loseTrades}負)<br>
+              <span style="font-size:0.72rem; color:#444;">獲利因子 PF: ${r.profitFactor}</span>
+            </td>
+            <td style="font-family:'VT323'; font-size:1.12rem; font-weight:bold;">
+              t = ${r.tStat} <span style="font-size:0.75rem;color:#555;">(df=${r.df})</span>
+            </td>
+            <td style="font-family:'VT323'; font-size:1.12rem; font-weight:bold; color:${r.pValueT < 0.05 ? '#d61a1a' : '#333'};">
+              ${r.pValueT.toFixed(4)}
+            </td>
+            <td style="font-family:'VT323'; font-size:1.08rem;">
+              ${r.pValueBinom.toFixed(4)}
+            </td>
+            <td>${formatPValBadge(r.pValueT, r.tStat)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const pairTable = document.getElementById('quantPairwiseTable');
+      let pairHtml = `<thead><tr><th>大師 A ＼ 大師 B</th>${reports.map(r => `<th>${r.name}</th>`).join('')}</tr></thead><tbody>`;
+      reports.forEach((rA, i) => {
+        pairHtml += `<tr><td><strong>${rA.name}</strong></td>`;
+        reports.forEach((rB, j) => {
+          if (i === j) {
+            pairHtml += `<td style="background:#eee; color:#888; text-align:center;">—</td>`;
+          } else {
+            const sampleA = [...rA.dailyReturnsPct, ...rA.tradeReturnsPct];
+            const sampleB = [...rB.dailyReturnsPct, ...rB.tradeReturnsPct];
+            const { tStat, pValue } = calcWelchTwoSampleTTest(sampleA, sampleB);
+            const isSig = pValue < 0.05;
+            const bg = isSig ? 'background:#fff8c4; font-weight:bold;' : '';
+            const col = tStat > 0 ? 'var(--tw-up)' : 'var(--tw-down)';
+            pairHtml += `<td style="${bg} font-family:'VT323'; font-size:1.02rem;">
+              <span style="color:${col};">t=${tStat.toFixed(2)}</span><br>
+              <span style="font-size:0.86rem; color:${isSig ? '#b71c1c' : '#555'};">p=${pValue.toFixed(4)} ${pValue < 0.01 ? '***' : isSig ? '**' : ''}</span>
+            </td>`;
+          }
+        });
+        pairHtml += `</tr>`;
+      });
+      pairHtml += `</tbody>`;
+      pairTable.innerHTML = pairHtml;
+
+      drawEquityAndMddChart(dates, reports);
+      drawWinRateAndReturnDistChart(reports);
+    }
+
+    function drawEquityAndMddChart(dates, reports) {
+      const cvs = document.getElementById('quantEquityMddCanvas');
+      if (!cvs) return;
+      const ctx = cvs.getContext('2d');
+      const W = cvs.width, H = cvs.height;
+      ctx.clearRect(0, 0, W, H);
+
+      const padL = 68, padR = 24, padT = 22, padB = 24;
+      const eqTop = padT, eqH = 128;
+      const ddTop = eqTop + eqH + 22, ddH = H - ddTop - padB;
+      const plotW = W - padL - padR;
+
+      const allNavs = reports.flatMap(r => r.navSeries);
+      const maxNav = Math.max(...allNavs, 1050000) * 1.01;
+      const minNav = Math.min(...allNavs, 950000) * 0.99;
+      const navSpan = Math.max(1, maxNav - minNav);
+
+      const allDds = reports.flatMap(r => r.drawdownSeriesPct);
+      const minDd = Math.min(...allDds, -3.0) * 1.15;
+
+      const toX = (idx) => padL + (idx / Math.max(1, dates.length - 1)) * plotW;
+      const toEqY = (v) => eqTop + eqH - ((v - minNav) / navSpan) * eqH;
+      const toDdY = (dd) => ddTop + (Math.abs(dd) / Math.max(0.5, Math.abs(minDd))) * ddH;
+
+      ctx.strokeStyle = '#1b3329';
+      ctx.lineWidth = 1;
+      for (let g = 0; g <= 3; g++) {
+        const y = eqTop + (g / 3) * eqH;
+        ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+        const val = Math.round(maxNav - (g / 3) * navSpan);
+        ctx.fillStyle = '#80cbc4';
+        ctx.font = '12px VT323, monospace';
+        ctx.fillText(`$${(val / 1000).toFixed(0)}k`, 6, y + 4);
+      }
+
+      ctx.strokeStyle = '#ff5252';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(padL, ddTop); ctx.lineTo(W - padR, ddTop); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#ff8a80';
+      ctx.fillText('DD 0.0%', 6, ddTop + 6);
+      ctx.fillText(`${minDd.toFixed(1)}%`, 6, ddTop + ddH);
+
+      const lineColors = ['#4fc3f7', '#81c784', '#ffd54f', '#ff5252', '#ce93d8', '#00ffcc'];
+
+      reports.forEach((rep, rIdx) => {
+        const col = lineColors[rIdx % lineColors.length];
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        rep.navSeries.forEach((nv, i) => {
+          const x = toX(i), y = toEqY(nv);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        const lastIdx = rep.navSeries.length - 1;
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.arc(toX(lastIdx), toEqY(rep.navSeries[lastIdx]), 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        rep.drawdownSeriesPct.forEach((dd, i) => {
+          const x = toX(i), y = toDdY(dd);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      });
+
+      dates.forEach((d, i) => {
+        const x = toX(i);
+        ctx.fillStyle = '#c8e6c9';
+        ctx.font = '11px Microsoft JhengHei, sans-serif';
+        ctx.fillText(d.slice(5), x - 18, H - 6);
+      });
+
+      reports.forEach((rep, idx) => {
+        const lx = padL + idx * 122;
+        ctx.fillStyle = lineColors[idx % lineColors.length];
+        ctx.fillRect(lx, 4, 10, 10);
+        ctx.font = '11px Microsoft JhengHei, sans-serif';
+        ctx.fillText(`${rep.name.slice(0, 4)}(${rep.totalRoiPct >= 0 ? '+' : ''}${rep.totalRoiPct}%)`, lx + 13, 13);
+      });
+    }
+
+    function drawWinRateAndReturnDistChart(reports) {
+      const cvs = document.getElementById('quantWinDistCanvas');
+      if (!cvs) return;
+      const ctx = cvs.getContext('2d');
+      const W = cvs.width, H = cvs.height;
+      ctx.clearRect(0, 0, W, H);
+
+      const padL = 42, padR = 16, padT = 26, padB = 38;
+      const plotW = W - padL - padR, plotH = H - padT - padB;
+      const barColors = ['#4fc3f7', '#81c784', '#ffd54f', '#ff5252', '#ce93d8', '#00ffcc'];
+
+      const y50 = padT + plotH * 0.5;
+      ctx.strokeStyle = '#ffd54f';
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(padL, y50); ctx.lineTo(W - padR, y50); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#ffd54f';
+      ctx.font = '12px VT323, monospace';
+      ctx.fillText('50% H0', 4, y50 + 4);
+      ctx.fillText('100%', 6, padT + 8);
+      ctx.fillText('0%', 12, padT + plotH);
+
+      const stepX = plotW / reports.length;
+      reports.forEach((rep, idx) => {
+        const cx = padL + stepX * idx + stepX * 0.5;
+        const col = barColors[idx % barColors.length];
+
+        const hDay = (rep.dailyWinRatePct / 100) * plotH;
+        ctx.fillStyle = col;
+        ctx.fillRect(cx - 18, padT + plotH - hDay, 16, Math.max(3, hDay));
+
+        const hTrade = (rep.tradeWinRatePct / 100) * plotH;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 1.5;
+        ctx.fillRect(cx + 2, padT + plotH - hTrade, 16, Math.max(3, hTrade));
+        ctx.strokeRect(cx + 2, padT + plotH - hTrade, 16, Math.max(3, hTrade));
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '12px VT323, monospace';
+        ctx.fillText(`${rep.dailyWinRatePct.toFixed(0)}%`, cx - 19, padT + plotH - hDay - 4);
+        ctx.fillStyle = '#80ffea';
+        ctx.fillText(`${rep.tradeWinRatePct.toFixed(0)}%`, cx + 2, padT + plotH - hTrade - 4);
+
+        const stars = rep.pValueT < 0.01 ? '***' : rep.pValueT < 0.05 ? '**' : rep.pValueT < 0.1 ? '*' : '';
+        ctx.fillStyle = '#e0f2f1';
+        ctx.font = '11px Microsoft JhengHei, sans-serif';
+        ctx.fillText(`${rep.name.slice(0, 3)}${stars}`, cx - 22, H - 18);
+        ctx.fillStyle = '#9bbc0f';
+        ctx.font = '11px VT323, monospace';
+        ctx.fillText(`p=${rep.pValueT.toFixed(2)}`, cx - 20, H - 5);
+      });
+    }
+
+    function exportFullQuantExcel() {
+      const { dates, reports } = buildAllAgentsQuantReport();
+
+      if (typeof XLSX === 'undefined') {
+        showSystemNotice('尚未載入 SheetJS，將自動為您匯出 Excel 可直接開啟之 UTF-8 BOM .csv 報表！');
+        exportCsvForExcel();
+        return;
+      }
+
+      const wb = XLSX.utils.book_new();
+
+      const sheet1Rows = [
+        ['傳奇大師名稱', '投資策略風格', '初始本金(TWD)', '最終總淨值(TWD)', '累積報酬率(%)', '最大回撤 MDD(%)', 'MDD峰谷區間', 'Calmar Ratio', '平均日報酬(%)', '日報酬標準差(%)', '年化夏普值(Sharpe)', '年化索提諾(Sortino)', '交易日勝率(%)', '獲利日數', '虧損日數', '部位勝率(%)', '獲利因子(Profit Factor)', 't-Statistic', '自由度(df)', '雙尾 t檢定 p-value', '二項檢定 p-value', '統計顯著性結論(alpha=0.05)']
+      ];
+      reports.forEach(r => {
+        const sigConclusion = r.pValueT < 0.01 ? '極顯著 (p<0.01 ***)' : r.pValueT < 0.05 ? '顯著 (p<0.05 **)' : r.pValueT < 0.10 ? '邊際顯著 (p<0.10 *)' : '無顯著差異 (NS)';
+        sheet1Rows.push([
+          r.name, r.style, r.initCap, r.finalNav, r.totalRoiPct,
+          r.maxDrawdownPct, `${r.mddPeakDate}->${r.mddTroughDate}`, r.calmarRatio,
+          r.meanDailyRet, r.stdDailyRet, r.sharpeAnnual, r.sortinoAnnual,
+          r.dailyWinRatePct, r.winDays, r.loseDays, r.tradeWinRatePct, r.profitFactor,
+          r.tStat, r.df, +r.pValueT.toFixed(6), +r.pValueBinom.toFixed(6), sigConclusion
+        ]);
+      });
+      const ws1 = XLSX.utils.aoa_to_sheet(sheet1Rows);
+      XLSX.utils.book_append_sheet(wb, ws1, '1_統計檢定與MDD總表');
+
+      const sheet2Header = ['交易日期'];
+      reports.forEach(r => {
+        sheet2Header.push(`${r.name}_淨值(TWD)`, `${r.name}_日報酬(%)`, `${r.name}_水下回撤DD(%)`);
+      });
+      const sheet2Rows = [sheet2Header];
+      dates.forEach((dStr, dIdx) => {
+        const row = [dStr];
+        reports.forEach(r => {
+          const nv = r.navSeries[dIdx] !== undefined ? r.navSeries[dIdx] : '';
+          const dr = dIdx === 0 ? 0 : (r.dailyReturnsPct[dIdx - 1] !== undefined ? +r.dailyReturnsPct[dIdx - 1].toFixed(3) : 0);
+          const dd = r.drawdownSeriesPct[dIdx] !== undefined ? +r.drawdownSeriesPct[dIdx].toFixed(3) : 0;
+          row.push(nv, dr, dd);
+        });
+        sheet2Rows.push(row);
+      });
+      const ws2 = XLSX.utils.aoa_to_sheet(sheet2Rows);
+      XLSX.utils.book_append_sheet(wb, ws2, '2_每日淨值與回撤序列');
+
+      const sheet3Rows = [['大師 A ＼ 大師 B (t-stat / p-value)', ...reports.map(r => r.name)]];
+      reports.forEach((rA, i) => {
+        const row = [rA.name];
+        reports.forEach((rB, j) => {
+          if (i === j) row.push('—');
+          else {
+            const { tStat, pValue } = calcWelchTwoSampleTTest(
+              [...rA.dailyReturnsPct, ...rA.tradeReturnsPct],
+              [...rB.dailyReturnsPct, ...rB.tradeReturnsPct]
+            );
+            row.push(`t=${tStat.toFixed(3)} (p=${pValue.toFixed(4)})`);
+          }
+        });
+        sheet3Rows.push(row);
+      });
+      const ws3 = XLSX.utils.aoa_to_sheet(sheet3Rows);
+      XLSX.utils.book_append_sheet(wb, ws3, '3_兩兩大師顯著性檢定矩陣');
+
+      const sheet4Rows = [
+        ['大師名稱', '交易日期', '匯率(USD/TWD)', '標的代號與名稱', '商品類別', '交易動作', '數量', '單位', '理論價', '實際成交價', '滑價(bps)', '滑價耗損(TWD)', '券商手續費(TWD)', '法定交易稅(TWD)', '借券息/代墊息(TWD)', '已實現淨損益(TWD)', '已實現ROI(%)', '策略與總經依據']
+      ];
+      const lastRec = appState.records[appState.records.length - 1] || appState.records[0];
+      (lastRec.agentSnapshots || BASE_AGENTS).forEach(ag => {
+        const allMap = { ...(ag.closedPositions || {}), ...(ag.holdings || {}) };
+        for (const [instId, pos] of Object.entries(allMap)) {
+          (pos.history || []).forEach(h => {
+            sheet4Rows.push([
+              ag.name, h.date, h.fxRate || 32.15, h.instId || instId, pos.instType,
+              h.actionLabel, h.qty, h.unitLabel,
+              h.theoPrice !== undefined ? h.theoPrice : h.price, h.price,
+              h.slipBps || 0, h.slipCostTwd || 0, h.brokerFeeTwd || 0, h.taxCostTwd || 0,
+              h.borrowOrDivCostTwd || 0,
+              h.realizedPnlTwd !== undefined ? h.realizedPnlTwd : '',
+              h.realizedRoiPct !== undefined ? h.realizedRoiPct : '',
+              h.reason || ''
+            ]);
+          });
+        }
+      });
+      const ws4 = XLSX.utils.aoa_to_sheet(sheet4Rows);
+      XLSX.utils.book_append_sheet(wb, ws4, '4_逐筆交割與滑價稅費總帳本');
+
+      const fileName = `傳奇大師量化統計檢定_MDD_pValue_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+    }
+
+    function exportCsvForExcel() {
+      const { reports } = buildAllAgentsQuantReport();
+      const rows = [
+        ['大師名稱', '最終淨值(TWD)', '累積ROI(%)', '最大回撤MDD(%)', '平均日報酬(%)', '日報酬標準差(%)', '年化Sharpe', '年化Sortino', '日勝率(%)', '部位勝率(%)', 'Profit_Factor', 't_Stat', 'df', 'p_value_tTest', 'p_value_Binomial']
+      ];
+      reports.forEach(r => {
+        rows.push([
+          r.name, r.finalNav, r.totalRoiPct, r.maxDrawdownPct,
+          r.meanDailyRet, r.stdDailyRet, r.sharpeAnnual, r.sortinoAnnual,
+          r.dailyWinRatePct, r.tradeWinRatePct, r.profitFactor,
+          r.tStat, r.df, r.pValueT.toFixed(6), r.pValueBinom.toFixed(6)
+        ]);
+      });
+      const csvContent = '\uFEFF' + rows.map(e => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `傳奇大師統計檢定報表_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function handleExcelUploadForStats(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const targetSheetName = workbook.SheetNames.find(n => n.includes('淨值') || n.includes('序列')) || workbook.SheetNames[0];
+          const sheet = workbook.Sheets[targetSheetName];
+          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+          if (rows.length < 3) {
+            showSystemNotice('Excel 資料列數不足（至少需要標題列 + 2 筆以上日期或報酬紀錄）！');
+            return;
+          }
+
+          const header = rows[0].map(h => String(h).trim());
+          const dataRows = rows.slice(1).filter(r => r[0] !== '');
+          const dates = dataRows.map(r => String(r[0]));
+
+          const navCols = [];
+          for (let c = 1; c < header.length; c++) {
+            const colTitle = header[c];
+            if (colTitle.includes('日報酬') || colTitle.includes('回撤')) continue;
+            const sampleVal = Number(String(dataRows[0][c]).replace(/[,$]/g, ''));
+            if (!isNaN(sampleVal) && sampleVal > 0) {
+              navCols.push({ colIdx: c, name: colTitle.replace('_淨值(TWD)', '') });
+            }
+          }
+
+          if (navCols.length === 0) {
+            showSystemNotice('未偵測到有效的數值淨值或價格欄位！請確認第 1 欄為日期、第 2 欄起為各策略淨值。');
+            return;
+          }
+
+          const palette = ['#1e4d8c', '#2b6e46', '#b8860b', '#d61a1a', '#6a1b9a', '#00bfa5'];
+          const themes = ['hdr-theme-buffett', 'hdr-theme-simons', 'hdr-theme-livermore', 'hdr-theme-kitty', 'hdr-theme-cramer', 'hdr-theme-leopold'];
+
+          const customReports = navCols.slice(0, 6).map((colInfo, idx) => {
+            const rawVals = dataRows.map(r => Number(String(r[colInfo.colIdx]).replace(/[,$]/g, '')) || 0);
+            const isReturnPctCol = Math.abs(rawVals[0]) < 150 && rawVals.some(v => v < 0);
+            const navSeries = [];
+            const dailyReturnsPct = [];
+            const drawdownSeriesPct = [0];
+
+            if (isReturnPctCol) {
+              let cur = 1000000;
+              navSeries.push(cur);
+              rawVals.forEach(rPct => {
+                dailyReturnsPct.push(rPct);
+                cur = cur * (1 + rPct / 100);
+                navSeries.push(Math.round(cur));
+              });
+            } else {
+              rawVals.forEach((nv, i) => {
+                navSeries.push(nv);
+                if (i > 0) {
+                  const prev = rawVals[i - 1];
+                  dailyReturnsPct.push(prev > 0 ? ((nv - prev) / prev) * 100 : 0);
+                }
+              });
+            }
+
+            let peak = navSeries[0] || 1000000;
+            let maxDd = 0, peakDate = dates[0] || '起點', troughDate = dates[0] || '起點', curPeakDate = dates[0] || '起點';
+            navSeries.forEach((nv, i) => {
+              if (nv >= peak) { peak = nv; curPeakDate = dates[i] || `T${i}`; }
+              const dd = peak > 0 ? ((nv - peak) / peak) * 100 : 0;
+              if (i > 0) drawdownSeriesPct.push(dd);
+              if (dd < maxDd) { maxDd = dd; peakDate = curPeakDate; troughDate = dates[i] || `T${i}`; }
+            });
+
+            const n = dailyReturnsPct.length;
+            const winDays = dailyReturnsPct.filter(v => v > 0).length;
+            const loseDays = dailyReturnsPct.filter(v => v < 0).length;
+            const flatDays = n - winDays - loseDays;
+            const winRate = n > 0 ? (winDays / n) * 100 : 0;
+            const mean = n > 0 ? dailyReturnsPct.reduce((s, v) => s + v, 0) / n : 0;
+            const std = n > 1 ? Math.sqrt(dailyReturnsPct.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1)) : 1;
+            const downStd = n > 0 ? Math.sqrt(dailyReturnsPct.map(v => Math.min(0, v) ** 2).reduce((s, v) => s + v, 0) / n) : 1;
+            const tStat = std > 1e-8 ? mean / (std / Math.sqrt(n)) : 0;
+            const pValueT = calcTwoTailedTTestPValue(tStat, Math.max(1, n - 1));
+            const pValueBinom = calcBinomialTwoTailedPValue(winDays, winDays + loseDays);
+            const initCap = navSeries[0] || 1000000;
+            const finalNav = navSeries[navSeries.length - 1] || initCap;
+            const totalRoiPct = ((finalNav - initCap) / initCap) * 100;
+            const posSum = dailyReturnsPct.filter(v => v > 0).reduce((s, v) => s + v, 0);
+            const negSum = Math.abs(dailyReturnsPct.filter(v => v < 0).reduce((s, v) => s + v, 0));
+
+            return {
+              id: idx, name: colInfo.name, style: `外部 Excel 匯入序列 (${n}期)`,
+              headerTheme: themes[idx % themes.length], color: palette[idx % palette.length],
+              initCap, finalNav: Math.round(finalNav), totalRoiPct: +totalRoiPct.toFixed(2),
+              maxDrawdownPct: +maxDd.toFixed(2), mddPeakDate: peakDate, mddTroughDate: troughDate,
+              calmarRatio: Math.abs(maxDd) > 0.01 ? +(totalRoiPct / Math.abs(maxDd)).toFixed(2) : 99.9,
+              meanDailyRet: +mean.toFixed(3), stdDailyRet: +std.toFixed(3),
+              sharpeAnnual: +(std > 1e-6 ? (mean / std) * Math.sqrt(252) : 0).toFixed(2),
+              sortinoAnnual: +(downStd > 1e-6 ? (mean / downStd) * Math.sqrt(252) : 9.9).toFixed(2),
+              winDays, loseDays, flatDays, dailyWinRatePct: +winRate.toFixed(1),
+              winTrades: winDays, loseTrades: loseDays, tradeWinRatePct: +winRate.toFixed(1),
+              profitFactor: negSum > 0 ? +(posSum / negSum).toFixed(2) : 99.9,
+              tStat: +tStat.toFixed(3), df: Math.max(1, n - 1), pValueT, pValueBinom,
+              dates, navSeries, dailyReturnsPct, drawdownSeriesPct, tradeReturnsPct: dailyReturnsPct
+            };
+          });
+
+          customUploadedQuantSeries = { dates, reports: customReports };
+          const lbl = document.getElementById('quantDataSourceLabel');
+          if (lbl) lbl.textContent = `📂 資料來源：外部匯入 Excel [${file.name} - ${targetSheetName}] (${dates.length} 筆觀測值)`;
+          openQuantStatsModal();
+        } catch (err) {
+          showSystemNotice('讀取 Excel 檔案失敗：' + err.message);
+        }
+        event.target.value = '';
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    async function bootstrap() {
       try {
         const res = await fetch(`./tw_stocks_history.json?t=${Date.now()}`, { cache: 'no-store' });
         if (res.ok) {
@@ -3530,15 +5397,11 @@ async function bootstrap() {
             renderDashboard(true);
             const badge = document.getElementById('marketPoolBadge');
             if (badge) badge.textContent = `🟢 已自動同步 GitHub 最新實盤 (${appState.records.length} 日)`;
-            console.log('✅ 已自動從 GitHub 載入最新 tw_stocks_history.json！');
             return;
           }
         }
-      } catch (err) {
-        console.log('ℹ️ 尚未偵測到遠端 tw_stocks_history.json，改用內建或快取資料。');
-      }
+      } catch (err) {}
 
-      // 2. 若在電腦本機離線開啟或尚無遠端 JSON，則讀取 localStorage 或預設 3 日劇本
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         try {
@@ -3557,6 +5420,23 @@ async function bootstrap() {
       appState.currentIdx = appState.records.length - 1;
       renderDashboard(true);
     }
+
+    // 啟動前自動淨化：清除所有複製貼上夾帶的 \u00A0 隱形空白與 Grid 幽靈節點
+    document.querySelectorAll('style').forEach(styleEl => {
+      styleEl.textContent = styleEl.textContent.replace(/[\u00A0\u2000-\u200B\uFEFF]/g, ' ');
+    });
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    const ghostNodes = [];
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (node.nodeValue.includes('\u00A0')) {
+        node.nodeValue = node.nodeValue.replace(/\u00A0/g, ' ');
+      }
+      if (node.nodeValue.trim() === '' && node.parentNode && node.parentNode.tagName !== 'PRE') {
+        ghostNodes.push(node);
+      }
+    }
+    ghostNodes.forEach(n => n.remove());
 
     bootstrap();
   </script>
