@@ -3,6 +3,8 @@ name: Run Stock Crawler
 on:
   workflow_dispatch:
   schedule:
+    # GitHub Actions 採用 UTC 時間！
+    # UTC 09:30 等於台灣時間 (UTC+8) 下午 17:30（正好在台股收盤與盤後資料更新後）
     - cron: '30 9 * * 1-5'
 
 jobs:
@@ -36,4 +38,4 @@ jobs:
           git config --global http.version HTTP/1.1
           git add tw_stocks_history.json
           git diff --staged --quiet || git commit -m "Auto-update stock history json via Python"
-          git push origin main || true
+          git push origin HEAD
