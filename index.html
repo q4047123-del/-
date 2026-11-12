@@ -286,6 +286,60 @@
       background: #f5f0e1; border: 2px solid var(--pixel-black); padding: 5px 8px;
       font-size: 0.8rem; line-height: 1.45; display: flex; flex-direction: column; gap: 3px;
     }
+/* ==================== V17.2 手機版 (Mobile RWD) 專屬優化 ==================== */
+    @media (max-width: 768px) {
+      body { padding: 4px !important; font-size: 13.5px !important; }
+      .pixel-window { border-width: 2.5px !important; box-shadow: none !important; }
+      .sys-titlebar {
+        flex-direction: column; align-items: flex-start; gap: 6px;
+        font-size: 0.82rem !important; padding: 8px 10px !important;
+      }
+      .title-controls { width: 100%; justify-content: space-between; }
+      .main-workspace { grid-template-columns: 1fr !important; padding: 6px !important; gap: 10px !important; }
+      .agents-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+
+      /* 總經雷達：手機改為 3+2 排列 */
+      .macro-indicators-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 4px !important; }
+      .gba-lcd-screen { flex-wrap: wrap; gap: 6px; padding: 6px 8px !important; }
+      .lcd-date { font-size: 1.1rem !important; }
+
+      /* 商品池 4 個分頁按鈕：手機改為 2x2 網格，好按不擠 */
+      .pool-tabs { grid-template-columns: repeat(2, 1fr) !important; gap: 5px !important; }
+      .pool-tab-btn { padding: 6px 4px !important; font-size: 0.78rem !important; }
+
+      /* 大師卡片：頭像與介紹、6格財務指標、持倉與戰果摘要 全面響應式展開 */
+      .agent-header { flex-direction: column; align-items: flex-start; gap: 3px; font-size: 0.85rem !important; }
+      .persona-stage { flex-direction: row; align-items: flex-start; padding: 6px !important; }
+      .alloc-header-row { flex-direction: column; align-items: flex-start; gap: 2px; }
+      .alloc-legend-row { justify-content: flex-start; gap: 8px; }
+
+      /* 關鍵：把原本擠成一排的 6 格財務數據，在手機上改為 3欄 x 2列！ */
+      .metrics-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; padding: 6px !important; }
+      .metric-item { border-right: none !important; background: #eee8d5; padding: 4px 6px !important; border: 1px solid #c8c2b2; }
+      .metric-val { font-size: 1.15rem !important; }
+
+      /* 關鍵：持倉組合與今日戰果在手機上改為上下堆疊 */
+      .info-row { grid-template-columns: 1fr !important; gap: 6px !important; }
+      .sub-box-title { flex-wrap: wrap; gap: 4px; }
+      .holding-chip { width: 100%; justify-content: space-between; font-size: 0.82rem !important; padding: 6px 8px !important; }
+
+      /* 底部章節進度條：手機支援橫向滑動 */
+      .bottom-chapter-bar { overflow-x: auto; flex-wrap: nowrap; padding: 6px !important; }
+      .chapter-step { min-width: 140px; flex-shrink: 0; font-size: 0.72rem !important; }
+
+      /* 交割帳本彈窗 (Modal)：手機滿版可滑動、表格支援左右流暢滑動 */
+      .ledger-modal-backdrop { padding: 4px !important; align-items: flex-start; overflow-y: auto; }
+      .ledger-modal-win { max-width: 100% !important; margin: auto 0; }
+      .ledger-modal-header { font-size: 0.84rem !important; padding: 8px 10px !important; }
+      .ledger-modal-body { padding: 8px !important; gap: 8px !important; max-height: 90vh; overflow-y: auto; }
+      .ledger-date-nav-bar { flex-direction: column; align-items: stretch; gap: 6px; padding: 6px !important; }
+      .ledger-date-nav-bar > div { flex-wrap: wrap; justify-content: space-between; width: 100%; }
+      .nav-day-select { width: 100%; margin: 2px 0; }
+      .today-battle-report { grid-template-columns: 1fr !important; gap: 6px !important; }
+      .ledger-summary-bar { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
+      .ledger-table-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch; max-height: 260px !important; }
+      .ledger-table { min-width: 820px; } /* 讓 10 欄帳本在手機上保持整齊可左右滑動，不擠成一團 */
+    }
 </style>
 </head>
 <body>
@@ -894,6 +948,9 @@ const TAIFEX_OFFICIAL_FUTURES = {
     }
 
     /* 關鍵修復：預先把「穿價滑價 (bps) + 手續費 + 交易稅 + 融券費」算進單價，保證算出來的張數/股數 100% 買得起、絕不退單！ */
+/* V17.2 實務修正：
+       1. 美股 (US_STOCK / US_BOND / SHORT_US_REGT) 以「1 股」為最小單位。
+       2. 台股融券 (SHORT_TW_MARGIN) 與台股 SBL 借券 (SHORT_TW_SBL) 依法規禁止零股信用交易，強制以「1 張 (1,000 股)」為最小單位！ */
     function calcMaxAffordableQty(budgetNative, theoPrice, multiplier, marginRate, instType, isBuyingAction) {
       if (budgetNative <= 0 || theoPrice <= 0) return 0;
       const { execPrice } = computeExecutionSlippage(theoPrice, instType, isBuyingAction);
@@ -915,9 +972,14 @@ const TAIFEX_OFFICIAL_FUTURES = {
       }
 
       const costPerUnit = unitNotional * (marginRate + feeAndTaxRate);
-      return Math.floor((budgetNative * 0.995) / costPerUnit);
-    }
+      const rawQty = Math.floor((budgetNative * 0.995) / costPerUnit);
 
+      // 關鍵實務規則：台股融券放空與 SBL 借券賣出必須以「1 張 (1,000 股)」為最小整數單位！
+      if (instType === 'SHORT_TW_MARGIN' || instType === 'SHORT_TW_SBL') {
+        return Math.floor(rawQty / 1000) * 1000;
+      }
+      return rawQty;
+    }
     /* 大師主動執行「台幣買美金現貨 (TWD ➔ USD)」進行匯率避險或投資 */
     function executeSpotBuyUsdHedge(agent, twdAmountToConvert, fxRate, reasonLabel, actionTags, monologueParts) {
       if (agent.cash < twdAmountToConvert || twdAmountToConvert < 10000) return 0;
@@ -3456,8 +3518,8 @@ if (triggerTypewriter) replayAllTypewriters();
       return false;
     }
 
-    async function bootstrap() {
-      // 1. 優先嘗試自動從同目錄讀取 GitHub Actions 產生的最新 tw_stocks_history.json (加上時間戳避免瀏覽器快取舊檔)
+async function bootstrap() {
+      // 1. 優先嘗試自動從同目錄讀取 GitHub Actions 產生的最新 tw_stocks_history.json
       try {
         const res = await fetch(`./tw_stocks_history.json?t=${Date.now()}`, { cache: 'no-store' });
         if (res.ok) {
@@ -3473,10 +3535,10 @@ if (triggerTypewriter) replayAllTypewriters();
           }
         }
       } catch (err) {
-        console.log('ℹ️ 尚未偵測到遠端 tw_stocks_history.json 或處於本機離線開啟，改用內建或快取資料。');
+        console.log('ℹ️ 尚未偵測到遠端 tw_stocks_history.json，改用內建或快取資料。');
       }
 
-      // 2. 若在電腦本機直接點開 HTML (無伺服器) 或尚無遠端 JSON，則讀取 localStorage 或預設 3 日劇本
+      // 2. 若在電腦本機離線開啟或尚無遠端 JSON，則讀取 localStorage 或預設 3 日劇本
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         try {
