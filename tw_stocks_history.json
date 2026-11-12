@@ -4,7 +4,7 @@
       "date": "2026-11-12",
       "weekday": "週四",
       "fullDateLabel": "2026-11-12 (週四)",
-      "fxRate": 32.96,
+      "fxRate": 32.97,
       "macro": {
         "regime": "HAWKISH_INFLATION",
         "regimeLabel": "🔴 通膨升溫與鷹派緊縮",
@@ -12,7 +12,7 @@
         "fedRate": "4.50%",
         "cpiYoY": "2.6%",
         "nfpJobs": "+18.5萬人",
-        "us10yYield": "5.03%",
+        "us10yYield": "5.02%",
         "vixIndex": "18.7",
         "macroScore": -2,
         "headlines": [
@@ -103,7 +103,7 @@
               "score": 0
             },
             {
-              "title": "兆豐藍籌30-ETF持股狀況",
+              "title": "兆豐藍籌30-ETF配息狀況",
               "score": 0
             }
           ]
@@ -4806,7 +4806,7 @@
               "score": 0
             },
             {
-              "title": "兆豐藍籌30-ETF持股狀況",
+              "title": "兆豐藍籌30-ETF配息狀況",
               "score": 0
             }
           ]
