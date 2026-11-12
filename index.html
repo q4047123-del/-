@@ -3402,7 +3402,81 @@ if (triggerTypewriter) replayAllTypewriters();
       snapshots.forEach(ag => drawAnimatedPixelAgent(`sprite_cvs_${ag.id}`, ag, globalAnimTick));
     }, 180);
 
-    function bootstrap() {
+/* =========================================================================
+       9. V17.1 自動同步 GitHub Actions 最新 tw_stocks_history.json 啟動引擎
+       ========================================================================= */
+    function applyRawJsonDataToState(data) {
+      if (Array.isArray(data.records) && data.records.length > 0) {
+        appState.records = data.records.map((r, rIdx) => {
+          const dStr = r.date || new Date().toISOString().slice(0, 10);
+          const wStr = r.weekday || WEEKDAYS[new Date(dStr).getDay()] || '';
+          const normSectors = (r.sectors || []).map((s, i) => normalizeStockItem(s, i));
+          return {
+            date: dStr,
+            weekday: wStr,
+            fullDateLabel: r.fullDateLabel || `${dStr} (${wStr})`,
+            fxRate: Number(r.fxRate) || (32.10 + rIdx * 0.12),
+            macro: r.macro || null,
+            chapterTitle: r.chapterTitle || `自動同步實盤交易日 (${dStr})`,
+            totalMarketCount: r.totalMarketCount || normSectors.length,
+            macroFutures: r.macroFutures || null,
+            usAssets: Array.isArray(r.usAssets) && r.usAssets.length > 0 ? r.usAssets : null,
+            sectors: normSectors,
+            warrants: syncWarrantsWithStocks(normSectors, r.warrants),
+            allStocks: Array.isArray(r.allStocks) ? r.allStocks.map((s, i) => normalizeStockItem(s, i)) : null
+          };
+        });
+        return true;
+      } else if (Array.isArray(data.sectors) && data.sectors.length > 0) {
+        const dStr = data.updateDate || new Date().toISOString().slice(0, 10);
+        const wStr = WEEKDAYS[new Date(dStr).getDay()] || '';
+        const normSectors = data.sectors.map((s, i) => normalizeStockItem(s, i));
+        const newRec = {
+          date: dStr,
+          weekday: wStr,
+          fullDateLabel: `${dStr} (${wStr})`,
+          fxRate: Number(data.fxRate) || 32.25,
+          macro: data.macro || null,
+          chapterTitle: `自動同步實盤交易日 (${dStr})`,
+          totalMarketCount: normSectors.length,
+          macroFutures: null,
+          usAssets: data.usAssets || null,
+          sectors: normSectors,
+          warrants: syncWarrantsWithStocks(normSectors, data.warrants),
+          allStocks: null
+        };
+        const existIdx = appState.records.findIndex(r => r.date === dStr);
+        if (existIdx >= 0) appState.records[existIdx] = newRec;
+        else {
+          appState.records.push(newRec);
+          appState.records.sort((a, b) => a.date.localeCompare(b.date));
+        }
+        return true;
+      }
+      return false;
+    }
+
+    async function bootstrap() {
+      // 1. 優先嘗試自動從同目錄讀取 GitHub Actions 產生的最新 tw_stocks_history.json (加上時間戳避免瀏覽器快取舊檔)
+      try {
+        const res = await fetch(`./tw_stocks_history.json?t=${Date.now()}`, { cache: 'no-store' });
+        if (res.ok) {
+          const remoteData = await res.json();
+          if (applyRawJsonDataToState(remoteData)) {
+            recalculateTimeline();
+            appState.currentIdx = appState.records.length - 1;
+            renderDashboard(true);
+            const badge = document.getElementById('marketPoolBadge');
+            if (badge) badge.textContent = `🟢 已自動同步 GitHub 最新實盤 (${appState.records.length} 日)`;
+            console.log('✅ 已自動從 GitHub 載入最新 tw_stocks_history.json！');
+            return;
+          }
+        }
+      } catch (err) {
+        console.log('ℹ️ 尚未偵測到遠端 tw_stocks_history.json 或處於本機離線開啟，改用內建或快取資料。');
+      }
+
+      // 2. 若在電腦本機直接點開 HTML (無伺服器) 或尚無遠端 JSON，則讀取 localStorage 或預設 3 日劇本
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         try {
@@ -3415,6 +3489,7 @@ if (triggerTypewriter) replayAllTypewriters();
           }
         } catch (e) {}
       }
+
       appState.records = JSON.parse(JSON.stringify(BUILTIN_SCENARIOS));
       recalculateTimeline();
       appState.currentIdx = appState.records.length - 1;
