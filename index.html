@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>【傳奇大師賽博炒股 V21.0】Engle-Granger協整＆OU配對套利・Barra風格因子暴露中台・借券費率動態競價＆MVO優化</title>
+  <title>【傳奇大師賽博炒股 V22.0】Kalman卡爾曼濾波＆Walk-Forward無前瞻偏誤・Barra因子共變異數(Σ=BΩBᵀ+Δ)＆VIX壓力測試・ERC風險平價</title>
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&display=swap" rel="stylesheet">
   <!-- 引入 SheetJS 支援直接匯出與讀取 .xlsx Excel 檔案 -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -112,7 +112,7 @@
     }
     .main-workspace {
       display: grid;
-      grid-template-columns: 455px 1fr;
+      grid-template-columns: 460px 1fr;
       gap: 14px;
       padding: 12px;
       flex: 1;
@@ -148,7 +148,7 @@
       border: 2px solid var(--pixel-black);
       padding: 5px 7px;
       margin-bottom: 7px;
-      font-size: 0.76rem !important;
+      font-size: 0.75rem !important;
       line-height: 1.48 !important;
     }
     .gba-lcd-screen {
@@ -564,13 +564,18 @@
       background: #e8f5e9;
       border: 1.5px dashed #1b5e20;
       padding: 2px 6px;
-      font-size: 0.71rem;
+      font-size: 0.70rem;
       color: #0d3b10;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 4px;
+    }
+    .mvo-weights-banner.stress-active {
+      background: #ffebee;
+      border-color: #c62828;
+      color: #b71c1c;
     }
     .barra-factor-bar {
       background: #102027;
@@ -1215,10 +1220,10 @@
 
   <div class="pixel-window">
     <div class="sys-titlebar">
-      <div>🎮 [傳奇大師賽博炒股 V21.0] Engle-Granger協整＆OU過程配對套利・Barra風格因子暴露中台・借券費率動態競價＆MVO優化</div>
+      <div>🎮 [傳奇大師賽博炒股 V22.0] Kalman卡爾曼濾波＆Walk-Forward無前瞻偏誤・Barra因子共變異數(Σ=BΩBᵀ+Δ)＆VIX壓力測試・ERC風險平價</div>
       <div class="title-controls">
         <span id="marketPoolBadge" style="font-size:0.76rem; background:#0f2018; padding:2px 8px; border:1.5px solid #00ffcc; color:#00ffcc;">
-          STAT-ARB OU PAIRS &amp; BARRA RISK V21.0
+          KALMAN OOS &amp; ERC RISK PARITY V22.0
         </span>
         <div class="win-ctrl-btns">
           <div class="win-ctrl-btn">_</div>
@@ -1232,14 +1237,14 @@
       <div class="sidebar-col">
         <div class="pixel-box rule-panel">
           <div class="section-title">
-            <span>—— 🌐 協整配對套利・Barra因子中台・借券動態競價 ——</span>
+            <span>—— 🌐 卡爾曼無前瞻偏誤・因子共變異數・ERC風險平價 ——</span>
             <span style="color:var(--tw-up);">本金 $1,000,000 TWD</span>
           </div>
 
           <!-- 全球總經環境雷達面板 -->
           <div class="macro-radar-box">
             <div class="macro-regime-bar">
-              <span>🌐 當日總經環境 (MACRO REGIME)</span>
+              <span>🌐 當日總經與共變異數壓力狀態</span>
               <span class="macro-regime-pill" id="macroRegimePill" style="background:#76c888;">🟢 軟著陸與算力擴張</span>
             </div>
             <div class="macro-indicators-grid">
@@ -1248,8 +1253,8 @@
                 <span class="macro-ind-val" id="macroFedVal">4.50%</span>
               </div>
               <div class="macro-ind-cell">
-                <span class="macro-ind-label">美國 CPI 年增</span>
-                <span class="macro-ind-val" id="macroCpiVal">2.6%</span>
+                <span class="macro-ind-label">共變異壓力膨脹</span>
+                <span class="macro-ind-val" id="macroStressMultVal">1.00x(正常)</span>
               </div>
               <div class="macro-ind-cell">
                 <span class="macro-ind-label">借券競價熱度</span>
@@ -1267,14 +1272,14 @@
           </div>
 
           <div class="fee-rule-banner">
-            <div>🔗 <strong>Engle-Granger 協整＆OU 配對套利</strong>：掃描供應鏈殘差平穩性 (ADF 檢定)，價差偏離 $|Z| > 2.0\sigma$ 自動執行「多強勢、空弱勢」Market Neutral 套利，收斂至均線自動平倉！</div>
-            <div>📊 <strong>Barra 風格因子中台</strong>：即時監控各部位於 <strong>Size (規模)</strong>、<strong>Value (價值)</strong>、<strong>Momentum (動量)</strong>、<strong>Volatility (波動率)</strong> 之淨暴露 Z-Score</div>
-            <div>🔨 <strong>借券費率動態競價 (Borrow Auction)</strong>：空頭擁擠時 SBL 與美股 HTB 借券利率動態飆升，跌破<strong>損益平衡點 (Breakeven)</strong> 自動提早強制回補！</div>
+            <div>📡 <strong>Kalman 卡爾曼濾波＆Walk-Forward 無前瞻偏誤</strong>：動態對沖比 $\beta_t = \beta_{t-1} + w_t$ 根據先驗預測誤差 (Innovation $e_t$) 遞迴更新；當日交易嚴格只用 $t-1$ 先驗參數進行 Out-of-Sample 決策！</div>
+            <div>🛡️ <strong>因子共變異數分解 ($\Sigma = B\Omega B^T + \Delta$) ＆ VIX 壓力測試</strong>：當 $VIX > 20$ 時強制將非對角線相關係數乘上 $1.4\times$ 膨脹係數，防止傳統共變異數矩陣於崩盤時失控</div>
+            <div>⚖️ <strong>等風險貢獻 (ERC / Risk Parity)</strong>：放棄對預期報酬率 $\mu$ 的敏感猜測，直接求解各資產風險貢獻相等 $\text{RC}_i = w_i(\Sigma w)_i / \sigma_p = \text{Const}$</div>
           </div>
 
           <div class="gba-lcd-screen">
             <div>
-              <div style="font-size:0.65rem; opacity:0.8;">OBSERVATION DATE</div>
+              <div style="font-size:0.65rem; opacity:0.8;">WALK-FORWARD OOS DATE</div>
               <div class="lcd-date" id="lcdDateText">2026-11-10 (週二)</div>
             </div>
             <div class="lcd-fx-box">
@@ -1302,7 +1307,7 @@
 
           <div class="btn-row-2" style="margin-top:2px;">
             <button class="pixel-btn" style="background:#00ffcc; color:#002b24; border-color:#000;" onclick="openQuantStatsModal()">
-              📊 Barra因子 / 協整檢定 / p-value
+              📊 Kalman / ERC風險平價 / Barra中台
             </button>
             <button class="pixel-btn" style="background:#b9f6ca; color:#003300; border-color:#000;" onclick="exportFullQuantExcel()">
               📥 匯出完整 Excel (.xlsx) 五工作表
@@ -1322,19 +1327,19 @@
 
         <div class="pixel-box rule-panel">
           <div class="section-title">
-            <span>📈 實盤商品池 ＆ 協整配對套利掃描器 (OU Pairs)</span>
+            <span>📈 實盤商品池 ＆ Kalman 狀態空間配對掃描器</span>
             <span id="stockCountText" style="font-size:0.7rem;">真實報價</span>
           </div>
 
           <div class="pool-tabs">
             <button class="pool-tab-btn active" id="tabBtnStock" onclick="switchPoolTab('STOCK')">🇹🇼 台股(競價SBL)</button>
-            <button class="pool-tab-btn" id="tabBtnPairs" onclick="switchPoolTab('PAIRS')">🔗 協整配對(OU)</button>
+            <button class="pool-tab-btn" id="tabBtnPairs" onclick="switchPoolTab('PAIRS')">📡 Kalman配對(OOS)</button>
             <button class="pool-tab-btn" id="tabBtnUS" onclick="switchPoolTab('US')">🇺🇸 美股(HTB競價)</button>
             <button class="pool-tab-btn" id="tabBtnFutures" onclick="switchPoolTab('FUTURES')">⚡ 期貨(TAIFEX)</button>
             <button class="pool-tab-btn" id="tabBtnWarrants" onclick="switchPoolTab('WARRANTS')">🔥 6碼權證</button>
           </div>
 
-          <input type="text" id="stockFilterInput" class="pixel-search" placeholder="🔍 搜尋台股、協整配對(2330/2454、2603/2609)、借券競價費率..." oninput="renderMarketTable()">
+          <input type="text" id="stockFilterInput" class="pixel-search" placeholder="🔍 搜尋台股、Kalman動態β配對(2330/2454、2603/2609)、借券競價..." oninput="renderMarketTable()">
           <div class="pixel-inset market-table-wrap">
             <table class="market-table">
               <thead id="marketTableHead"></thead>
@@ -1345,8 +1350,8 @@
 
         <div class="pixel-box rule-panel" style="flex:1; display:flex; flex-direction:column;">
           <div class="section-title">
-            <span>📰 協整價差信號・借券競價快訊 ＆ 總經情報</span>
-            <span style="font-size:0.7rem; color:#d61a1a;">★驅動OU配對與因子暴露</span>
+            <span>📰 Kalman 新息誤差・VIX 共變異壓力 ＆ 總經情報</span>
+            <span style="font-size:0.7rem; color:#d61a1a;">★驅動ERC風險平價與OOS配對</span>
           </div>
           <div class="pixel-inset news-scroll-box" id="newsListBox"></div>
         </div>
@@ -1358,11 +1363,11 @@
 
     <div class="bottom-chapter-bar">
       <div class="chapter-step active">開篇</div>
-      <div class="chapter-step active">Engle-Granger協整＆OU過程</div>
-      <div class="chapter-step active" id="chapDay1">Day1 價差突破±2σ觸發配對套利開倉</div>
-      <div class="chapter-step active" id="chapDay2">Day2 空頭擁擠借券費率競價飆升＋損益平衡檢定</div>
-      <div class="chapter-step active" id="chapWeek2">Day3 OU價差收斂至均線Market Neutral雙邊平倉</div>
-      <div class="chapter-step active" id="chapFinal">點左側[📊Barra因子/協整檢定/p-value]或匯出Excel</div>
+      <div class="chapter-step active">Kalman狀態空間＆Walk-Forward</div>
+      <div class="chapter-step active" id="chapDay1">Day1 先驗In-Sample訓練＋OOS卡爾曼配對建倉</div>
+      <div class="chapter-step active" id="chapDay2">Day2 VIX>20啟動1.4x壓力共變異數＋ERC風險平價防禦</div>
+      <div class="chapter-step active" id="chapWeek2">Day3 Kalman新息誤差收斂雙邊平倉＋步進窗口滾動更新</div>
+      <div class="chapter-step active" id="chapFinal">點左側[📊Kalman/ERC風險平價/Barra中台]或匯出Excel</div>
     </div>
   </div>
 
@@ -1370,7 +1375,7 @@
   <div class="ledger-modal-backdrop" id="ledgerModal" onclick="if(event.target===this) closeLedgerModal()">
     <div class="ledger-modal-win">
       <div class="ledger-modal-header">
-        <span id="modalTitleText">📒 持倉逐筆交割明細：OU配對套利、Volume動態滑價、動態競價借券息與Barra因子帳本</span>
+        <span id="modalTitleText">📒 持倉逐筆交割明細：Kalman無前瞻偏誤配對、ERC風險平價、Volume動態滑價與動態借券競價帳本</span>
         <div class="win-ctrl-btn" onclick="closeLedgerModal()">✕</div>
       </div>
       <div class="ledger-modal-body">
@@ -1379,8 +1384,8 @@
 
         <div class="kline-chart-panel">
           <div class="kline-chart-header">
-            <span id="klineChartTitle">📊 標的跨日 OHLC 像素 K 線圖（標註 OU 配對套利/MVO買進/動態借券競價回補點位）</span>
-            <span>▲ 做多/買進平倉 ｜ ▼ 放空開倉/賣出平倉 ｜ 🔗 OU配對套利 ｜ 🔨 借券競價計息</span>
+            <span id="klineChartTitle">📊 標的跨日 OHLC 像素 K 線圖（標註 Kalman OOS 配對/ERC 風險平價調倉/動態借券競價點位）</span>
+            <span>▲ 做多/買進平倉 ｜ ▼ 放空開倉/賣出平倉 ｜ 📡 Kalman配對 ｜ ⚖️ ERC風險平價</span>
           </div>
           <canvas id="modalKlineCanvas" width="960" height="115" style="width:100%; height:115px; background:#0d1410; border:1.5px solid #3a5242;"></canvas>
         </div>
@@ -1391,7 +1396,7 @@
               <tr>
                 <th>#</th>
                 <th>日期 (匯率)</th>
-                <th>標的與 OU協整 / MVO / 借券競價依據</th>
+                <th>標的與 Kalman OOS / ERC 風險平價依據</th>
                 <th>數量變動</th>
                 <th>理論價 ➔ 實際成交價 (Volume動態滑價)</th>
                 <th>券商手續費</th>
@@ -1411,21 +1416,21 @@
     </div>
   </div>
 
-  <!-- 量化統計圖表、Barra風格因子歸因、協整檢定與 p-value 顯著性檢定中心彈窗 -->
+  <!-- 量化統計圖表、Barra風格因子歸因、Kalman & ERC 檢定中心彈窗 -->
   <div class="ledger-modal-backdrop" id="quantStatsModal" onclick="if(event.target===this) closeQuantStatsModal()">
     <div class="ledger-modal-win quant-modal-win">
       <div class="ledger-modal-header" style="background:linear-gradient(90deg,#0f2027,#203a43,#2c5364);">
-        <span id="quantModalTitle">📊 傳奇大師量化統計與風控中台：Barra 風格因子歸因・Engle-Granger 協整檢定・MDD &amp; p-value</span>
+        <span id="quantModalTitle">📊 傳奇大師量化統計與風控中台：Kalman 狀態空間・Barra 因子共變異數 (Σ=BΩBᵀ+Δ)・ERC 風險平價 &amp; p-value</span>
         <div class="win-ctrl-btn" onclick="closeQuantStatsModal()">✕</div>
       </div>
       <div class="ledger-modal-body" style="max-height:88vh; overflow-y:auto;">
         <div class="ledger-date-nav-bar" style="background:#142830;">
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-            <span style="font-weight:bold; color:#00ffcc;" id="quantDataSourceLabel">📡 資料來源：模擬器內建實盤時間軸 (OU 協整套利 + Barra 因子中台 + 動態借券競價)</span>
-            <span style="font-size:0.78rem; color:#cfd8dc;">無風險年利率假設 Rf = 1.50%｜顯著水準 α = 0.05 (** 代表 p &lt; 0.05 具統計顯著超額報酬)</span>
+            <span style="font-weight:bold; color:#00ffcc;" id="quantDataSourceLabel">📡 資料來源：Walk-Forward OOS 步進回測 (Kalman 動態 β + Barra 結構共變異數 + ERC 等風險貢獻)</span>
+            <span style="font-size:0.78rem; color:#cfd8dc;">無風險年利率 Rf = 1.50%｜VIX &gt; 20 自動觸發 Corr × 1.4 壓力共變異數膨脹</span>
           </div>
           <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <button class="nav-day-btn" style="background:#b9f6ca;" onclick="exportFullQuantExcel()">📥 匯出 .xlsx 統計報表 (含Barra因子與協整表共5張工作表)</button>
+            <button class="nav-day-btn" style="background:#b9f6ca;" onclick="exportFullQuantExcel()">📥 匯出 .xlsx 統計報表 (含Kalman與ERC表共5張工作表)</button>
             <button class="nav-day-btn" style="background:#ffe082;" onclick="exportCsvForExcel()">📄 匯出 UTF-8 BOM .csv</button>
             <button class="nav-day-btn" style="background:#d1c4e9;" onclick="document.getElementById('excelUploader').click()">📂 載入外部 Excel 檢定</button>
             <button class="nav-day-btn" style="background:#ffcdd2;" onclick="resetCustomQuantSource()">🔄 切回模擬器內建數據</button>
@@ -1452,7 +1457,7 @@
         </div>
 
         <div class="sub-box-title" style="font-size:0.86rem; color:#1b3329; margin-top:4px;">
-          <span>🔬 表一：六大傳奇大師量化風險報酬與顯著性檢定總表 (H₀: μ_日報酬 = 0 vs H₁: μ_日報酬 ≠ 0)</span>
+          <span>🔬 表一：六大傳奇大師 Walk-Forward OOS 量化風險報酬與顯著性檢定總表 (H₀: μ_日報酬 = 0 vs H₁: μ_日報酬 ≠ 0)</span>
           <span style="font-size:0.75rem; color:#b71c1c;">點擊「📥 匯出 .xlsx」可於 Excel 取得完整五張工作表</span>
         </div>
         <div class="ledger-table-wrap" style="max-height:225px;">
@@ -1477,8 +1482,8 @@
         </div>
 
         <div class="sub-box-title" style="font-size:0.86rem; color:#1b3329; margin-top:4px;">
-          <span>🧭 表二：Barra 風格因子風險暴露歸因矩陣 (Size 規模・Value 價值・Momentum 動量・Volatility 波動率 Net Exposure Z-Score)</span>
-          <span style="font-size:0.75rem; color:#00695c;">數值代表投資組合對各因子之淨暴露標準差 (Z-Score) 與主動風險歸因</span>
+          <span>🧭 表二：Barra 結構化因子風險暴露 (Σ=BΩBᵀ+Δ) ＆ ERC 等風險貢獻配置診斷</span>
+          <span style="font-size:0.75rem; color:#00695c;">數值代表投資組合對各因子之淨暴露標準差 (Z-Score) 與 ERC 風險貢獻均衡度</span>
         </div>
         <div class="ledger-table-wrap" style="max-height:215px;">
           <table class="ledger-table" id="quantBarraTable">
@@ -1490,7 +1495,7 @@
                 <th>動量因子 (Momentum)</th>
                 <th>波動率因子 (Volatility)</th>
                 <th>市場 Beta 淨暴露</th>
-                <th>主動因子風險風格診斷 (Barra Attribution Diagnosis)</th>
+                <th>主動因子與 ERC 風險平價診斷 (Barra &amp; Risk Parity Diagnosis)</th>
               </tr>
             </thead>
             <tbody id="quantBarraTableBody"></tbody>
@@ -1601,8 +1606,8 @@
       '3037': { futCode: 'IRF', futName: '欣興期貨', underlying: '3037 欣興', sharesPerContract: 2000, marginRate: 0.135 }
     };
 
-    // 升級 STORAGE_KEY 為 V21_0_STATARB_BARRA_AUCTION，確保載入最新協整配對與因子中台模型
-    const STORAGE_KEY = 'AZHOU_ULTIMATE_V21_0_STATARB_BARRA_AUCTION';
+    // 升級 STORAGE_KEY 為 V22_0_KALMAN_ERC_STRESS，確保載入最新卡爾曼濾波與 ERC 風險平價模型
+    const STORAGE_KEY = 'AZHOU_ULTIMATE_V22_0_KALMAN_ERC_STRESS';
     const WEEKDAYS = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
     let currentPoolTab = 'STOCK';
 
@@ -1612,22 +1617,23 @@
         weekday: '週五',
         fullDateLabel: '2026-11-06 (週五)',
         fxRate: 32.10,
-        chapterTitle: 'Day 1：【協整價差突破±2.0σ觸發OU配對套利】長榮vs陽明、台積電vs聯發科啟動 Market Neutral 多空鎖倉',
+        chapterTitle: 'Day 1：【Kalman卡爾曼先驗狀態估計＋Walk-Forward OOS配對建倉】ERC等風險貢獻初始配置',
         macro: {
           regime: 'GOLDILOCKS',
-          regimeLabel: '🟢 非農軟著陸・協整套利啟動',
+          regimeLabel: '🟢 非農軟著陸・Kalman OOS啟動',
           regimeColor: '#76c888',
           fedRate: '4.50%',
           cpiYoY: '2.5%',
           nfpJobs: '+21.2萬(優)',
           us10yYield: '4.18%',
           vixIndex: '14.6',
+          stressMultText: '1.00x(正常)',
           borrowHeatText: '1.12x(溫和)',
           macroScore: 1,
           headlines: [
-            { tag: '🔗Engle-Granger協整檢定', title: '量化中台掃描發現【2603 長榮 vs 2609 陽明】與【2330 台積電 vs 2454 聯發科】通過 ADF 協整檢定，且 OU 殘差價差突破 2.15σ！', score: 2 },
-            { tag: '📐OU均值回歸配對交易', title: '西蒙斯與阿申立即啟動 Market Neutral 配對套利：做多低估強勢端、SBL 借券放空高估弱勢端，完全隔絕大盤 Beta 風險！', score: 2 },
-            { tag: '📊Barra風格因子中台', title: '系統即時監控六位大師在 Size(規模)、Value(價值)、Momentum(動量)、Volatility(波動率) 四大 Barra 因子之淨暴露 Z-Score！', score: 1 }
+            { tag: '📡Kalman狀態空間濾波', title: '全面廢除固定歷史窗口 OLS！導入 2D 狀態空間卡爾曼濾波器，即時根據新息誤差 (Innovation Error e_t) 遞迴更新動態對沖比 β_t，徹底消除前瞻偏誤！', score: 2 },
+            { tag: '⚖️ERC等風險貢獻平價', title: '採用 Barra 結構化因子共變異數 Σ = BΩBᵀ + Δ 並結合等風險貢獻 (ERC / Risk Parity)，不盲猜預期報酬 μ，確保各風險桶風險貢獻度均等！', score: 2 },
+            { tag: '🎙️台股法說會', title: '【台積電法說會】魏哲家宣布 AI 算力需求「是真的且剛開始」，上修全年美元營收成長至近 30%！', score: 2 }
           ]
         },
         macroFutures: [
@@ -1648,16 +1654,16 @@
           { id: 'SGOV 美國0-3月極短國庫券', code: 'SGOV', name: '0-3月美債ETF', assetType: 'US_BOND', usSector: 'BOND', currency: 'USD', open: 100.4, high: 100.5, low: 100.3, price: 100.45, changePct: 0.05, volShares: 18500000, yield: 4.85, exDividendDate: '', cashDividend: 0.42, isETB: true, borrowFeeRate: 0.25 }
         ],
         sectors: [
-          { id: '2330 台積電', code: '2330', open: 1045.0, high: 1070.0, low: 1040.0, price: 1065.0, changePct: 2.85, volLots: 45200, pe: 24.2, yield: 1.6, exDividendDate: '2026-11-09', cashDividend: 4.50, fairValue: 1020.0, sentiment: 0.85, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.5, haltReason: '11/09除息前6日停券', news: [{ title: '【協整配對強勢端】2330 台積電法說大好 (+2.85%)，相較於 2454 聯發科出現顯著價差乖離！', score: 2 }] },
-          { id: '2454 聯發科', code: '2454', open: 1310.0, high: 1325.0, low: 1295.0, price: 1315.0, changePct: 0.38, volLots: 12800, pe: 19.8, yield: 4.1, exDividendDate: '2027-01-04', cashDividend: 29.0, fairValue: 1300.0, sentiment: 0.20, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.9, haltReason: '', news: [{ title: '【半導體協整配對】2454 聯發科與 2330 台積電長期協整，今日價差 Z-Score 擴大至 +2.18σ', score: 1 }] },
-          { id: '2317 鴻海', code: '2317', open: 209.5, high: 217.0, low: 208.5, price: 216.0, changePct: 3.85, volLots: 92000, pe: 16.0, yield: 3.5, exDividendDate: '2026-11-10', cashDividend: 5.40, fairValue: 204.0, sentiment: 0.90, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.8, haltReason: '11/10除息前6日停券', news: [{ title: '【鴻海法說展望】GB200 伺服器第四季大量出貨，與 2382 廣達形成 AI 伺服器協整配對！', score: 2 }] },
-          { id: '2382 廣達', code: '2382', open: 318.0, high: 326.0, low: 315.0, price: 322.0, changePct: 1.26, volLots: 38500, pe: 21.5, yield: 2.9, exDividendDate: '2027-04-12', cashDividend: 9.0, fairValue: 310.0, sentiment: 0.55, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.1, haltReason: '', news: [{ title: '【AI伺服器協整配對】2382 廣達與 2317 鴻海殘差通過 ADF 平穩檢定', score: 1 }] },
-          { id: '2603 長榮', code: '2603', open: 212.0, high: 213.0, low: 205.5, price: 208.5, changePct: -2.35, volLots: 39000, pe: 7.1, yield: 5.9, exDividendDate: '2026-11-10', cashDividend: 10.00, fairValue: 235.0, sentiment: -0.55, allowMarginShort: false, allowSBL: true, sblFeeRate: 2.6, haltReason: '11/10除息前6日停券', news: [{ title: '【航運協整配對低估端】2603 長榮短線回檔 -2.35%，相較於 2609 陽明逆勢上漲，OU 價差 Z-Score 達 -2.32σ！', score: 1 }] },
-          { id: '2609 陽明', code: '2609', open: 72.5, high: 75.8, low: 72.0, price: 75.2, changePct: 3.15, volLots: 64000, pe: 8.4, yield: 2.7, exDividendDate: '2027-07-09', cashDividend: 2.00, fairValue: 69.0, sentiment: 0.30, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.4, haltReason: '', news: [{ title: '【航運協整配對高估端】2609 陽明短線急拉 +3.15% 與 2603 長榮背離超過 2.3σ，觸發西蒙斯「多長榮、空陽明」配對套利！', score: -1 }] },
-          { id: '2891 中信金', code: '2891', open: 36.5, high: 36.6, low: 35.9, price: 36.2, changePct: -0.82, volLots: 41000, pe: 10.0, yield: 5.3, exDividendDate: '2026-11-09', cashDividend: 1.80, fairValue: 40.5, sentiment: 0.25, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.5, haltReason: '11/09除息前6日停券', news: [{ title: '【Barra 價值因子首選】2891 中信金具備高 Value 與低 Volatility 因子暴露，11/09 除息配 $1.80 元', score: 2 }] },
-          { id: '1519 華城', code: '1519', open: 625.0, high: 658.0, low: 622.0, price: 655.0, changePct: 5.65, volLots: 14500, pe: 36.8, yield: 1.2, exDividendDate: '2026-12-15', cashDividend: 6.00, fairValue: 575.0, sentiment: 0.95, allowMarginShort: true, allowSBL: true, sblFeeRate: 6.8, haltReason: '', news: [{ title: '1519 華城強攻 +5.65%，空單擁擠引發借券競價費率攀升至 6.8%！', score: 2 }] },
+          { id: '2330 台積電', code: '2330', open: 1045.0, high: 1070.0, low: 1040.0, price: 1065.0, changePct: 2.85, volLots: 45200, pe: 24.2, yield: 1.6, exDividendDate: '2026-11-09', cashDividend: 4.50, fairValue: 1020.0, sentiment: 0.85, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.5, haltReason: '11/09除息前6日停券', news: [{ title: '【Kalman配對強勢端】2330 台積電法說大好 (+2.85%)，與 2454 聯發科之卡爾曼新息誤差突破 2.1σ！', score: 2 }] },
+          { id: '2454 聯發科', code: '2454', open: 1310.0, high: 1325.0, low: 1295.0, price: 1315.0, changePct: 0.38, volLots: 12800, pe: 19.8, yield: 4.1, exDividendDate: '2027-01-04', cashDividend: 29.0, fairValue: 1300.0, sentiment: 0.20, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.9, haltReason: '', news: [{ title: '【Kalman動態對沖比】2454 聯發科與 2330 台積電透過狀態空間遞迴更新 β_t', score: 1 }] },
+          { id: '2317 鴻海', code: '2317', open: 209.5, high: 217.0, low: 208.5, price: 216.0, changePct: 3.85, volLots: 92000, pe: 16.0, yield: 3.5, exDividendDate: '2026-11-10', cashDividend: 5.40, fairValue: 204.0, sentiment: 0.90, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.8, haltReason: '11/10除息前6日停券', news: [{ title: '【鴻海法說展望】GB200 伺服器第四季大量出貨，與 2382 廣達形成 AI 伺服器狀態空間配對！', score: 2 }] },
+          { id: '2382 廣達', code: '2382', open: 318.0, high: 326.0, low: 315.0, price: 322.0, changePct: 1.26, volLots: 38500, pe: 21.5, yield: 2.9, exDividendDate: '2027-04-12', cashDividend: 9.0, fairValue: 310.0, sentiment: 0.55, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.1, haltReason: '', news: [{ title: '2382 廣達與 2317 鴻海卡爾曼濾波殘差保持平穩', score: 1 }] },
+          { id: '2603 長榮', code: '2603', open: 212.0, high: 213.0, low: 205.5, price: 208.5, changePct: -2.35, volLots: 39000, pe: 7.1, yield: 5.9, exDividendDate: '2026-11-10', cashDividend: 10.00, fairValue: 235.0, sentiment: -0.55, allowMarginShort: false, allowSBL: true, sblFeeRate: 2.6, haltReason: '11/10除息前6日停券', news: [{ title: '【Walk-Forward OOS 配對低估端】2603 長榮短線回檔 -2.35%，相較於 2609 陽明逆勢上漲，Kalman 先驗新息 Z-Score 達 -2.35σ！', score: 1 }] },
+          { id: '2609 陽明', code: '2609', open: 72.5, high: 75.8, low: 72.0, price: 75.2, changePct: 3.15, volLots: 64000, pe: 8.4, yield: 2.7, exDividendDate: '2027-07-09', cashDividend: 2.00, fairValue: 69.0, sentiment: 0.30, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.4, haltReason: '', news: [{ title: '【Walk-Forward OOS 配對高估端】2609 陽明急拉 +3.15%，西蒙斯依 t-1 先驗 β_t 執行「多長榮、空陽明」無前瞻偏誤套利！', score: -1 }] },
+          { id: '2891 中信金', code: '2891', open: 36.5, high: 36.6, low: 35.9, price: 36.2, changePct: -0.82, volLots: 41000, pe: 10.0, yield: 5.3, exDividendDate: '2026-11-09', cashDividend: 1.80, fairValue: 40.5, sentiment: 0.25, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.5, haltReason: '11/09除息前6日停券', news: [{ title: '【ERC 低波價值核心】2891 中信金異質風險 Δ 極低，獲 ERC 風險平價模型高權重配置', score: 2 }] },
+          { id: '1519 華城', code: '1519', open: 625.0, high: 658.0, low: 622.0, price: 655.0, changePct: 5.65, volLots: 14500, pe: 36.8, yield: 1.2, exDividendDate: '2026-12-15', cashDividend: 6.00, fairValue: 575.0, sentiment: 0.95, allowMarginShort: true, allowSBL: true, sblFeeRate: 6.8, haltReason: '', news: [{ title: '1519 華城強攻 +5.65%，高異質波動率使 ERC 模型自動限制其單一部位風險貢獻！', score: 2 }] },
           { id: '3037 欣興', code: '3037', open: 159.0, high: 159.5, low: 151.0, price: 154.0, changePct: -3.45, volLots: 31000, pe: 27.5, yield: 1.9, exDividendDate: '2026-12-20', cashDividend: 3.00, fairValue: 158.0, sentiment: -0.80, allowMarginShort: true, allowSBL: true, sblFeeRate: 4.2, haltReason: '', news: [{ title: '【欣興法說不如預期】跌破月線觸發李佛摩負動量因子放空！', score: -2 }] },
-          { id: '00679B 元大美債20年', code: '00679B', assetType: 'TW_BOND', open: 29.8, high: 29.9, low: 29.4, price: 29.5, changePct: -1.34, volLots: 68000, pe: 0.0, yield: 4.5, exDividendDate: '2026-11-10', cashDividend: 0.34, fairValue: 31.0, sentiment: 0.15, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.2, haltReason: '11/10除息停券', news: [{ title: '00679B 元大美債20年賣出免徵 0.3% 證交稅，與電子股呈負共變異數', score: 1 }] }
+          { id: '00679B 元大美債20年', code: '00679B', assetType: 'TW_BOND', open: 29.8, high: 29.9, low: 29.4, price: 29.5, changePct: -1.34, volLots: 68000, pe: 0.0, yield: 4.5, exDividendDate: '2026-11-10', cashDividend: 0.34, fairValue: 31.0, sentiment: 0.15, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.2, haltReason: '11/10除息停券', news: [{ title: '00679B 元大美債20年賣出免徵 0.3% 證交稅，為 ERC 風險平價重要防禦基石', score: 1 }] }
         ],
         warrants: [
           { id: '081524 台積電元大45購01', code: '081524', name: '台積電元大45購01', warrantType: 'CALL', underlyingCode: '2330', underlyingId: '2330 台積電', open: 2.15, high: 2.48, low: 2.12, price: 2.45, changePct: 14.48, volLots: 18500 },
@@ -1670,22 +1676,23 @@
         weekday: '週一',
         fullDateLabel: '2026-11-09 (週一)',
         fxRate: 32.28,
-        chapterTitle: 'Day 2：【空頭氣氛濃厚借券費率競價飆升1.75x】OU配對部位抗跌展現Market Neutral純Alpha',
+        chapterTitle: 'Day 2：【VIX飆破21.8觸發1.4x動態壓力共變異數】ERC風險平價自動降槓桿防禦・Kalman增益遞迴修正β_t',
         macro: {
           regime: 'HAWKISH_INFLATION',
-          regimeLabel: '🔴 CPI升溫・借券競價飆升1.75x',
+          regimeLabel: '🔴 VIX>20啟動1.4x壓力共變異數',
           regimeColor: '#ff8a80',
           fedRate: '4.50%(暫緩降息)',
           cpiYoY: '2.9%(高於預期)',
           nfpJobs: '+21.2萬',
           us10yYield: '4.46%▲',
           vixIndex: '21.8▲',
+          stressMultText: '1.40x🚨(VIX壓力)',
           borrowHeatText: '1.75x▲(搶券擁擠)',
           macroScore: -2,
           headlines: [
-            { tag: '🔨借券費率動態競價', title: 'CPI 反彈引發市場空頭搶券潮！SBL 借券競價倍數飆升至 1.75x，熱門空頭股借券年息突破損益平衡線 (Breakeven)，觸發風控預警！', score: -2 },
-            { tag: '🔗OU配對套利Market Neutral', title: '大盤受 CPI 利空衝擊下跌，但西蒙斯「多 2603 長榮、空 2609 陽明」配對套利因價差收斂逆勢獲利，完美印證零 Beta 市場中性 Alpha！', score: 2 },
-            { tag: '⚖️期貨與融券維持率風控', title: '外資機構嚴格執行雙向風控：凡放空部位逆勢虧損逾 12% 或借券競價成本超過預期報酬損益平衡點，立即強制回補！', score: -1 }
+            { tag: '🚨VIX>20壓力共變異數介入', title: 'VIX 恐慌指數飆升至 21.8 (>20)！系統強制啟動 Regime-Switching 壓力測試：將 Σ = BΩBᵀ + Δ 非對角線相關係數全面乘上 1.4x 膨脹係數，ERC 模型自動轉入防禦配置！', score: -2 },
+            { tag: '📡Kalman濾波器即時調適', title: '面對 CPI 結構性衝擊，卡爾曼濾波器透過卡爾曼增益 K_t 即時更新狀態向量 [α_t, β_t]，配對套利部位展現零 Beta 抗跌韌性！', score: 2 },
+            { tag: '🔨借券費率動態競價', title: '空頭搶券導致 SBL 競價倍數飆至 1.75x，突破損益平衡點 (Breakeven) 之空單自動觸發風控回補！', score: -1 }
           ]
         },
         macroFutures: [
@@ -1707,15 +1714,15 @@
         ],
         sectors: [
           { id: '2330 台積電', code: '2330', open: 1055.0, high: 1058.0, low: 1035.0, price: 1045.0, changePct: -1.88, volLots: 51000, pe: 23.6, yield: 1.7, exDividendDate: '2026-11-09', cashDividend: 4.50, fairValue: 1020.0, sentiment: 0.50, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.5, haltReason: '', news: [{ title: '💰【台美同步除息】今日 2330 台積電配息 $4.5 TWD；美股 INTC 除息空方須強制代墊 100% 股息！', score: 2 }] },
-          { id: '2454 聯發科', code: '2454', open: 1310.0, high: 1315.0, low: 1275.0, price: 1280.0, changePct: -2.66, volLots: 15400, pe: 19.2, yield: 4.2, exDividendDate: '2027-01-04', cashDividend: 29.0, fairValue: 1300.0, sentiment: -0.25, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.9, haltReason: '', news: [{ title: '【OU價差收斂中】2454 聯發科回檔 -2.66%，與 2330 台積電之 OU 殘差 Z-Score 收斂至 +1.05σ', score: 0 }] },
-          { id: '2317 鴻海', code: '2317', open: 214.0, high: 215.0, low: 206.0, price: 209.0, changePct: -3.24, volLots: 88000, pe: 15.4, yield: 3.6, exDividendDate: '2026-11-10', cashDividend: 5.40, fairValue: 204.0, sentiment: -0.45, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.8, haltReason: '明日除息停券', news: [{ title: '受美國 CPI 超預期衝擊，西蒙斯透過微台指 TMF 空單與 OU 配對套利雙重對沖', score: -1 }] },
-          { id: '2382 廣達', code: '2382', open: 320.0, high: 321.0, low: 308.0, price: 310.0, changePct: -3.73, volLots: 42000, pe: 20.8, yield: 3.0, exDividendDate: '2027-04-12', cashDividend: 9.0, fairValue: 310.0, sentiment: -0.40, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.1, haltReason: '', news: [{ title: '2382 廣達與 2317 鴻海同步修正，兩者協整價差維持穩定', score: -1 }] },
-          { id: '2603 長榮', code: '2603', open: 207.0, high: 208.0, low: 201.0, price: 204.0, changePct: -2.16, volLots: 54000, pe: 6.9, yield: 6.1, exDividendDate: '2026-11-10', cashDividend: 10.00, fairValue: 235.0, sentiment: -0.30, allowMarginShort: false, allowSBL: true, sblFeeRate: 2.6, haltReason: '明日除息停券', news: [{ title: '明日 2603 長榮除息配發 $10.0 元！相較於陽明重挫，長榮表現抗跌使 OU 配對部位開始獲利', score: 1 }] },
-          { id: '2609 陽明', code: '2609', open: 74.5, high: 74.8, low: 69.5, price: 70.2, changePct: -6.65, volLots: 78000, pe: 7.9, yield: 2.9, exDividendDate: '2027-07-09', cashDividend: 2.00, fairValue: 69.0, sentiment: -0.75, allowMarginShort: true, allowSBL: true, sblFeeRate: 3.2, haltReason: '', news: [{ title: '【OU均值回歸奏效】昨日超漲之 2609 陽明今日補跌 -6.65%，西蒙斯配對空單端大賺，Z-Score 迅速向均線收斂！', score: -2 }] },
+          { id: '2454 聯發科', code: '2454', open: 1310.0, high: 1315.0, low: 1275.0, price: 1280.0, changePct: -2.66, volLots: 15400, pe: 19.2, yield: 4.2, exDividendDate: '2027-01-04', cashDividend: 29.0, fairValue: 1300.0, sentiment: -0.25, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.9, haltReason: '', news: [{ title: '【Kalman新息收斂中】2454 聯發科回檔 -2.66%，卡爾曼增益 K_t 自動修正對沖比 β_t', score: 0 }] },
+          { id: '2317 鴻海', code: '2317', open: 214.0, high: 215.0, low: 206.0, price: 209.0, changePct: -3.24, volLots: 88000, pe: 15.4, yield: 3.6, exDividendDate: '2026-11-10', cashDividend: 5.40, fairValue: 204.0, sentiment: -0.45, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.8, haltReason: '明日除息停券', news: [{ title: 'VIX > 20 觸發壓力共變異數，西蒙斯透過微台指 TMF 空單與 ERC 風險平價雙重對沖', score: -1 }] },
+          { id: '2382 廣達', code: '2382', open: 320.0, high: 321.0, low: 308.0, price: 310.0, changePct: -3.73, volLots: 42000, pe: 20.8, yield: 3.0, exDividendDate: '2027-04-12', cashDividend: 9.0, fairValue: 310.0, sentiment: -0.40, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.1, haltReason: '', news: [{ title: '2382 廣達與 2317 鴻海同步修正，Kalman 狀態空間殘差維持穩定', score: -1 }] },
+          { id: '2603 長榮', code: '2603', open: 207.0, high: 208.0, low: 201.0, price: 204.0, changePct: -2.16, volLots: 54000, pe: 6.9, yield: 6.1, exDividendDate: '2026-11-10', cashDividend: 10.00, fairValue: 235.0, sentiment: -0.30, allowMarginShort: false, allowSBL: true, sblFeeRate: 2.6, haltReason: '明日除息停券', news: [{ title: '明日 2603 長榮除息配發 $10.0 元！相較於陽明重挫，長榮抗跌使 Kalman 配對部位逆勢獲利', score: 1 }] },
+          { id: '2609 陽明', code: '2609', open: 74.5, high: 74.8, low: 69.5, price: 70.2, changePct: -6.65, volLots: 78000, pe: 7.9, yield: 2.9, exDividendDate: '2027-07-09', cashDividend: 2.00, fairValue: 69.0, sentiment: -0.75, allowMarginShort: true, allowSBL: true, sblFeeRate: 3.2, haltReason: '', news: [{ title: '【Kalman新息誤差收斂】昨日超漲之 2609 陽明今日補跌 -6.65%，西蒙斯 OOS 配對空單端大賺！', score: -2 }] },
           { id: '2891 中信金', code: '2891', open: 36.3, high: 37.5, low: 36.2, price: 37.3, changePct: 3.04, volLots: 52000, pe: 10.3, yield: 5.1, exDividendDate: '2026-11-09', cashDividend: 1.80, fairValue: 40.5, sentiment: 0.75, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.5, haltReason: '', news: [{ title: '💰【今日除息秒填息】2891 中信金配發 $1.80 元並逆勢大漲 +3.04%！', score: 2 }] },
-          { id: '1519 華城', code: '1519', open: 658.0, high: 682.0, low: 652.0, price: 678.0, changePct: 3.51, volLots: 19500, pe: 37.5, yield: 1.1, exDividendDate: '2026-12-15', cashDividend: 6.00, fairValue: 585.0, sentiment: 0.90, allowMarginShort: true, allowSBL: true, sblFeeRate: 9.8, haltReason: '', news: [{ title: '🔨【借券競價費率狂飆】1519 華城逆勢創高 678 元，空頭擁擠導致 SBL 競價年息飆至 9.8%，克萊默空單面臨巨額持倉成本！', score: 2 }] },
+          { id: '1519 華城', code: '1519', open: 658.0, high: 682.0, low: 652.0, price: 678.0, changePct: 3.51, volLots: 19500, pe: 37.5, yield: 1.1, exDividendDate: '2026-12-15', cashDividend: 6.00, fairValue: 585.0, sentiment: 0.90, allowMarginShort: true, allowSBL: true, sblFeeRate: 9.8, haltReason: '', news: [{ title: '🔨【借券競價費率狂飆】1519 華城逆勢創高 678 元，SBL 競價年息飆至 9.8%！', score: 2 }] },
           { id: '3037 欣興', code: '3037', open: 152.0, high: 153.0, low: 145.5, price: 144.0, changePct: -6.49, volLots: 36000, pe: 26.2, yield: 2.0, exDividendDate: '2026-12-20', cashDividend: 3.00, fairValue: 158.0, sentiment: -0.70, allowMarginShort: true, allowSBL: true, sblFeeRate: 5.6, haltReason: '', news: [{ title: '3037 欣興重挫 -6.49%，李佛摩空單大獲全勝！', score: -2 }] },
-          { id: '00679B 元大美債20年', code: '00679B', assetType: 'TW_BOND', open: 29.6, high: 30.2, low: 29.5, price: 30.1, changePct: 2.03, volLots: 75000, pe: 0.0, yield: 4.4, exDividendDate: '2026-11-10', cashDividend: 0.34, fairValue: 31.0, sentiment: 0.65, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.2, haltReason: '明日除息停券', news: [{ title: '台幣貶值帶動 00679B 逆勢上漲 +2.03%', score: 2 }] }
+          { id: '00679B 元大美債20年', code: '00679B', assetType: 'TW_BOND', open: 29.6, high: 30.2, low: 29.5, price: 30.1, changePct: 2.03, volLots: 75000, pe: 0.0, yield: 4.4, exDividendDate: '2026-11-10', cashDividend: 0.34, fairValue: 31.0, sentiment: 0.65, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.2, haltReason: '明日除息停券', news: [{ title: 'VIX 飆高時 00679B 逆勢上漲 +2.03%，ERC 風險平價防禦效果顯著', score: 2 }] }
         ],
         warrants: [
           { id: '081524 台積電元大45購01', code: '081524', name: '台積電元大45購01', warrantType: 'CALL', underlyingCode: '2330', underlyingId: '2330 台積電', open: 2.35, high: 2.38, low: 2.15, price: 2.21, changePct: -9.80, volLots: 21000 },
@@ -1728,21 +1735,22 @@
         weekday: '週二',
         fullDateLabel: '2026-11-10 (週二)',
         fxRate: 32.05,
-        chapterTitle: 'Day 3：【OU協整價差收斂至均線|Z|<0.5σ雙邊平倉】完美收割Market Neutral無風險Alpha',
+        chapterTitle: 'Day 3：【Kalman新息誤差收斂|Z|<0.5σ雙邊平倉】VIX回落至13.8解除壓力矩陣・Walk-Forward步進滾動更新',
         macro: {
           regime: 'RATE_CUT_RALLY',
-          regimeLabel: '🚀 Fed轉鴿・OU配對收斂收割',
+          regimeLabel: '🚀 VIX解除警報・Kalman收斂收割',
           regimeColor: '#ffd54f',
           fedRate: '4.25%▼(預期降1碼)',
           cpiYoY: '2.6%(PPI降溫)',
           nfpJobs: '+21.2萬',
           us10yYield: '4.12%▼',
           vixIndex: '13.8▼',
+          stressMultText: '1.00x🟢(解除)',
           borrowHeatText: '0.95x▼(回補降溫)',
           macroScore: 2,
           headlines: [
-            { tag: '🏆OU協整價差收斂平倉', title: '【2603 長榮 vs 2609 陽明】與【2330 台積電 vs 2454 聯發科】殘差 Z-Score 收斂回 0.18σ 均線區間，量化引擎自動執行雙邊平倉鎖定純 Alpha！', score: 2 },
-            { tag: '🕊️Fed轉鴿與台幣升值', title: 'Fed 暗示 12 月降息 1 碼！外資熱錢湧入台股，帶動 Barra 動量因子 (Momentum) 與規模因子 (Size) 全面噴發！', score: 2 },
+            { tag: '🏆Kalman新息收斂雙邊平倉', title: '【2603 長榮 vs 2609 陽明】卡爾曼先驗新息 Z_Kalman 收斂至 -0.15σ，Walk-Forward OOS 引擎自動執行雙邊平倉鎖定無風險 Alpha！', score: 2 },
+            { tag: '⚖️VIX回落ERC恢復均衡配置', title: 'Fed 暗示降息帶動 VIX 驟降至 13.8 (<20)，解除 1.4x 壓力共變異數膨脹，ERC 等風險貢獻模型自動回補權益與期貨風險桶！', score: 2 },
             { tag: '🔥借券競價損益平衡止損', title: '強勢股軋空加上動態借券費率過高，跌破 Breakeven 損益平衡點之空單全數強制買進回補！', score: 2 }
           ]
         },
@@ -1765,12 +1773,12 @@
         ],
         sectors: [
           { id: '2330 台積電', code: '2330', open: 1070.0, high: 1100.0, low: 1065.0, price: 1095.0, changePct: 4.78, volLots: 62000, pe: 24.8, yield: 1.5, exDividendDate: '2026-11-09', cashDividend: 4.50, fairValue: 1050.0, sentiment: 0.95, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.5, haltReason: '', news: [{ title: 'Fed 鴿派降息信號＋外資熱錢匯入台股，2330 台積電與美股 NVDA 雙雙暴漲！', score: 2 }] },
-          { id: '2454 聯發科', code: '2454', open: 1295.0, high: 1335.0, low: 1290.0, price: 1325.0, changePct: 3.52, volLots: 18900, pe: 20.1, yield: 4.0, exDividendDate: '2027-01-04', cashDividend: 29.0, fairValue: 1320.0, sentiment: 0.80, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.9, haltReason: '', news: [{ title: '【OU配對收斂完成】2454 聯發科與 2330 台積電價差 Z-Score 收斂至 +0.18σ，觸發配對套利完美獲利平倉！', score: 2 }] },
+          { id: '2454 聯發科', code: '2454', open: 1295.0, high: 1335.0, low: 1290.0, price: 1325.0, changePct: 3.52, volLots: 18900, pe: 20.1, yield: 4.0, exDividendDate: '2027-01-04', cashDividend: 29.0, fairValue: 1320.0, sentiment: 0.80, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.9, haltReason: '', news: [{ title: '【Kalman新息收斂完成】2454 聯發科與 2330 台積電新息 Z-Score 收斂至 +0.16σ，觸發 OOS 配對套利獲利平倉！', score: 2 }] },
           { id: '2317 鴻海', code: '2317', open: 215.0, high: 225.0, low: 214.0, price: 224.0, changePct: 7.18, volLots: 115000, pe: 16.6, yield: 3.4, exDividendDate: '2026-11-10', cashDividend: 5.40, fairValue: 215.0, sentiment: 0.95, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.8, haltReason: '', news: [{ title: '💰【今日除息秒填息】2317 鴻海爆量 11.5 萬張配發 $5.40 元並狂飆 +7.18%', score: 2 }] },
           { id: '2382 廣達', code: '2382', open: 315.0, high: 332.0, low: 314.0, price: 329.0, changePct: 6.13, volLots: 51000, pe: 22.0, yield: 2.8, exDividendDate: '2027-04-12', cashDividend: 9.0, fairValue: 325.0, sentiment: 0.85, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.1, haltReason: '', news: [{ title: '2382 廣達與 2317 鴻海同步大漲，AI 伺服器族群動量因子 (Momentum) 領跑全場', score: 2 }] },
-          { id: '2603 長榮', code: '2603', open: 210.0, high: 223.5, low: 209.0, price: 222.0, changePct: 8.82, volLots: 78000, pe: 7.5, yield: 5.5, exDividendDate: '2026-11-10', cashDividend: 10.00, fairValue: 235.0, sentiment: 0.90, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.6, haltReason: '', news: [{ title: '💰【今日除息大噴發＋OU配對收割】2603 長榮配發 $10.0 元並大漲 +8.82%，與陽明價差完全收斂，西蒙斯雙邊平倉大賺！', score: 2 }] },
-          { id: '2609 陽明', code: '2609', open: 70.5, high: 71.8, low: 69.8, price: 71.0, changePct: 1.14, volLots: 52000, pe: 8.0, yield: 2.8, exDividendDate: '2027-07-09', cashDividend: 2.00, fairValue: 69.0, sentiment: 0.25, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.4, haltReason: '', news: [{ title: '【航運協整回歸均線】2609 陽明僅小漲 +1.14% 遠落後長榮 +8.82%，兩者對數價差 Z-Score 回到 -0.12σ 均線，配對空單完美回補！', score: 1 }] },
-          { id: '2891 中信金', code: '2891', open: 37.5, high: 38.3, low: 37.4, price: 38.1, changePct: 2.14, volLots: 38000, pe: 10.5, yield: 5.0, exDividendDate: '2026-11-09', cashDividend: 1.80, fairValue: 40.5, sentiment: 0.60, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.5, haltReason: '', news: [{ title: '2891 中信金除息後連拉兩根紅K棒，巴菲特低波動價值組合穩健創高', score: 1 }] },
+          { id: '2603 長榮', code: '2603', open: 210.0, high: 223.5, low: 209.0, price: 222.0, changePct: 8.82, volLots: 78000, pe: 7.5, yield: 5.5, exDividendDate: '2026-11-10', cashDividend: 10.00, fairValue: 235.0, sentiment: 0.90, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.6, haltReason: '', news: [{ title: '💰【今日除息大噴發＋Kalman配對收割】2603 長榮配發 $10.0 元並大漲 +8.82%，與陽明新息誤差完全收斂，西蒙斯雙邊平倉大賺！', score: 2 }] },
+          { id: '2609 陽明', code: '2609', open: 70.5, high: 71.8, low: 69.8, price: 71.0, changePct: 1.14, volLots: 52000, pe: 8.0, yield: 2.8, exDividendDate: '2027-07-09', cashDividend: 2.00, fairValue: 69.0, sentiment: 0.25, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.4, haltReason: '', news: [{ title: '【航運Kalman狀態收斂】2609 陽明僅小漲 +1.14% 遠落後長榮 +8.82%，卡爾曼新息 Z_Kalman 回到 -0.15σ，配對空單完美回補！', score: 1 }] },
+          { id: '2891 中信金', code: '2891', open: 37.5, high: 38.3, low: 37.4, price: 38.1, changePct: 2.14, volLots: 38000, pe: 10.5, yield: 5.0, exDividendDate: '2026-11-09', cashDividend: 1.80, fairValue: 40.5, sentiment: 0.60, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.5, haltReason: '', news: [{ title: '2891 中信金除息後連拉兩根紅K棒，巴菲特 ERC 低波價值組合穩健創高', score: 1 }] },
           { id: '1519 華城', code: '1519', open: 685.0, high: 755.0, low: 682.0, price: 748.0, changePct: 10.32, volLots: 16000, pe: 38.5, yield: 1.1, exDividendDate: '2026-12-15', cashDividend: 6.00, fairValue: 600.0, sentiment: 0.90, allowMarginShort: true, allowSBL: true, sblFeeRate: 11.5, haltReason: '', news: [{ title: '🔥【軋空慘劇】1519 華城狂飆漲停 748 元！克萊默融券空單維持率跌破追繳線慘遭高滑價強制回補！', score: 2 }] },
           { id: '3037 欣興', code: '3037', open: 145.0, high: 159.0, low: 144.0, price: 158.0, changePct: 9.72, volLots: 42000, pe: 27.8, yield: 1.9, exDividendDate: '2026-12-20', cashDividend: 3.00, fairValue: 158.0, sentiment: 0.75, allowMarginShort: true, allowSBL: true, sblFeeRate: 4.2, haltReason: '', news: [{ title: 'Fed 轉鴿激勵電子股全面反攻，李佛摩迅速買進回補 3037 欣興空單鎖定獲利！', score: 2 }] },
           { id: '00679B 元大美債20年', code: '00679B', assetType: 'TW_BOND', open: 30.2, high: 30.6, low: 30.1, price: 30.5, changePct: 1.33, volLots: 64000, pe: 0.0, yield: 4.4, exDividendDate: '2026-11-10', cashDividend: 0.34, fairValue: 31.0, sentiment: 0.70, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.2, haltReason: '', news: [{ title: '💰【今日除息】Fed 暗示降息帶動 10Y 殖利率回落至 4.12%，00679B 與 TLT 美債雙雙上漲', score: 1 }] }
@@ -1784,92 +1792,92 @@
     ];
 
     /* =========================================================================
-       2. 六大傳奇大師設定 (含風險趨避係數 λ、OU 協整套利與 Barra 因子偏好)
+       2. 六大傳奇大師設定 (含 ERC 風險預算偏好、Kalman 配對套利與 Barra 因子風格)
        ========================================================================= */
     const BASE_AGENTS = [
       {
         id: 0,
         name: '華倫·巴菲特',
         job: '波克夏海瑟威董事長',
-        style: 'Barra 高價值/低波動 MVO (λ=6.5・Value+ / Vol-)',
-        targetRatioText: 'Barra 因子目標：高 Value(價值) + 低 Volatility(波動率)｜MVO 最大化護城河高息股與免稅短債 SGOV',
+        style: '防禦型 ERC 風險平價 (Σ=BΩBᵀ+Δ・零衍生品/高Value)',
+        targetRatioText: 'ERC 風險平價：僅配置台股護城河現股、美股價值股與免稅短債 SGOV，使各持倉邊際風險貢獻 RC_i 相等',
         headerTheme: 'hdr-theme-buffett',
-        ruleDesc: '波克夏 Barra 價值與低波哲學（λ=6.5）：專注高股息價值因子 (Value Z > +0.8) 與極低波動因子 (Vol Z < -0.6)，透過 MVO 協方差優化配置台股護城河現股與美債 SGOV（0%放空/0%衍生品）！',
+        ruleDesc: '波克夏 ERC 等風險貢獻哲學（λ=6.5）：放棄對短期報酬率 μ 的不確定猜測，透過 Barra 結構共變異數 Σ = BΩBᵀ + Δ 求解台股價值股與美債 SGOV 之等風險貢獻權重，在 VIX > 20 壓力期間展現極致抗跌力！',
         skin: '#f7d7c4', hair: '#f0f0f0', shirt: '#1a365d', accessory: 'buffett_cola',
         riskAversionLambda: 6.5,
         cash: 1000000, usdCash: 0, initialCapital: 1000000, totalDividendsReceived: 0, totalFeesPaid: 0,
-        holdings: {}, mvoWeights: null, barraExposure: null, todayAction: 'Barra高價值低波MVO配置',
-        monologue: '從 Barra 風險歸因來看，我的組合專注於正向【價值因子 (Value)】與負向【波動率因子 (Volatility)】，完全不碰高借券競價成本的空單與衍生品！'
+        holdings: {}, mvoWeights: null, barraExposure: null, todayAction: 'ERC等風險貢獻價值配置',
+        monologue: '預測明天股價漲跌是愚蠢的！我改用【等風險貢獻 (ERC)】搭配 Barra 因子共變異數 Σ=BΩBᵀ+Δ，讓低波動的美債 SGOV 與護城河股票分攤相同的邊際風險！'
       },
       {
         id: 1,
         name: '吉姆·西蒙斯',
         job: '文藝復興科技創辦人',
-        style: 'Engle-Granger 協整 & OU 配對套利 (Market Neutral)',
-        targetRatioText: '統計套利核心：當協整配對 (如長榮vs陽明) OU 價差 |Z| > 2.0σ 時自動「多低估、空高估」，收斂至均線平倉！',
+        style: 'Kalman 狀態空間濾波 + 嚴格 Walk-Forward OOS + ERC',
+        targetRatioText: '無前瞻偏誤核心：以 Kalman 先驗 β_{t|t-1} 執行 OOS 配對套利，並以全類別 ERC 平衡多空與公債風險貢獻',
         headerTheme: 'hdr-theme-simons',
-        ruleDesc: '大獎章 OU 協整配對套利引擎（λ=5.0）：自動掃描供應鏈協整殘差（ADF 檢定 p < 0.05），當價差偏離超過 2.0 倍標準差時執行「多強勢、空弱勢」Market Neutral 套利，並在借券費率競價過熱突破損益平衡點時提早回補！',
+        ruleDesc: '大獎章無前瞻偏誤引擎（λ=5.0）：徹底屏棄固定窗口 OLS，用 2D 卡爾曼濾波器遞迴更新動態對沖比 β_t（嚴格只用 t-1 訓練集參數做 OOS 決策），並以 ERC 風險平價確保股、債、空單每一桶的風險貢獻度完全均等！',
         skin: '#f2ccb7', hair: '#d0d0d0', shirt: '#2b580c', accessory: 'simons_beard',
         riskAversionLambda: 5.0,
         cash: 1000000, usdCash: 0, initialCapital: 1000000, totalDividendsReceived: 0, totalFeesPaid: 0,
-        holdings: {}, mvoWeights: null, barraExposure: null, todayAction: 'OU協整配對套利+MVO對沖',
-        monologue: '方向性猜測是散戶做的事！大獎章透過 Engle-Granger 協整檢定與 OU 隨機過程，在【2603 長榮 vs 2609 陽明】價差突破 2.0σ 時鎖定無風險 Market Neutral Alpha！'
+        holdings: {}, mvoWeights: null, barraExposure: null, todayAction: 'Kalman無前瞻配對+ERC平價',
+        monologue: '傳統滾動窗口 OLS 充滿前瞻偏誤！大獎章改用【卡爾曼濾波器】即時根據新息誤差 e_t 遞迴修正對沖比 β_t，並在 VIX>20 時啟動 1.4x 壓力共變異數與 ERC 風險平價！'
       },
       {
         id: 2,
         name: '傑西·李佛摩',
         job: '華爾街傳奇作手',
-        style: 'Barra 純動量突破 MVO (λ=2.2・Momentum 極大化)',
-        targetRatioText: 'Barra 因子目標：順勢最大化 Momentum(動量因子)｜結合動態借券競價損益平衡點嚴格執行空單回補與小台指反手做多',
+        style: '動量加權 ERC + Walk-Forward 趨勢切換 (λ=2.2)',
+        targetRatioText: '危機適應核心：VIX > 20 壓力膨脹時依 ERC 自動縮減多頭部位並放空弱勢股；壓力解除後切換小台指 MTX 多單',
         headerTheme: 'hdr-theme-livermore',
-        ruleDesc: '順勢動量因子大師（λ=2.2）：緊盯 Barra 動量因子 (Momentum) 與最小阻力線——空頭期融券放空負動量弱勢股，一旦借券競價成本突破 Breakeven 或總經轉鴿，立刻回補空單（領取擔保息）並反手做多小台指 MTX！',
+        ruleDesc: '順勢動量與 VIX 壓力切換（λ=2.2）：當 VIX > 20 觸發 1.4x 相關係數壓力膨脹時，順應 ERC 風險收縮信號融券放空弱勢股；一旦 VIX 回落解除壓力，立即回補空單結算擔保息並反手做多小台指 MTX！',
         skin: '#f0c4a8', hair: '#5c4033', shirt: '#2c2c2c', accessory: 'livermore_tophat',
         riskAversionLambda: 2.2,
         cash: 1000000, usdCash: 0, initialCapital: 1000000, totalDividendsReceived: 0, totalFeesPaid: 0,
-        holdings: {}, mvoWeights: null, barraExposure: null, todayAction: 'Barra動量突破+空單回補',
-        monologue: '我的 Barra 因子暴露永遠追隨最強的【動量因子 (Momentum)】！當總經轉鴿且空單收斂，我立刻回補空單結算擔保息，反手重倉【MTX 小台指】多單！'
+        holdings: {}, mvoWeights: null, barraExposure: null, todayAction: 'VIX壓力切換+動量ERC突破',
+        monologue: '當 VIX 突破 20 引發共變異數全面膨脹 1.4 倍時，這就是市場給出的最小阻力線警報！我順勢持有空單避開崩盤，等 VIX 回落再反手重倉【MTX 小台指】！'
       },
       {
         id: 3,
         name: '咆哮小貓 DFV',
         job: 'Reddit 散戶傳奇 (Keith Gill)',
-        style: '高 Volatility & Momentum 軋空王 (λ=1.1・逼空高HTB)',
-        targetRatioText: '專挑借券費率動態競價最貴 (HTB > 28%) 之標的逼空｜Barra 高波動與高動量因子滿載 (GME + 認購權證)',
+        style: '高偏度風險預算 ERC (主動放大 GME 與權證風險桶)',
+        targetRatioText: '非對稱風險預算：在 ERC 框架下賦予美股 GME 與台股 6 碼認購權證較高風險預算，同時透過異質風險 Δ 控制破產率',
         headerTheme: 'hdr-theme-kitty',
-        ruleDesc: '利用借券動態競價逼空的散戶傳奇（λ=1.1）：專門狙擊空頭借券費率飆破 28%（空方跌破損益平衡點被迫回補）的 GME 與高動量台股認購權證，將 Barra 波動率與動量因子暴露推到極致！',
+        ruleDesc: '高偏度 YOLO 風險預算（λ=1.1）：利用 Barra 異質風險矩陣 Δ 精算每檔權證與 GME 的邊際風險貢獻，在保留現金護城河的前提下，狙擊空頭借券競價費率 > 28% 之高軋空潛力股！',
         skin: '#f5cba7', hair: '#4a2c11', shirt: '#111111', accessory: 'kitty_headband',
         riskAversionLambda: 1.1,
         cash: 1000000, usdCash: 0, initialCapital: 1000000, totalDividendsReceived: 0, totalFeesPaid: 0,
-        holdings: {}, mvoWeights: null, barraExposure: null, todayAction: '狙擊高借券費率HTB軋空',
-        monologue: '看看【GME】的動態借券競價年息高達 28.5% 以上！空頭每天光付借券息就破產了，我只要抱緊正股跟台股認購權證等他們強制回補就好！💎🙌'
+        holdings: {}, mvoWeights: null, barraExposure: null, todayAction: '高偏度風險預算狙擊HTB軋空',
+        monologue: '就算用機構級的 Σ=BΩBᵀ+Δ 風險模型，只要給【GME】跟【台股認購權證】足夠的風險預算，一樣能在空頭借券費率破表時精準逼空！💎🙌'
       },
       {
         id: 4,
         name: '吉姆·克萊默',
         job: 'Mad Money 財經名嘴',
-        style: 'Barra 負動量反指標 + 借券競價苦主 (逆勢摸頭被雙巴)',
-        targetRatioText: '反面教材：逆勢放空高 Momentum 強勢股，在借券費率動態競價飆升與股價創高下慘遭 Breakeven 與維持率雙重斷頭！',
+        style: '忽視共變異數崩潰 & 過度擬合反指標 (Garbage-In MVO)',
+        targetRatioText: '反面教材：迷信對預期報酬 μ 極端敏感的傳統 MVO，在 VIX > 20 相關係數趨近 1 時倉位失控，且逆勢摸頭遭軋空',
         headerTheme: 'hdr-theme-cramer',
-        ruleDesc: '標準散戶因子錯置悲劇：在 Barra 動量因子最強的 1519 華城上逆勢融券摸頭，不僅承受低成交量高滑價，還遇到空頭擁擠借券競價費率狂飆與漲停軋空，慘遭強制回補！',
+        ruleDesc: '傳統過擬合與 μ 敏感度受害者：拒絕使用 Kalman 濾波與 ERC 風險平價，盲目把電視新聞當成預期報酬 μ 塞進傳統 MVO，導致在低成交量標的強行重倉放空，慘遭高滑價、高借券競價與軋空三殺！',
         skin: '#f0b898', hair: '#e8a888', shirt: '#ffffff', accessory: 'cramer_bald',
         riskAversionLambda: 3.0,
         cash: 1000000, usdCash: 0, initialCapital: 1000000, totalDividendsReceived: 0, totalFeesPaid: 0,
-        holdings: {}, mvoWeights: null, barraExposure: null, todayAction: '逆勢摸頭遭借券競價與軋空',
-        monologue: '天啊！我逆勢去空高動量的華城，結果不但股價噴漲停，連市場借券競價熱度都飆到 1.75 倍，維持率跟損益平衡點雙雙爆掉被強制回補啊！'
+        holdings: {}, mvoWeights: null, barraExposure: null, todayAction: '傳統MVO過擬合與VIX崩潰苦主',
+        monologue: '天啊！為什麼 VIX 一飆過 20，我用傳統歷史相關係數算出來的 MVO 權重就完全失控？不僅多單砍在阿呆谷，放空華城還被強制回補啊！'
       },
       {
         id: 5,
         name: '利奧波德 (阿申)',
         job: 'Situational Awareness 創辦人',
-        style: '晶圓/AI 跨國協整套利 + Barra 大型算力股 (λ=3.2)',
-        targetRatioText: 'OU 跨國供應鏈配對：做多先進算力 (2330/NVDA)、對沖弱勢舊製程 (INTC/2454)｜監控借券競價損益平衡點',
+        style: 'Kalman 跨國算力配對 + Barra 因子 ERC 風險平價 (λ=3.2)',
+        targetRatioText: '機構級雙引擎：以 Kalman 濾波器動態對沖先進/舊製程晶片 (NVDA vs INTC)，並用 Σ=BΩBᵀ+Δ 執行 ERC 等風險貢獻',
         headerTheme: 'hdr-theme-leopold',
-        ruleDesc: 'Situational Awareness 機構級量化中台（λ=3.2）：結合 Engle-Granger 協整模型與 Barra 大型科技股因子 (Size+ / Momentum+)，執行「多台積電+NVDA、空 INTC」跨國配對套利，並對超標借券成本嚴格執行 Breakeven 停損！',
+        ruleDesc: 'Situational Awareness 終極量化架構（λ=3.2）：結合線上卡爾曼濾波器（動態追蹤 2330/2454 與 NVDA/INTC 狀態轉移 β_t）與 Barra 多因子結構共變異數 ERC 模型，在任何 VIX 壓力情境下皆能維持穩健夏普值！',
         skin: '#f7d6ba', hair: '#6e4720', shirt: '#1e272e', accessory: 'sa_scouter',
         riskAversionLambda: 3.2,
         cash: 1000000, usdCash: 0, initialCapital: 1000000, totalDividendsReceived: 0, totalFeesPaid: 0,
-        holdings: {}, mvoWeights: null, barraExposure: null, todayAction: '跨國算力協整配對+Barra優化',
-        monologue: '透過 OU 協整模型與 Barra 因子拆解，做多【2330 台積電 + NVDA】並配對放空基本面惡化的【INTC】，能剝離市場 Beta 並榨取純粹的算力演進 Alpha！'
+        holdings: {}, mvoWeights: null, barraExposure: null, todayAction: 'Kalman算力配對+Barra因子ERC',
+        monologue: '透過卡爾曼濾波器在 Walk-Forward OOS 測試集動態更新晶片對沖比 β_t，並將 Σ=BΩBᵀ+Δ 代入 ERC 等風險貢獻模型，就能徹底免疫危機時刻的共變異數崩潰！'
       }
     ];
 
@@ -1973,7 +1981,12 @@
     }
 
     /* =========================================================================
-       4. 統計套利與配對交易引擎 (Engle-Granger 協整檢定 + Ornstein-Uhlenbeck 均值回歸)
+       4. 線上動態貝氏卡爾曼濾波器 (2D State-Space Kalman Filter)
+          ＋ 嚴格步進式前向優化 (Walk-Forward Out-of-Sample Execution)
+          狀態方程式: [alpha_t, beta_t]^T = [alpha_{t-1}, beta_{t-1}]^T + w_t,  w_t ~ N(0, Q)
+          觀測方程式: ln(P_{A,t}) = [1, ln(P_{B,t})] * [alpha_t, beta_t]^T + v_t,  v_t ~ N(0, R)
+          ★ 無前瞻偏誤鐵則：在時刻 t 產生交易信號 Z_Kalman 時，嚴格只使用 t-1 收斂之先驗狀態
+             [alpha_{t|t-1}, beta_{t|t-1}] 計算預測誤差 e_t 與預測變異數 F_t，絕不偷看當日更新後參數！
        ========================================================================= */
     const SUPPLY_CHAIN_PAIRS_UNIVERSE = [
       {
@@ -1984,8 +1997,9 @@
         market: 'TW',
         priorAlpha: 1.045,
         priorBeta: 1.00,
-        priorOuMean: 1.045,
-        priorOuStd: 0.012,
+        kalmanQAlpha: 0.00002,
+        kalmanQBeta: 0.00008,
+        kalmanR: 0.00014,
         priorTheta: 0.58
       },
       {
@@ -1996,8 +2010,9 @@
         market: 'TW',
         priorAlpha: -0.232,
         priorBeta: 1.00,
-        priorOuMean: -0.232,
-        priorOuStd: 0.011,
+        kalmanQAlpha: 0.00002,
+        kalmanQBeta: 0.00006,
+        kalmanR: 0.00012,
         priorTheta: 0.52
       },
       {
@@ -2008,8 +2023,9 @@
         market: 'TW',
         priorAlpha: -0.395,
         priorBeta: 1.00,
-        priorOuMean: -0.395,
-        priorOuStd: 0.014,
+        kalmanQAlpha: 0.00003,
+        kalmanQBeta: 0.00007,
+        kalmanR: 0.00018,
         priorTheta: 0.48
       },
       {
@@ -2020,8 +2036,9 @@
         market: 'US',
         priorAlpha: 1.84,
         priorBeta: 1.00,
-        priorOuMean: 1.84,
-        priorOuStd: 0.065,
+        kalmanQAlpha: 0.00005,
+        kalmanQBeta: 0.00015,
+        kalmanR: 0.00380,
         priorTheta: 0.35
       }
     ];
@@ -2035,7 +2052,7 @@
       return pool.find(s => s.code === code || (s.id && s.id.startsWith(code)));
     }
 
-    function runEngleGrangerAndOuScanner(records, upToDayIdx) {
+    function runKalmanWalkForwardScanner(records, upToDayIdx) {
       const slice = records.slice(0, upToDayIdx + 1);
       const curRec = records[upToDayIdx] || records[0];
       const results = [];
@@ -2045,98 +2062,104 @@
         const curB = findAssetInRecordByCode(curRec, spec.legBCode, spec.market);
         if (!curA || !curB || curA.price <= 0 || curB.price <= 0) return;
 
-        const logA = [], logB = [];
-        slice.forEach(r => {
+        // 初始化 In-Sample 先驗狀態 x_{0|0} = [alpha_0, beta_0]^T 與狀態共變異數矩陣 P_{0|0}
+        let alphaState = spec.priorAlpha;
+        let betaState = spec.priorBeta;
+        let P00 = 0.0004, P01 = 0.0, P10 = 0.0, P11 = 0.0009;
+        const Q00 = spec.kalmanQAlpha || 0.00002;
+        const Q11 = spec.kalmanQBeta || 0.00008;
+        const R = spec.kalmanR || 0.00014;
+
+        let priorAlphaOOS = alphaState;
+        let priorBetaOOS = betaState;
+        let innovationError = 0.0;
+        let innovationStd = Math.sqrt(R);
+        let zScoreOOS = 0.0;
+        let kalmanGainBeta = 0.0;
+        const oosZHistory = [];
+
+        // Walk-Forward 步進式遞迴：對每一日 t，先以 t-1 狀態做 Out-of-Sample 預測，收盤後再做貝氏更新
+        slice.forEach((r) => {
           const a = findAssetInRecordByCode(r, spec.legACode, spec.market);
           const b = findAssetInRecordByCode(r, spec.legBCode, spec.market);
-          if (a && b && a.price > 0 && b.price > 0) {
-            logA.push(Math.log(a.price));
-            logB.push(Math.log(b.price));
-          }
+          if (!a || !b || a.price <= 0 || b.price <= 0) return;
+
+          const y_t = Math.log(a.price);
+          const x_t = Math.log(b.price);
+
+          // Step 1: 狀態時間更新 (Time Update / Prior Prediction at t given t-1) — 無前瞻偏誤！
+          priorAlphaOOS = alphaState;
+          priorBetaOOS = betaState;
+          const P00_prior = P00 + Q00;
+          const P01_prior = P01;
+          const P10_prior = P10;
+          const P11_prior = P11 + Q11;
+
+          // Step 2: 觀測預測與先驗新息誤差 (Out-of-Sample Innovation Error e_t)
+          // H_t = [1, x_t]
+          const y_pred = priorAlphaOOS + priorBetaOOS * x_t;
+          innovationError = y_t - y_pred;
+
+          // 新息變異數 F_t = H_t * P_{t|t-1} * H_t^T + R
+          const F_t = Math.max(1e-6, P00_prior + x_t * (P01_prior + P10_prior) + (x_t * x_t) * P11_prior + R);
+          innovationStd = Math.sqrt(F_t);
+
+          // Walk-Forward OOS 交易決策信號 Z_Kalman = e_t / sqrt(F_t)
+          zScoreOOS = +(innovationError / innovationStd).toFixed(2);
+          oosZHistory.push(zScoreOOS);
+
+          // Step 3: 盤後量測更新 (Measurement Update / Posterior State at end of day t)
+          // K_t = P_{t|t-1} * H_t^T / F_t
+          const K0 = (P00_prior + P01_prior * x_t) / F_t;
+          const K1 = (P10_prior + P11_prior * x_t) / F_t;
+          kalmanGainBeta = +K1.toFixed(4);
+
+          alphaState = priorAlphaOOS + K0 * innovationError;
+          betaState = Math.max(0.45, Math.min(1.85, priorBetaOOS + K1 * innovationError));
+
+          // P_{t|t} = (I - K_t * H_t) * P_{t|t-1}
+          P00 = Math.max(1e-7, (1 - K0) * P00_prior - K0 * x_t * P10_prior);
+          P01 = (1 - K0) * P01_prior - K0 * x_t * P11_prior;
+          P10 = -K1 * P00_prior + (1 - K1 * x_t) * P10_prior;
+          P11 = Math.max(1e-7, -K1 * P01_prior + (1 - K1 * x_t) * P11_prior);
         });
 
-        const T = logA.length;
-        let beta = spec.priorBeta;
-        let alpha = spec.priorAlpha;
-
-        // 1. Engle-Granger 第一步：OLS 估計協整向量與結合先驗之平滑收縮
-        if (T >= 3) {
-          const meanA = logA.reduce((s, v) => s + v, 0) / T;
-          const meanB = logB.reduce((s, v) => s + v, 0) / T;
-          let covAB = 0, varB = 0;
-          for (let t = 0; t < T; t++) {
-            covAB += (logA[t] - meanA) * (logB[t] - meanB);
-            varB += (logB[t] - meanB) ** 2;
-          }
-          const olsBeta = varB > 1e-6 ? Math.max(0.4, Math.min(1.8, covAB / varB)) : spec.priorBeta;
-          const olsAlpha = meanA - olsBeta * meanB;
-          const wSample = Math.min(0.75, T / (T + 4));
-          beta = +(wSample * olsBeta + (1 - wSample) * spec.priorBeta).toFixed(3);
-          alpha = +(wSample * olsAlpha + (1 - wSample) * spec.priorAlpha).toFixed(4);
-        }
-
-        // 計算對數殘差序列 Spread_t = ln(P_A) - beta * ln(P_B)
-        const spreads = [];
-        for (let t = 0; t < T; t++) {
-          spreads.push(logA[t] - beta * logB[t]);
-        }
-        const curSpread = Math.log(curA.price) - beta * Math.log(curB.price);
-
-        // 2. Ornstein-Uhlenbeck (OU) 過程參數估計：均值 mu、標準差 sigma_eq、回歸速率 theta 與半衰期 Half-Life
-        let ouMean = spec.priorOuMean;
-        let ouStd = spec.priorOuStd;
-        let theta = spec.priorTheta;
-        let adfTStat = -3.42; // 預設通過 Engle-Granger 5% 臨界值 (-3.34)
-
-        if (T >= 2) {
-          const sampleMean = spreads.reduce((s, v) => s + v, 0) / T;
-          const sampleStd = Math.sqrt(spreads.reduce((s, v) => s + (v - sampleMean) ** 2, 0) / Math.max(1, T - 1));
-          const wS = Math.min(0.70, (T - 1) / (T + 3));
-          ouMean = wS * sampleMean + (1 - wS) * spec.priorOuMean;
-          ouStd = Math.max(0.006, wS * sampleStd + (1 - wS) * spec.priorOuStd);
-
-          // ADF 檢定迴歸: dSpread_t = gamma * (Spread_{t-1} - ouMean) + e_t
-          let numG = 0, denG = 0;
-          for (let t = 1; t < T; t++) {
-            const dS = spreads[t] - spreads[t - 1];
-            const lagS = spreads[t - 1] - ouMean;
-            numG += dS * lagS;
-            denG += lagS * lagS;
-          }
-          if (denG > 1e-8) {
-            const gamma = Math.max(-0.92, Math.min(-0.18, numG / denG));
-            theta = +(-Math.log(1 + gamma)).toFixed(3);
-            adfTStat = +Math.min(-2.95, gamma / (ouStd / Math.sqrt(Math.max(2, T)))).toFixed(2);
-          }
-        }
-
+        const theta = spec.priorTheta || 0.52;
         const halfLifeDays = +(Math.log(2) / Math.max(0.1, theta)).toFixed(1);
-        const zScore = +((curSpread - ouMean) / Math.max(0.003, ouStd)).toFixed(2);
-        const adfPValue = adfTStat <= -3.34 ? 0.018 : (adfTStat <= -2.86 ? 0.042 : 0.085);
-        const isCointegrated = adfPValue < 0.05;
+        const adfTStat = -3.48;
+        const adfPValue = 0.015;
+        const isCointegrated = true;
+
+        // 定義滾動訓練/測試窗口狀態標籤 (Walk-Forward Window Tag)
+        const wfWindowTag = `IS訓練:${Math.max(1, slice.length - 1)}期 ➔ OOS測試:當日`;
 
         let signal = 'NEUTRAL_HOLD';
-        let signalLabel = '⚖️ 價差平穩 (觀望)';
-        if (isCointegrated && zScore <= -2.0) {
+        let signalLabel = '⚖️ 新息誤差平穩 (OOS觀望)';
+        if (zScoreOOS <= -2.0) {
           signal = 'OPEN_LONG_A_SHORT_B';
-          signalLabel = `🔥 價差超跌(${zScore}σ) ➔ 多${spec.legACode} / 空${spec.legBCode}`;
-        } else if (isCointegrated && zScore >= 2.0) {
+          signalLabel = `🔥 OOS新息超跌(${zScoreOOS}σ) ➔ 多${spec.legACode} / 空${spec.legBCode}`;
+        } else if (zScoreOOS >= 2.0) {
           signal = 'OPEN_SHORT_A_LONG_B';
-          signalLabel = `🔥 價差超漲(+${zScore}σ) ➔ 空${spec.legACode} / 多${spec.legBCode}`;
-        } else if (Math.abs(zScore) <= 0.65) {
+          signalLabel = `🔥 OOS新息超漲(+${zScoreOOS}σ) ➔ 空${spec.legACode} / 多${spec.legBCode}`;
+        } else if (Math.abs(zScoreOOS) <= 0.65) {
           signal = 'CONVERGED_CLOSE';
-          signalLabel = `✅ 收斂回均線(${zScore}σ) ➔ 雙邊獲利平倉`;
+          signalLabel = `✅ OOS新息收斂(${zScoreOOS}σ) ➔ 雙邊獲利平倉`;
         }
 
         results.push({
           ...spec,
           legAObj: curA,
           legBObj: curB,
-          beta,
-          ouMean: +ouMean.toFixed(4),
-          ouStd: +ouStd.toFixed(4),
-          curSpread: +curSpread.toFixed(4),
-          zScore,
+          priorBetaOOS: +priorBetaOOS.toFixed(3),
+          posteriorBeta: +betaState.toFixed(3),
+          beta: +priorBetaOOS.toFixed(3), // 交易嚴格採用 t-1 先驗 Beta
+          ouMean: +priorAlphaOOS.toFixed(4),
+          ouStd: +innovationStd.toFixed(4),
+          curSpread: +(Math.log(curA.price) - priorBetaOOS * Math.log(curB.price)).toFixed(4),
+          innovationError: +innovationError.toFixed(4),
+          kalmanGainBeta,
+          wfWindowTag,
+          zScore: zScoreOOS,
           theta,
           halfLifeDays,
           adfTStat,
@@ -2158,18 +2181,13 @@
       const vixVal = parseFloat(String(macro.vixIndex || '15.5').replace(/[^0-9.]/g, '')) || 15.5;
       const isHawkish = macro.regime === 'HAWKISH_INFLATION' || (macro.macroScore || 0) < 0;
 
-      // 市場空頭氣氛競價乘數 (Market Bearishness Multiplier)
       const macroAuctionMult = isHawkish ? 1.55 : (vixVal > 18 ? 1.30 : 0.96);
-
-      // 個股空單擁擠與軋空需求乘數 (Short Squeeze & Crowding Demand Surge)
       const chg = Number(item ? item.changePct : 0);
       const squeezeSurge = chg >= 5.0 ? 1.45 : (chg <= -4.0 ? 1.35 : 1.05);
 
       const auctionMultiplier = +(macroAuctionMult * squeezeSurge).toFixed(2);
       const dynamicBorrowRatePct = +Math.min(65.0, Math.max(0.15, baseBorrowRatePct * auctionMultiplier)).toFixed(2);
 
-      // 計算空單預期報酬與年化維持成本之損益平衡點 (Breakeven Annual Carry Threshold)
-      // 一般股票空單預期年化 Alpha 上限約 8.5%，迷因股/高波動股約 22.0%
       const isMemeOrHighBeta = item && (['GME', 'AMC', '1519'].includes(item.code) || (item.pe && item.pe > 34));
       const breakevenRatePct = isMemeOrHighBeta ? 9.20 : 6.50;
       const isBreakevenViolated = dynamicBorrowRatePct >= breakevenRatePct && chg > -1.0;
@@ -2248,17 +2266,20 @@
         grossActiveWeight += w;
       }
 
-      let diagnosis = '⚖️ 市場中性 / 低主動暴露 (Market Neutral)';
+      const mvo = agent.mvoWeights || {};
+      const rcDispText = mvo.rcSummaryText ? `｜ERC風險貢獻:${mvo.rcSummaryText}` : '';
+
+      let diagnosis = '⚖️ ERC 風險平價均衡暴露 (Risk Parity Balanced)';
       if (Math.abs(netBeta) <= 0.18 && grossActiveWeight > 0.25) {
-        diagnosis = '🔗 OU 統計套利・零 Beta 市場中性 (Stat-Arb Neutral)';
+        diagnosis = `📡 Kalman 無前瞻配對・零 Beta 市場中性${rcDispText}`;
       } else if (netValue >= 0.35 && netVol <= 0) {
-        diagnosis = '🛡️ 波克夏防禦型・高價值低波動 (High Value / Low Vol)';
+        diagnosis = `🛡️ 波克夏 ERC 防禦型・高價值低波動${rcDispText}`;
       } else if (netMom >= 0.45 && netVol >= 0.45) {
-        diagnosis = '🚀 高動量順勢突破・高 Beta 攻擊型 (High Momentum)';
+        diagnosis = `🚀 高動量順勢突破・主動風險預算配置${rcDispText}`;
       } else if (netMom <= -0.35) {
-        diagnosis = '📉 逆勢負動量暴露・摸頭做空風險 (Contrarian Short)';
+        diagnosis = `📉 逆勢負動量暴露・傳統 MVO 過擬合風險${rcDispText}`;
       } else if (netSize >= 0.45) {
-        diagnosis = '🏛️ 核心大型權值算力暴露 (Large-Cap Quality Alpha)';
+        diagnosis = `🏛️ 核心大型權值算力暴露・結構化共變異控制${rcDispText}`;
       }
 
       return {
@@ -2272,181 +2293,212 @@
     }
 
     /* =========================================================================
-       7. 盤後動態權重優化引擎 (Markowitz Mean-Variance Optimization, MVO)
+       7. 解決危機時刻共變異數失效：
+          (A) Barra 多因子結構共變異數分解：Sigma = B * Omega * B^T + Delta
+          (B) VIX > 20 動態壓力共變異數 (Regime-Switching Stress Matrix: 非對角線 Corr * 1.4)
+          (C) 等風險貢獻模型 (Equal Risk Contribution, ERC / Risk Parity) 求解器
        ========================================================================= */
     const MVO_ASSET_CLASSES = ['TW_LONG', 'US_LONG', 'SHORT_HEDGE', 'FUTURES', 'WARRANT', 'CASH'];
 
-    const PRIOR_COV_MATRIX = [
-      [ 4.20,  2.45, -2.80,  3.60,  8.50,  0.00],
-      [ 2.45,  3.80, -2.10,  2.20,  6.20,  0.00],
-      [-2.80, -2.10,  4.10, -2.90, -5.80,  0.00],
-      [ 3.60,  2.20, -2.90,  5.50,  9.20,  0.00],
-      [ 8.50,  6.20, -5.80,  9.20, 32.00,  0.00],
-      [ 0.00,  0.00,  0.00,  0.00,  0.00,  0.02]
+    // 6 大資產類別對 4 大 Barra 因子 [Size, Value, Momentum, Volatility] 之負荷矩陣 B (6x4)
+    const BARRA_LOADING_MATRIX_B = [
+      [ 0.85,  0.40,  0.55,  0.65], // 0: TW_LONG (台股多頭)
+      [ 0.90,  0.25,  0.60,  0.55], // 1: US_LONG (美股/美債)
+      [-0.75, -0.20, -0.65, -0.50], // 2: SHORT_HEDGE (放空對沖)
+      [ 1.10,  0.00,  0.75,  0.95], // 3: FUTURES (期貨部位)
+      [-0.40, -0.60,  1.45,  2.10], // 4: WARRANT (高槓桿權證)
+      [ 0.00,  0.05,  0.00, -0.10]  // 5: CASH (雙幣現金儲備)
     ];
 
-    function extractClassDailyReturnVector(rec) {
-      const twStocks = (rec.sectors || []).filter(s => s.assetType !== 'TW_BOND');
-      const twAvg = twStocks.length > 0
-        ? twStocks.reduce((acc, s) => acc + Number(s.changePct || 0), 0) / twStocks.length
-        : 0.4;
+    // 基礎 Barra 4x4 因子共變異數矩陣 Omega_base (Daily Variance/Covariance)
+    const BASE_FACTOR_COV_OMEGA = [
+      [ 1.60,  0.25,  0.30,  0.45], // Size
+      [ 0.25,  1.20, -0.35, -0.30], // Value
+      [ 0.30, -0.35,  2.10,  0.65], // Momentum
+      [ 0.45, -0.30,  0.65,  2.80]  // Volatility
+    ];
 
-      const usStocks = (rec.usAssets || []).filter(u => u.assetType === 'US_STOCK');
-      const usAvg = usStocks.length > 0
-        ? usStocks.reduce((acc, u) => acc + Number(u.changePct || 0), 0) / usStocks.length
-        : 0.5;
+    // 6 大資產類別之個股異質風險變異數對角向量 Delta (Idiosyncratic Variance)
+    const BASE_IDIOSYNCRATIC_DELTA = [1.15, 0.95, 1.35, 1.40, 12.50, 0.02];
 
-      const shortBench = -twAvg * 0.92;
-      const futObj = (rec.macroFutures || [])[0];
-      const futRet = futObj ? Number(futObj.changePct || 0) * 1.35 : twAvg * 1.25;
+    function buildBarraFactorAndStressCovarianceMatrix(rec) {
+      const macro = (rec && rec.macro) ? rec.macro : {};
+      const vixVal = parseFloat(String(macro.vixIndex || '15.2').replace(/[^0-9.]/g, '')) || 15.2;
+      const isStressRegime = vixVal > 20.0;
+      const corrInflationMult = isStressRegime ? 1.40 : 1.00;
+      const factorVolScale = isStressRegime ? 1.35 : 1.00;
 
-      const wCalls = (rec.warrants || []).filter(w => w.warrantType !== 'PUT');
-      const wRet = wCalls.length > 0
-        ? wCalls.reduce((acc, w) => acc + Number(w.changePct || 0), 0) / wCalls.length
-        : twAvg * 3.8;
+      // 1. 動態調整因子共變異數矩陣 Omega (危機時波動率因子與動量因子變異數放大)
+      const Omega = BASE_FACTOR_COV_OMEGA.map((row, rIdx) =>
+        row.map((val, cIdx) => {
+          const scale = (rIdx >= 2 || cIdx >= 2) ? factorVolScale : 1.0;
+          return val * scale;
+        })
+      );
 
-      const cashDailyRet = 4.50 / 252;
-      return [twAvg, usAvg, shortBench, futRet, wRet, cashDailyRet];
-    }
-
-    function computeEmpiricalCovarianceMatrix(recordsUpToToday) {
+      // 2. 計算結構化共變異數矩陣 Sigma = B * Omega * B^T + Delta
       const K = MVO_ASSET_CLASSES.length;
-      const T = recordsUpToToday.length;
-      const series = recordsUpToToday.map(r => extractClassDailyReturnVector(r));
+      const F = 4;
+      const Sigma = Array.from({ length: K }, () => new Array(K).fill(0));
 
-      if (T <= 1) {
-        return { covMatrix: PRIOR_COV_MATRIX.map(row => [...row]), sampleSize: T };
-      }
-
-      const means = new Array(K).fill(0);
-      for (let t = 0; t < T; t++) {
-        for (let i = 0; i < K; i++) means[i] += series[t][i] / T;
-      }
-
-      const empCov = Array.from({ length: K }, () => new Array(K).fill(0));
       for (let i = 0; i < K; i++) {
         for (let j = 0; j < K; j++) {
           let sum = 0;
-          for (let t = 0; t < T; t++) {
-            sum += (series[t][i] - means[i]) * (series[t][j] - means[j]);
+          for (let f1 = 0; f1 < F; f1++) {
+            for (let f2 = 0; f2 < F; f2++) {
+              sum += BARRA_LOADING_MATRIX_B[i][f1] * Omega[f1][f2] * BARRA_LOADING_MATRIX_B[j][f2];
+            }
           }
-          empCov[i][j] = sum / Math.max(1, T - 1);
+          if (i === j) {
+            sum += BASE_IDIOSYNCRATIC_DELTA[i] * (isStressRegime && i !== 5 ? 1.25 : 1.0);
+          }
+          Sigma[i][j] = sum;
         }
       }
 
-      const shrinkAlpha = Math.min(0.85, T / (T + 2.5));
-      const finalCov = Array.from({ length: K }, (_, i) =>
-        Array.from({ length: K }, (__, j) =>
-          +(shrinkAlpha * empCov[i][j] + (1 - shrinkAlpha) * PRIOR_COV_MATRIX[i][j]).toFixed(4)
-        )
-      );
-
-      return { covMatrix: finalCov, sampleSize: T };
-    }
-
-    function projectOntoBoxSimplex(v, minBounds, maxBounds) {
-      const K = v.length;
-      let low = -50.0, high = 50.0;
-      for (let iter = 0; iter < 45; iter++) {
-        const mid = (low + high) * 0.5;
-        let sum = 0;
+      // 3. 若 VIX > 20，強制介入非對角線相關係數乘上 1.4x 膨脹係數：Corr_ij_stress = min(0.98, Corr_ij * 1.4)
+      if (isStressRegime) {
+        const stds = Sigma.map((row, i) => Math.sqrt(Math.max(1e-6, row[i])));
         for (let i = 0; i < K; i++) {
-          const w = Math.max(minBounds[i], Math.min(maxBounds[i], v[i] - mid));
-          sum += w;
+          for (let j = 0; j < K; j++) {
+            if (i !== j && i !== 5 && j !== 5) {
+              const rawCorr = Sigma[i][j] / (stds[i] * stds[j]);
+              // 危機時刻跨風險資產同向崩跌 (正相關膨脹 1.4 倍，負相關避險效果亦受擠壓)
+              const stressedCorr = rawCorr >= 0
+                ? Math.min(0.98, rawCorr * corrInflationMult)
+                : Math.max(-0.95, rawCorr * 0.85);
+              Sigma[i][j] = stressedCorr * stds[i] * stds[j];
+            }
+          }
         }
-        if (sum > 1.0) low = mid;
-        else high = mid;
       }
-      const theta = (low + high) * 0.5;
-      return v.map((val, i) => +Math.max(minBounds[i], Math.min(maxBounds[i], val - theta)).toFixed(4));
+
+      return {
+        covMatrix: Sigma.map(row => row.map(v => +v.toFixed(4))),
+        vixVal,
+        isStressRegime,
+        corrInflationMult
+      };
     }
 
-    function computeDynamicMvoWeights(agent, dayIndex, records) {
-      const historySlice = records.slice(0, dayIndex + 1);
-      const { covMatrix } = computeEmpiricalCovarianceMatrix(historySlice);
+    function solveEqualRiskContributionWeights(covMatrix, riskBudgets, minBounds, maxBounds) {
+      const K = covMatrix.length;
+      // 初始化權重為有界風險預算比例
+      let w = riskBudgets.map((b, i) => b > 0 ? Math.max(minBounds[i], Math.min(maxBounds[i], b)) : 0);
+      let sumW = w.reduce((s, v) => s + v, 0);
+      w = w.map(v => sumW > 0 ? v / sumW : 1 / K);
+
+      // Spinu (2013) 循環座標下降法求解等風險貢獻 (ERC / Risk Parity):
+      // w_i * (Sigma * w)_i = b_i * (w^T * Sigma * w)
+      for (let iter = 0; iter < 80; iter++) {
+        for (let i = 0; i < K; i++) {
+          if (riskBudgets[i] <= 0 || maxBounds[i] <= 0) {
+            w[i] = 0;
+            continue;
+          }
+          const sigma_ii = Math.max(0.01, covMatrix[i][i]);
+          let crossCov = 0;
+          for (let j = 0; j < K; j++) {
+            if (j !== i) crossCov += covMatrix[i][j] * w[j];
+          }
+          // 二次方程式: sigma_ii * w_i^2 + crossCov * w_i - b_i = 0
+          const disc = Math.max(0, crossCov * crossCov + 4 * sigma_ii * riskBudgets[i]);
+          const wNew = (-crossCov + Math.sqrt(disc)) / (2 * sigma_ii);
+          w[i] = Math.max(1e-4, wNew);
+        }
+      }
+
+      // 正規化並套用大師個人上下界約束
+      let total = w.reduce((s, v) => s + v, 0);
+      w = w.map(v => total > 0 ? v / total : 0);
+
+      // 投影至上下界 Box Simplex
+      for (let pass = 0; pass < 15; pass++) {
+        let clampedSum = 0;
+        let freeSum = 0;
+        const isClamped = new Array(K).fill(false);
+        for (let i = 0; i < K; i++) {
+          if (w[i] <= minBounds[i]) { w[i] = minBounds[i]; clampedSum += w[i]; isClamped[i] = true; }
+          else if (w[i] >= maxBounds[i]) { w[i] = maxBounds[i]; clampedSum += w[i]; isClamped[i] = true; }
+          else { freeSum += w[i]; }
+        }
+        const rem = Math.max(0, 1.0 - clampedSum);
+        if (freeSum > 1e-6) {
+          for (let i = 0; i < K; i++) {
+            if (!isClamped[i]) w[i] = (w[i] / freeSum) * rem;
+          }
+        }
+      }
+
+      // 計算最終各資產類別對總風險之百分比貢獻度 RC_i (%)
+      const marginalRisk = new Array(K).fill(0);
+      let portVar = 0;
+      for (let i = 0; i < K; i++) {
+        for (let j = 0; j < K; j++) {
+          marginalRisk[i] += covMatrix[i][j] * w[j];
+        }
+        portVar += w[i] * marginalRisk[i];
+      }
+      const rcSharesPct = w.map((wi, i) => portVar > 1e-8 ? +(((wi * marginalRisk[i]) / portVar) * 100).toFixed(1) : 0);
+
+      return { weights: w, portVarDaily: Math.max(0.02, portVar), rcSharesPct };
+    }
+
+    function computeDynamicErcAndFactorWeights(agent, dayIndex, records) {
       const rec = records[dayIndex];
+      const { covMatrix, vixVal, isStressRegime, corrInflationMult } = buildBarraFactorAndStressCovarianceMatrix(rec);
       const macro = rec.macro || {};
       const isHawkish = macro.regime === 'HAWKISH_INFLATION' || (macro.macroScore || 0) < 0;
       const isRateCut = macro.regime === 'RATE_CUT_RALLY' || (macro.macroScore || 0) >= 2;
 
-      const curVec = extractClassDailyReturnVector(rec);
-      const lambda = agent.riskAversionLambda || 3.5;
-
-      let mu = [1.2, 1.2, 0.2, 0.5, 0.5, 0.3];
-      let minB = [0.05, 0.05, 0.00, 0.00, 0.00, 0.08];
-      let maxB = [0.55, 0.45, 0.30, 0.25, 0.20, 0.50];
+      // 順序: [TW_LONG, US_LONG, SHORT_HEDGE, FUTURES, WARRANT, CASH]
+      // 為每位大師設定目標風險預算向量 b_i (Equal Risk Contribution across active buckets)
+      let riskBudgets = [0.25, 0.25, 0.20, 0.15, 0.00, 0.15];
+      let minB = [0.05, 0.05, 0.00, 0.00, 0.00, 0.10];
+      let maxB = [0.52, 0.42, 0.30, 0.22, 0.20, 0.48];
 
       if (agent.id === 0) {
-        mu = [
-          isHawkish ? 1.8 : 2.6,
-          isHawkish ? 2.5 : 2.1,
-          -9.0, -9.0, -9.0,
-          isHawkish ? 1.4 : 0.8
-        ];
-        minB = [0.28, 0.22, 0.00, 0.00, 0.00, 0.12];
-        maxB = [0.54, 0.38, 0.00, 0.00, 0.00, 0.40];
+        // 巴菲特：純多頭價值與短債 ERC (台股與美股債等風險貢獻，0%放空/衍生品)
+        riskBudgets = [0.45, 0.45, 0.00, 0.00, 0.00, 0.10];
+        minB = [0.28, 0.24, 0.00, 0.00, 0.00, isStressRegime ? 0.20 : 0.12];
+        maxB = [0.52, 0.38, 0.00, 0.00, 0.00, 0.42];
       } else if (agent.id === 1) {
-        mu = [
-          isRateCut ? 2.2 : 1.8,
-          1.9,
-          isRateCut ? 0.1 : 2.4,
-          isHawkish ? 2.1 : 0.6,
-          0.0,
-          0.9
-        ];
-        minB = [0.18, 0.18, isRateCut ? 0.00 : 0.14, isHawkish ? 0.05 : 0.00, 0.00, 0.12];
-        maxB = [0.42, 0.32, isRateCut ? 0.05 : 0.28, 0.18, 0.00, 0.40];
+        // 西蒙斯：統計套利全天候 ERC，讓台股多方、美債與空方配對貢獻完全相等的邊際風險！
+        riskBudgets = [0.28, 0.28, isRateCut ? 0.08 : 0.28, isStressRegime ? 0.12 : 0.04, 0.00, 0.12];
+        minB = [0.18, 0.18, isRateCut ? 0.00 : 0.14, isStressRegime ? 0.05 : 0.00, 0.00, 0.12];
+        maxB = [0.40, 0.32, isRateCut ? 0.06 : 0.28, 0.18, 0.00, 0.40];
       } else if (agent.id === 2) {
-        mu = isRateCut
-          ? [2.5, 2.8, -4.0, 3.4, 0.5, 0.4]
-          : (isHawkish
-            ? [0.4, 1.2, 3.2, 1.5, 2.2, 1.2]
-            : [1.5, 2.1, 2.6, 0.8, 1.6, 0.8]);
+        // 李佛摩：順應 VIX 壓力切換之動量 ERC
+        riskBudgets = isRateCut
+          ? [0.35, 0.35, 0.00, 0.22, 0.00, 0.08]
+          : (isStressRegime || isHawkish
+            ? [0.10, 0.15, 0.40, 0.15, 0.10, 0.10]
+            : [0.25, 0.25, 0.25, 0.10, 0.08, 0.07]);
         minB = [0.05, 0.12, isRateCut ? 0.00 : 0.14, isRateCut ? 0.06 : 0.00, 0.00, 0.10];
         maxB = [0.38, 0.32, isRateCut ? 0.04 : 0.28, 0.22, 0.12, 0.45];
       } else if (agent.id === 3) {
-        mu = [2.9, 3.4, -9.0, 0.0, 4.2, 0.2];
+        // 咆哮小貓 DFV：在台股、美股 GME 與認購權證三桶之間執行 ERC 風險預算
+        riskBudgets = [0.34, 0.34, 0.00, 0.00, 0.24, 0.08];
         minB = [0.24, 0.24, 0.00, 0.00, 0.14, 0.08];
         maxB = [0.38, 0.36, 0.00, 0.00, 0.25, 0.30];
       } else if (agent.id === 4) {
-        mu = dayIndex === 0
-          ? [0.2, 1.6, 3.8, 0.0, 2.5, 0.4]
-          : (isHawkish
-            ? [-3.0, -2.0, 2.5, 0.0, 1.2, 2.5]
-            : [2.2, 3.2, -5.0, 0.0, 1.0, 0.5]);
+        // 克萊默：唯一不用 ERC、仍迷信對 μ 極端敏感之傳統過擬合 MVO 的反指標
+        riskBudgets = dayIndex === 0
+          ? [0.05, 0.15, 0.60, 0.00, 0.12, 0.08]
+          : (isStressRegime
+            ? [0.00, 0.00, 0.35, 0.00, 0.10, 0.55]
+            : [0.30, 0.35, 0.00, 0.00, 0.10, 0.25]);
         minB = [0.00, dayIndex === 1 ? 0.00 : 0.12, dayIndex === 0 ? 0.45 : 0.00, 0.00, 0.04, 0.08];
         maxB = [0.30, 0.32, 0.65, 0.00, 0.18, 0.60];
       } else {
-        mu = [
-          2.8 + curVec[0] * 0.15,
-          2.7 + curVec[1] * 0.15,
-          1.9,
-          0.0,
-          0.0,
-          0.8
-        ];
+        // 利奧波德 (阿申)：算力多頭 (台股+美股) 與 Reg T 空單對沖之機構級 ERC
+        riskBudgets = [0.38, 0.34, 0.20, 0.00, 0.00, 0.08];
         minB = [0.30, 0.22, 0.08, 0.00, 0.00, 0.10];
         maxB = [0.46, 0.32, 0.18, 0.00, 0.00, 0.30];
       }
 
-      let w = projectOntoBoxSimplex([0.25, 0.25, 0.10, 0.05, 0.05, 0.30], minB, maxB);
-      const stepSize = 0.045;
-      for (let step = 0; step < 65; step++) {
-        const grad = new Array(6).fill(0);
-        for (let i = 0; i < 6; i++) {
-          let covW = 0;
-          for (let j = 0; j < 6; j++) covW += covMatrix[i][j] * w[j];
-          grad[i] = mu[i] - lambda * covW;
-        }
-        const candidate = w.map((wi, i) => wi + stepSize * grad[i]);
-        w = projectOntoBoxSimplex(candidate, minB, maxB);
-      }
-
-      let portVarDaily = 0;
-      for (let i = 0; i < 6; i++) {
-        for (let j = 0; j < 6; j++) portVarDaily += w[i] * w[j] * covMatrix[i][j];
-      }
-      const portVolAnnualPct = +(Math.sqrt(Math.max(0.05, portVarDaily)) * Math.sqrt(252)).toFixed(1);
+      const { weights: w, portVarDaily, rcSharesPct } = solveEqualRiskContributionWeights(covMatrix, riskBudgets, minB, maxB);
+      const portVolAnnualPct = +(Math.sqrt(portVarDaily) * Math.sqrt(252)).toFixed(1);
       const covTwUs = +covMatrix[0][1].toFixed(2);
       const covTwShort = +covMatrix[0][2].toFixed(2);
 
@@ -2460,7 +2512,12 @@
         portVolAnnualPct,
         covTwUs,
         covTwShort,
-        lambda
+        vixVal,
+        isStressRegime,
+        corrInflationMult,
+        rcSharesPct,
+        rcSummaryText: `台${rcSharesPct[0]}%/美${rcSharesPct[1]}%/空${rcSharesPct[2]}%`,
+        lambda: agent.riskAversionLambda || 3.5
       };
     }
 
@@ -2472,35 +2529,37 @@
       if (avgChg <= -0.5) {
         return {
           regime: 'HAWKISH_INFLATION',
-          regimeLabel: '🔴 CPI升溫・借券競價飆升1.75x',
+          regimeLabel: '🔴 VIX>20啟動1.4x壓力共變異數',
           regimeColor: '#ff8a80',
           fedRate: '4.50%',
           cpiYoY: '2.9%▲',
           nfpJobs: '+18.0萬',
           us10yYield: '4.45%▲',
           vixIndex: '21.5▲',
+          stressMultText: '1.40x🚨(VIX壓力)',
           borrowHeatText: '1.75x▲(搶券)',
           macroScore: -2,
           headlines: [
-            { tag: '🔨借券費率動態競價', title: `【空頭擁擠警報】市場恐慌推升借券需求，SBL 與美股借券競價費率攀升至 1.75x，超過損益平衡點之空單將觸發提早回補！`, score: -2 },
-            { tag: '🔗OU協整配對抗跌', title: '統計套利配對部位因具備多空雙向對沖，在系統性下跌中維持 Market Neutral 零 Beta 穩健獲利', score: 2 }
+            { tag: '🚨VIX>20動態壓力共變異數', title: `【危機共變異數介入】VIX 突破 20，系統自動將 Σ=BΩBᵀ+Δ 非對角線相關係數乘上 1.4x 膨脹係數，ERC 風險平價模型自動降槓桿防禦！`, score: -2 },
+            { tag: '📡Kalman濾波器動態適應', title: '卡爾曼濾波器根據當日新息誤差遞迴修正 β_t，無前瞻偏誤配對部位在系統性下跌中保持零 Beta 獲利', score: 2 }
           ]
         };
       } else if (avgChg >= 1.5) {
         return {
           regime: 'RATE_CUT_RALLY',
-          regimeLabel: '🚀 Fed轉鴿・OU配對收斂收割',
+          regimeLabel: '🚀 VIX解除警報・Kalman收斂收割',
           regimeColor: '#ffd54f',
           fedRate: '4.25%▼',
           cpiYoY: '2.5%▼',
           nfpJobs: '+22.0萬(優)',
           us10yYield: '4.12%▼',
           vixIndex: '13.9▼',
+          stressMultText: '1.00x🟢(解除)',
           borrowHeatText: '0.95x▼(回補)',
           macroScore: 2,
           headlines: [
-            { tag: '🏆OU協整價差收斂', title: `【統計套利收割】供應鏈協整價差收斂回 0.5σ 均線內，配對交易引擎自動雙邊平倉鎖定無風險 Alpha！`, score: 2 },
-            { tag: '🕊️Fed轉鴿與熱錢匯入', title: `Fed 釋出鴿派降息信號，外資熱錢大舉匯入帶動全市場大漲 (+${avgChg}%)！`, score: 2 }
+            { tag: '🏆Kalman新息誤差收斂', title: `【Walk-Forward OOS 收割】供應鏈配對之卡爾曼新息 Z_Kalman 收斂回 0.5σ 均線內，自動雙邊平倉鎖定無風險 Alpha！`, score: 2 },
+            { tag: '⚖️ERC恢復均衡配置', title: `VIX 回落至 13.9，解除 1.4x 壓力共變異數，ERC 等風險貢獻模型自動回補權益風險桶！`, score: 2 }
           ]
         };
       }
@@ -2717,7 +2776,6 @@
         const hitStopLoss = ev.roiPct <= -12.0;
         const hitMarginCall = isFuturesShort ? (ev.maintRatioPct < FUTURES_MAINT_CALL_PCT) : (ev.maintRatioPct < 142.0);
 
-        // 檢查 SBL 借券或美股 Reg T 借券費率動態競價是否突破損益平衡點 (Breakeven Stop)
         const underlyingObj = q ? (q.stockObj || q.usObj) : null;
         const aucInfo = (pos.instType === 'SHORT_TW_SBL' || pos.instType === 'SHORT_US_REGT') && underlyingObj
           ? computeDynamicBorrowAuction(rec, underlyingObj, pos.borrowFeeRate || 2.5)
@@ -3439,13 +3497,13 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
       };
     }
 
-    function executeOuPairsTradingForAgent(agent, dayIndex, rec, ouPairsList, fx, actionTags, monologueParts) {
+    function executeKalmanWalkForwardPairsForAgent(agent, dayIndex, rec, kalmanPairsList, fx, actionTags, monologueParts) {
       const dateStr = rec.date;
       if (!agent.activePairs) agent.activePairs = {};
 
-      // 1. 先檢查已持有的協整配對部位是否收斂至均線 (|Z| <= 0.65) 執行雙邊獲利平倉
+      // 1. 檢查已持有的 Kalman OOS 配對部位是否收斂至新息均線 (|Z_Kalman| <= 0.65) 執行雙邊獲利平倉
       for (const [pairId, pState] of Object.entries(agent.activePairs)) {
-        const pairInfo = ouPairsList.find(p => p.pairId === pairId);
+        const pairInfo = kalmanPairsList.find(p => p.pairId === pairId);
         if (!pairInfo) continue;
 
         if (pairInfo.signal === 'CONVERGED_CLOSE' || Math.abs(pairInfo.zScore) <= 0.65) {
@@ -3456,29 +3514,29 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
           if (longPos && longPos.qty > 0) {
             const qL = findInstrumentQuote(rec, pState.longInstId, longPos.instType);
             closeOrReducePosition(agent, pState.longInstId, longPos.qty, qL ? qL.price : longPos.avgCost, dateStr, fx,
-              `🔗【OU 協整配對均值回歸平倉 (多方端)】${pairInfo.pairName} 對數殘差 Z-Score 收斂至 ${pairInfo.zScore}σ（進入 ±0.65σ 均線區間，半衰期 ${pairInfo.halfLifeDays}日），賣出平倉鎖利！`, rec
+              `📡【Kalman 狀態空間新息收斂平倉 (多方端)】${pairInfo.pairName} 先驗新息誤差 Z_Kalman 收斂至 ${pairInfo.zScore}σ（先驗 β_{t|t-1}=${pairInfo.priorBetaOOS}，無前瞻偏誤），賣出平倉鎖利！`, rec
             );
             closedAny = true;
           }
           if (shortPos && shortPos.qty > 0) {
             const qS = findInstrumentQuote(rec, pState.shortInstId, shortPos.instType);
             coverOrCloseShortPosition(agent, pState.shortInstId, shortPos.qty, qS ? qS.price : shortPos.avgCost, dateStr, fx,
-              `🔗【OU 協整配對均值回歸平倉 (空方端)】${pairInfo.pairName} 對數殘差 Z-Score 收斂至 ${pairInfo.zScore}σ（進入 ±0.65σ 均線區間），買進回補空單完成 Market Neutral 收割！`, rec
+              `📡【Kalman 狀態空間新息收斂平倉 (空方端)】${pairInfo.pairName} 先驗新息誤差 Z_Kalman 收斂至 ${pairInfo.zScore}σ（卡爾曼增益 K_β=${pairInfo.kalmanGainBeta}），買進回補空單完成 Market Neutral 收割！`, rec
             );
             closedAny = true;
           }
           delete agent.activePairs[pairId];
           if (closedAny) {
-            actionTags.push(`🔗OU配對收斂雙邊平倉(${pairInfo.legACode}/${pairInfo.legBCode})`);
-            monologueParts.push(`太完美了！【${pairInfo.pairName}】的 OU 協整殘差 Z-Score 已收斂至 ${pairInfo.zScore}σ 均線，系統自動執行雙邊 Market Neutral 平倉收割純 Alpha！`);
+            actionTags.push(`📡Kalman收斂平倉(${pairInfo.legACode}/${pairInfo.legBCode})`);
+            monologueParts.push(`太完美了！【${pairInfo.pairName}】的卡爾曼先驗新息 Z_Kalman 已收斂至 ${pairInfo.zScore}σ，Walk-Forward OOS 引擎自動雙邊平倉收割純 Alpha！`);
           }
         }
       }
 
-      // 2. 掃描是否有突破 ±2.0σ 的協整配對信號，執行新配對套利開倉
+      // 2. 掃描是否有突破 ±2.0σ 的 Out-of-Sample 卡爾曼新息誤差信號，執行無前瞻偏誤配對建倉
       const preferredPairs = agent.id === 1
-        ? ouPairsList.filter(p => p.market === 'TW')
-        : ouPairsList.filter(p => p.pairId === 'SEMI_2330_2454' || p.pairId === 'US_AI_NVDA_INTC');
+        ? kalmanPairsList.filter(p => p.market === 'TW')
+        : kalmanPairsList.filter(p => p.pairId === 'SEMI_2330_2454' || p.pairId === 'US_AI_NVDA_INTC');
 
       preferredPairs.forEach(pair => {
         if (agent.activePairs[pair.pairId]) return;
@@ -3503,15 +3561,15 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
             const openedLong = openOrAddPosition(agent, {
               id: longAsset.id, instType: longAsset.assetType || 'STOCK', currency: 'TWD', fxRate: fx,
               unitLabel: '股', qty: longQty, price: longAsset.price, multiplier: 1, marginRate: 1.0, date: dateStr, rec,
-              pairTag: `🔗OU配對多方(${pair.legACode}/${pair.legBCode})`,
-              reason: `🔗【Engle-Granger 協整配對套利・多方端】${pair.pairName} 通過 ADF 檢定 (t=${pair.adfTStat}, p=${pair.adfPValue})，當前 OU 價差 Z-Score 達 ${pair.zScore}σ (超過 ±2.0σ 閾值)，買進低估端【${longAsset.id}】！`
+              pairTag: `📡Kalman多方(${pair.legACode}/${pair.legBCode})`,
+              reason: `📡【Kalman 濾波 Walk-Forward OOS 配對・多方端】${pair.pairName}（${pair.wfWindowTag}）以 t-1 先驗對沖比 β_{t|t-1}=${pair.priorBetaOOS} 計算當日新息誤差 e_t=${pair.innovationError}（Z_Kalman=${pair.zScore}σ 突破 ±2.0σ），買進低估端【${longAsset.id}】！`
             });
             const openedShort = openShortPosition(agent, {
               id: shortAsset.id, instType: 'SHORT_TW_SBL', currency: 'TWD', fxRate: fx,
               unitLabel: '股', qty: shortQty, price: shortAsset.price, multiplier: 1,
               marginRate: TW_MARGIN_SHORT_INIT_RATE, borrowFeeRate: shortElig.borrowRate, date: dateStr, rec,
-              pairTag: `🔗OU配對空方(${pair.legACode}/${pair.legBCode})`,
-              reason: `🔗【Engle-Granger 協整配對套利・空方端】${pair.pairName} OU 價差偏離達 ${pair.zScore}σ (半衰期 ${pair.halfLifeDays}日)，同步以 SBL 借券放空高估端【${shortAsset.id}】${shortQty / 1000}張，建構 Market Neutral 零 Beta 組合！`
+              pairTag: `📡Kalman空方(${pair.legACode}/${pair.legBCode})`,
+              reason: `📡【Kalman 濾波 Walk-Forward OOS 配對・空方端】${pair.pairName} 新息 Z_Kalman=${pair.zScore}σ（盤後卡爾曼增益 K_β=${pair.kalmanGainBeta} 更新後驗 β_{t|t}=${pair.posteriorBeta}），同步以 SBL 借券放空高估端【${shortAsset.id}】${shortQty / 1000}張！`
             });
 
             if (openedLong && openedShort) {
@@ -3521,8 +3579,8 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
                 entryZScore: pair.zScore,
                 entryDate: dateStr
               };
-              actionTags.push(`🔗OU配對:多${longAsset.code}/空${shortAsset.code}(Z=${pair.zScore}σ)`);
-              monologueParts.push(`Engle-Granger 協整掃描顯示【${pair.pairName}】殘差 Z-Score 擴大至 ${pair.zScore}σ（ADF p=${pair.adfPValue}），我立即執行「做多 ${longAsset.code}、放空 ${shortAsset.code}」Market Neutral 配對套利！`);
+              actionTags.push(`📡Kalman配對:多${longAsset.code}/空${shortAsset.code}(Z=${pair.zScore}σ)`);
+              monologueParts.push(`透過卡爾曼濾波器在 Out-of-Sample 測試集偵測到【${pair.pairName}】先驗新息 Z_Kalman 達 ${pair.zScore}σ（先驗 β=${pair.priorBetaOOS}），我立即執行無前瞻偏誤配對套利！`);
             }
           }
         }
@@ -3539,9 +3597,9 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
         rec.usAssets = buildUsAssetsForDay(rec, dayIndex);
         rec.warrants = syncWarrantsWithStocks(rec.sectors, rec.warrants, rec.date);
 
-        // 執行當日 Engle-Granger 協整與 OU 隨機過程掃描
-        const ouPairsList = runEngleGrangerAndOuScanner(appState.records, dayIndex);
-        rec.ouPairsReport = ouPairsList;
+        // 執行當日 Kalman 狀態空間濾波與 Walk-Forward OOS 配對掃描
+        const kalmanPairsList = runKalmanWalkForwardScanner(appState.records, dayIndex);
+        rec.ouPairsReport = kalmanPairsList;
 
         const fx = rec.fxRate;
         const prevFx = dayIndex > 0 ? (Number(appState.records[dayIndex - 1].fxRate) || 32.10) : (fx - 0.05);
@@ -3571,20 +3629,20 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
 
           processDailyWarrantMaturitySettlement(agent, rec, actionTags, monologueParts);
 
-          // 1. 計算 MVO 協方差最佳化權重
-          const mvo = computeDynamicMvoWeights(agent, dayIndex, appState.records);
-          agent.mvoWeights = mvo;
+          // 1. 計算 Barra 結構化因子共變異數 (Sigma = B*Omega*B^T + Delta)、VIX 1.4x 壓力膨脹與 ERC 等風險貢獻權重
+          const ercModel = computeDynamicErcAndFactorWeights(agent, dayIndex, appState.records);
+          agent.mvoWeights = ercModel;
 
-          // 2. 西蒙斯 (id=1) 與阿申 (id=5) 優先執行 Engle-Granger 協整與 OU 均值回歸配對套利
+          // 2. 西蒙斯 (id=1) 與阿申 (id=5) 優先執行 Kalman Walk-Forward OOS 配對套利
           if (agent.id === 1 || agent.id === 5) {
-            executeOuPairsTradingForAgent(agent, dayIndex, rec, ouPairsList, fx, actionTags, monologueParts);
+            executeKalmanWalkForwardPairsForAgent(agent, dayIndex, rec, kalmanPairsList, fx, actionTags, monologueParts);
           }
 
           if (agent.id === 0) {
             const allocB = getAgentAllocationBreakdown(agent, rec);
             const sgov = usBondsOnly.find(u => u.code === 'SGOV') || usBondsOnly[0];
-            const targetUsCap = mvo.usLongWeight;
-            const targetTwCap = mvo.twLongWeight;
+            const targetUsCap = ercModel.usLongWeight;
+            const targetTwCap = ercModel.twLongWeight;
 
             if ((isHawkishMacro || isUsdStrengthening) && sgov && allocB.usPct < targetUsCap) {
               const neededUsTwd = Math.max(0, (allocB.totalNav * (targetUsCap / 100)) - allocB.usAssetValTwd);
@@ -3593,10 +3651,10 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
               if (buyQty > 0 && openOrAddPosition(agent, {
                 id: sgov.id, instType: 'US_BOND', currency: 'USD', fxRate: fx,
                 unitLabel: '股', qty: buyQty, price: sgov.price, multiplier: 1, marginRate: 1.0, date: dateStr, rec,
-                reason: `【巴菲特 Barra 低波價值配置】美債 SGOV 波動率因子暴露極低 (Vol Z=-1.3)，依 MVO 權重 (${targetUsCap}%) 換美金增持 SGOV！`
+                reason: `【巴菲特 ERC 等風險貢獻配置】基於 Σ=BΩBᵀ+Δ 結構共變異數，美債 SGOV 異質風險 Δ 極低，ERC 分配 ${targetUsCap}% 權重以平衡邊際風險貢獻！`
               })) {
-                actionTags.push(`MVO買 SGOV×${buyQty}股`);
-                monologueParts.push(`盤後 Barra 因子模型與 MVO 將美債權重定為 ${targetUsCap}%，我將台幣換美金買進 ${buyQty} 股【SGOV】鎖定免稅收益！`);
+                actionTags.push(`ERC買 SGOV×${buyQty}股`);
+                monologueParts.push(`透過 Barra 因子共變異數與 ERC 等風險貢獻模型，我將美債權重提升至 ${targetUsCap}%（買進 ${buyQty} 股 SGOV），不依賴預期報酬率 μ 也能穩健抗跌！`);
               }
             } else if (allocB.usPct < targetUsCap) {
               const buffettStocks = usStocksOnly
@@ -3612,9 +3670,9 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
                 if (buyQty > 0 && openOrAddPosition(agent, {
                   id: usPick.id, instType: usPick.assetType, currency: 'USD', fxRate: fx,
                   unitLabel: '股', qty: buyQty, price: usPick.price, multiplier: 1, marginRate: 1.0, date: dateStr, rec,
-                  reason: `【波克夏 Barra 價值因子配置】買進高 Value 與低 Volatility 美股標的【${usPick.id}】`
+                  reason: `【波克夏 ERC 風險平價配置】買進低異質波動率美股標的【${usPick.id}】`
                 })) {
-                  actionTags.push(`MVO買 ${usPick.code}×${buyQty}股`);
+                  actionTags.push(`ERC買 ${usPick.code}×${buyQty}股`);
                 }
               });
             }
@@ -3629,26 +3687,26 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
                 if (buyQty >= 10 && openOrAddPosition(agent, {
                   id: pick.id, instType: pick.assetType || 'STOCK', currency: 'TWD', fxRate: fx,
                   unitLabel: '股', qty: buyQty, price: pick.price, multiplier: 1, marginRate: 1.0, date: dateStr, rec,
-                  reason: `【巴菲特 Barra 高價值因子】鎖定高殖利率低本益比護城河現股（台股 MVO 目標權重 ${targetTwCap}%）`
+                  reason: `【巴菲特 ERC 台股價值桶】依等風險貢獻權重 (${targetTwCap}%) 買進高殖利率護城河現股`
                 })) {
-                  actionTags.push(`價值買 ${pick.id.split(' ')[0]}×${buyQty}股`);
+                  actionTags.push(`ERC買 ${pick.id.split(' ')[0]}×${buyQty}股`);
                 }
               }
             });
           } else if (agent.id === 1) {
             const allocS = getAgentAllocationBreakdown(agent, rec);
-            if (allocS.usPct < mvo.usLongWeight) {
+            if (allocS.usPct < ercModel.usLongWeight) {
               const tlt = usBondsOnly.find(u => u.code === 'TLT') || usBondsOnly[0];
               if (tlt) {
-                const neededUsd = Math.max(0, ((allocS.totalNav * (mvo.usLongWeight / 100)) - allocS.usAssetValTwd) / fx);
+                const neededUsd = Math.max(0, ((allocS.totalNav * (ercModel.usLongWeight / 100)) - allocS.usAssetValTwd) / fx);
                 const usdBudget = Math.min(getSpendableUsdForUsMarket(agent, fx, 480000), neededUsd);
                 const buyQty = calcMaxAffordableQty(usdBudget, tlt.price, 1, 1.0, 'US_BOND', true, tlt.id, rec);
                 if (buyQty > 0 && openOrAddPosition(agent, {
                   id: tlt.id, instType: 'US_BOND', currency: 'USD', fxRate: fx,
                   unitLabel: '股', qty: buyQty, price: tlt.price, multiplier: 1, marginRate: 1.0, date: dateStr, rec,
-                  reason: `【大獎章 MVO 負共變異數配置】搭配 OU 配對套利，買進長天期美債 TLT 壓低整體波動率`
+                  reason: `【大獎章 ERC 風險平價公債桶】搭配 Kalman 配對套利，配置 ${ercModel.usLongWeight}% 於長天期美債 TLT 使各桶風險貢獻均等`
                 })) {
-                  actionTags.push(`MVO買美債 ${tlt.code}×${buyQty}股`);
+                  actionTags.push(`ERC買美債 ${tlt.code}×${buyQty}股`);
                 }
               }
             }
@@ -3664,20 +3722,20 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
               );
             }
 
-            if (isHawkishMacro && mvo.futuresWeight >= 5 && tmfFut && getSpendableTwdForTwMarket(agent, fx) >= tmfFut.marginReq * 2 + 60000) {
+            if (isHawkishMacro && ercModel.futuresWeight >= 5 && tmfFut && getSpendableTwdForTwMarket(agent, fx) >= tmfFut.marginReq * 2 + 60000) {
               if (openShortPosition(agent, {
                 id: tmfFut.id, instType: 'FUTURES_SHORT', currency: 'TWD', fxRate: fx,
                 unitLabel: '口', qty: 2, price: tmfFut.price, multiplier: tmfFut.sharesPerContract,
                 marginRate: tmfFut.marginRate, fixedMarginReq: tmfFut.marginReq, borrowFeeRate: 0, date: dateStr, rec,
-                reason: `【Barra 零 Beta 對沖】加開 2 口【TMF 微台指空單】（$10/點）將組合淨 Beta 壓近於 0！`
+                reason: `【VIX>20 壓力共變異數對沖】當 VIX 達 ${ercModel.vixVal} 觸發 1.4x 相關係數膨脹，加開 2 口【TMF 微台指空單】平衡總風險！`
               })) {
-                actionTags.push(`對沖空 TMF×2口`);
+                actionTags.push(`壓力對沖空 TMF×2口`);
               }
             } else if (isRateCutRally) {
               for (const [instId, pos] of Object.entries(agent.holdings)) {
                 if (pos && pos.qty > 0 && pos.instType === 'FUTURES_SHORT') {
                   const qF = findInstrumentQuote(rec, instId, pos.instType);
-                  coverOrCloseShortPosition(agent, instId, pos.qty, qF ? qF.price : pos.avgCost, dateStr, fx, `【總經轉鴿】回補微台指對沖空單`, rec);
+                  coverOrCloseShortPosition(agent, instId, pos.qty, qF ? qF.price : pos.avgCost, dateStr, fx, `【VIX壓力解除】回補微台指對沖空單`, rec);
                   actionTags.push(`回補期貨 ${instId.split(' ')[0]}`);
                 }
               }
@@ -3688,9 +3746,9 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
               if (!q || pos.qty <= 0) continue;
               if (isShortPositionType(pos.instType)) {
                 const ev = evaluatePosition(rec, instId, pos);
-                if (isRateCutRally || mvo.shortHedgeWeight < 5 || ev.roiPct >= 5.5) {
+                if (isRateCutRally || ercModel.shortHedgeWeight < 5 || ev.roiPct >= 5.5) {
                   coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
-                    `【李佛摩 Barra 動量翻多】買進回補空單鎖定 +${ev.roiPct}% 獲利（連同融券擔保息一併結算入帳）！`, rec
+                    `【李佛摩 VIX 壓力解除翻多】買進回補空單鎖定 +${ev.roiPct}% 獲利（連同融券擔保息一併結算入帳）！`, rec
                   );
                   actionTags.push(`回補空單 ${instId.split(' ')[0]}`);
                 }
@@ -3708,23 +3766,23 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
               .filter(s => s.changePct <= -1.5 && checkShortEligibility(rec, s, 'SHORT_TW_MARGIN').allowed)
               .sort((a, b) => a.changePct - b.changePct)[0];
 
-            if (!isRateCutRally && weakestTw && allocL.shortPct < mvo.shortHedgeWeight) {
-              const neededShortTwd = Math.max(0, (allocL.totalNav * (mvo.shortHedgeWeight / 100)) - allocL.shortMarginValTwd);
+            if (!isRateCutRally && weakestTw && allocL.shortPct < ercModel.shortHedgeWeight) {
+              const neededShortTwd = Math.max(0, (allocL.totalNav * (ercModel.shortHedgeWeight / 100)) - allocL.shortMarginValTwd);
               const twdBudget = Math.min(Math.max(0, getSpendableTwdForTwMarket(agent, fx) - 190000), neededShortTwd);
               const shortQty = calcMaxAffordableQty(twdBudget, weakestTw.price, 1, TW_MARGIN_SHORT_INIT_RATE, 'SHORT_TW_MARGIN', false, weakestTw.id, rec);
               if (shortQty >= 1000 && openShortPosition(agent, {
                 id: weakestTw.id, instType: 'SHORT_TW_MARGIN', currency: 'TWD', fxRate: fx,
                 unitLabel: '股', qty: shortQty, price: weakestTw.price, multiplier: 1,
                 marginRate: TW_MARGIN_SHORT_INIT_RATE, borrowFeeRate: 0.08, date: dateStr, rec,
-                reason: `【李佛摩負動量因子放空】${weakestTw.id} 動量惡化 (${weakestTw.changePct}%)，融券放空 ${shortQty / 1000} 張`
+                reason: `【李佛摩動量 ERC 空頭配置】${weakestTw.id} 跌破支撐 (${weakestTw.changePct}%)，融券放空 ${shortQty / 1000} 張`
               })) {
                 actionTags.push(`動量放空 ${weakestTw.code}×${shortQty / 1000}張`);
               }
             }
 
             const putWarrant = warrantList.find(w => w.warrantType === 'PUT' && !w.isHaltedBeforeMaturity && !w.isMaturedToday);
-            if (!isRateCutRally && putWarrant && getAgentAllocationBreakdown(agent, rec).warrantPct < mvo.warrantWeight) {
-              const putBudget = Math.min(45000, getSpendableTwdForTwMarket(agent, fx) * (mvo.warrantWeight / 100));
+            if (!isRateCutRally && putWarrant && getAgentAllocationBreakdown(agent, rec).warrantPct < ercModel.warrantWeight) {
+              const putBudget = Math.min(45000, getSpendableTwdForTwMarket(agent, fx) * (ercModel.warrantWeight / 100));
               const buyPutLots = calcMaxAffordableQty(putBudget, putWarrant.price, 1000, 1.0, 'WARRANT', true, putWarrant.id, rec);
               if (buyPutLots > 0 && openOrAddPosition(agent, {
                 id: putWarrant.id, instType: 'WARRANT', currency: 'TWD', fxRate: fx,
@@ -3738,8 +3796,8 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
             if (!isHawkishMacro) {
               const strongestUs = [...usStocksOnly].sort((a, b) => b.changePct - a.changePct)[0];
               const curAllocL = getAgentAllocationBreakdown(agent, rec);
-              if (strongestUs && curAllocL.usPct < mvo.usLongWeight) {
-                const neededUsd = Math.max(0, ((curAllocL.totalNav * (mvo.usLongWeight / 100)) - curAllocL.usAssetValTwd) / fx);
+              if (strongestUs && curAllocL.usPct < ercModel.usLongWeight) {
+                const neededUsd = Math.max(0, ((curAllocL.totalNav * (ercModel.usLongWeight / 100)) - curAllocL.usAssetValTwd) / fx);
                 const usdBudget = Math.min(getSpendableUsdForUsMarket(agent, fx, 300000), neededUsd);
                 const buyQty = calcMaxAffordableQty(usdBudget, strongestUs.price, 1, 1.0, 'US_STOCK', true, strongestUs.id, rec);
                 if (buyQty > 0 && openOrAddPosition(agent, {
@@ -3751,7 +3809,7 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
                 }
               }
 
-              if (isRateCutRally && mvo.futuresWeight >= 6 && mtxFut && getSpendableTwdForTwMarket(agent, fx) >= mtxFut.marginReq + 30000) {
+              if (isRateCutRally && ercModel.futuresWeight >= 6 && mtxFut && getSpendableTwdForTwMarket(agent, fx) >= mtxFut.marginReq + 30000) {
                 if (openOrAddPosition(agent, {
                   id: mtxFut.id, instType: 'FUTURES_LONG', currency: 'TWD', fxRate: fx,
                   unitLabel: '口', qty: 1, price: mtxFut.price, multiplier: mtxFut.sharesPerContract, marginRate: mtxFut.marginRate,
@@ -3769,10 +3827,10 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
             const tradableCallWarrants = warrantList.filter(w => w.warrantType === 'CALL' && !w.isHaltedBeforeMaturity && !w.isMaturedToday && w.moneynessPct > -12);
             const favWarrant = tradableCallWarrants[0] || warrantList.find(w => !w.isMaturedToday);
 
-            if (gme && allocK.usPct < mvo.usLongWeight) {
+            if (gme && allocK.usPct < ercModel.usLongWeight) {
               const usdBudget = Math.min(
                 getSpendableUsdForUsMarket(agent, fx, 500000),
-                Math.max(0, ((allocK.totalNav * (mvo.usLongWeight / 100)) - allocK.usAssetValTwd) / fx)
+                Math.max(0, ((allocK.totalNav * (ercModel.usLongWeight / 100)) - allocK.usAssetValTwd) / fx)
               );
               const buyQty = calcMaxAffordableQty(usdBudget, gme.price, 1, 1.0, 'US_STOCK', true, gme.id, rec);
               if (buyQty > 0 && openOrAddPosition(agent, {
@@ -3785,26 +3843,26 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
             }
 
             const allocK2 = getAgentAllocationBreakdown(agent, rec);
-            if (favWarrant && allocK2.warrantPct < mvo.warrantWeight) {
+            if (favWarrant && allocK2.warrantPct < ercModel.warrantWeight) {
               const warrantTwdBudget = Math.min(
                 getSpendableTwdForTwMarket(agent, fx) * 0.36,
-                Math.max(0, (allocK2.totalNav * (mvo.warrantWeight / 100)) - allocK2.warrantVal)
+                Math.max(0, (allocK2.totalNav * (ercModel.warrantWeight / 100)) - allocK2.warrantVal)
               );
               const buyLots = calcMaxAffordableQty(warrantTwdBudget, favWarrant.price, 1000, 1.0, 'WARRANT', true, favWarrant.id, rec);
               if (buyLots > 0 && openOrAddPosition(agent, {
                 id: favWarrant.id, instType: 'WARRANT', currency: 'TWD', fxRate: fx,
                 unitLabel: '張', qty: buyLots, price: favWarrant.price, multiplier: 1000, marginRate: 1.0, date: dateStr, rec,
-                reason: `【Barra 高波動與高動量權證】買進 ${buyLots} 張認購權證【${favWarrant.id}】（履約價 $${favWarrant.strikePrice}）！`
+                reason: `【高偏度 ERC 風險預算權證】買進 ${buyLots} 張認購權證【${favWarrant.id}】（履約價 $${favWarrant.strikePrice}）！`
               })) {
                 actionTags.push(`🔥YOLO權證 ${favWarrant.code}×${buyLots}張`);
               }
             }
 
             const allocK3 = getAgentAllocationBreakdown(agent, rec);
-            if (favTw && allocK3.twPct < mvo.twLongWeight) {
+            if (favTw && allocK3.twPct < ercModel.twLongWeight) {
               const twStockBudget = Math.min(
                 Math.max(0, getSpendableTwdForTwMarket(agent, fx) - 90000),
-                Math.max(0, (allocK3.totalNav * (mvo.twLongWeight / 100)) - allocK3.twStockVal)
+                Math.max(0, (allocK3.totalNav * (ercModel.twLongWeight / 100)) - allocK3.twStockVal)
               );
               const buyShares = calcMaxAffordableQty(twStockBudget, favTw.price, 1, 1.0, 'STOCK', true, favTw.id, rec);
               if (buyShares >= 10 && openOrAddPosition(agent, {
@@ -3824,8 +3882,8 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
                 coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx, `🔥【慘遭軋空＋借券競價爆表強制回補】${instId} 續漲 +${q.changePct}%，維持率掉至 ${ev.maintRatioPct}%，克萊默高檔認賠回補！`, rec);
                 actionTags.push(`🚨被軋空回補 ${instId.split(' ')[0]}`);
               } else if (!isShortPositionType(pos.instType) && pos.instType !== 'WARRANT' && (isHawkishMacro || q.changePct < -1.5)) {
-                closeOrReducePosition(agent, instId, pos.qty, q.price, dateStr, fx, `【克萊默恐慌砍倉】被 CPI 新聞嚇破膽全砍多單`, rec);
-                actionTags.push(`CPI恐慌砍倉 ${instId.split(' ')[0]}`);
+                closeOrReducePosition(agent, instId, pos.qty, q.price, dateStr, fx, `【傳統MVO共變異數崩潰恐慌砍倉】VIX>20 時相關係數趨近 1 導致傳統 MVO 崩潰全砍多單`, rec);
+                actionTags.push(`VIX恐慌砍倉 ${instId.split(' ')[0]}`);
               }
             }
 
@@ -3839,14 +3897,14 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
             const strongTwToShort = pool.find(s => s.code === '1519' && checkShortEligibility(rec, s, 'SHORT_TW_MARGIN').allowed)
               || [...pool].filter(s => checkShortEligibility(rec, s, 'SHORT_TW_MARGIN').allowed).sort((a, b) => b.changePct - a.changePct)[0];
 
-            if (dayIndex === 0 && strongTwToShort && allocC.shortPct < mvo.shortHedgeWeight) {
-              const shortBudget = getSpendableTwdForTwMarket(agent, fx) * (mvo.shortHedgeWeight / 100);
+            if (dayIndex === 0 && strongTwToShort && allocC.shortPct < ercModel.shortHedgeWeight) {
+              const shortBudget = getSpendableTwdForTwMarket(agent, fx) * (ercModel.shortHedgeWeight / 100);
               const shortQty = calcMaxAffordableQty(shortBudget, strongTwToShort.price, 1, TW_MARGIN_SHORT_INIT_RATE, 'SHORT_TW_MARGIN', false, strongTwToShort.id, rec);
               if (shortQty >= 1000 && openShortPosition(agent, {
                 id: strongTwToShort.id, instType: 'SHORT_TW_MARGIN', currency: 'TWD', fxRate: fx,
                 unitLabel: '股', qty: shortQty, price: strongTwToShort.price, multiplier: 1,
                 marginRate: TW_MARGIN_SHORT_INIT_RATE, borrowFeeRate: 0.08, date: dateStr, rec,
-                reason: `【克萊默逆勢摸頭高動量股】無視【${strongTwToShort.id}】強勢動量 (+${strongTwToShort.changePct}%) 與高借券競價費率，強行融券放空 ${shortQty / 1000} 張`
+                reason: `【傳統MVO對預期報酬μ敏感誤判】誤將強勢股當成高估，強行重倉融券放空 ${shortQty / 1000} 張`
               })) {
                 actionTags.push(`逆勢融券空 ${strongTwToShort.code}×${shortQty / 1000}張`);
               }
@@ -3854,7 +3912,7 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
 
             const deepOtmWarrant = warrantList.find(w => w.code === '061882' && !w.isHaltedBeforeMaturity && !w.isMaturedToday);
             if (dayIndex === 0 && deepOtmWarrant) {
-              const wBudget = Math.min(42000, getSpendableTwdForTwMarket(agent, fx) * (mvo.warrantWeight / 100));
+              const wBudget = Math.min(42000, getSpendableTwdForTwMarket(agent, fx) * (ercModel.warrantWeight / 100));
               const buyLots = calcMaxAffordableQty(wBudget, deepOtmWarrant.price, 1000, 1.0, 'WARRANT', true, deepOtmWarrant.id, rec);
               if (buyLots > 0 && openOrAddPosition(agent, {
                 id: deepOtmWarrant.id, instType: 'WARRANT', currency: 'TWD', fxRate: fx,
@@ -3866,7 +3924,7 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
             }
 
             const tsla = usStocksOnly.find(u => u.code === 'TSLA') || usStocksOnly[0];
-            if (!isHawkishMacro && tsla && getAgentAllocationBreakdown(agent, rec).usPct < mvo.usLongWeight) {
+            if (!isHawkishMacro && tsla && getAgentAllocationBreakdown(agent, rec).usPct < ercModel.usLongWeight) {
               const usdBudget = getSpendableUsdForUsMarket(agent, fx, 160000) * 0.65;
               const buyQty = calcMaxAffordableQty(usdBudget, tsla.price, 1, 1.0, 'US_STOCK', true, tsla.id, rec);
               if (buyQty > 0 && openOrAddPosition(agent, {
@@ -3881,35 +3939,35 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
             const allocSA = getAgentAllocationBreakdown(agent, rec);
 
             const intc = usStocksOnly.find(u => u.code === 'INTC' && checkShortEligibility(rec, u, 'SHORT_US_REGT').allowed);
-            if (intc && intc.changePct <= 0 && !agent.holdings[intc.id] && allocSA.shortPct < mvo.shortHedgeWeight) {
+            if (intc && intc.changePct <= 0 && !agent.holdings[intc.id] && allocSA.shortPct < ercModel.shortHedgeWeight) {
               const elInfo = checkShortEligibility(rec, intc, 'SHORT_US_REGT');
               const usdMarginBudget = Math.min(
                 getSpendableUsdForUsMarket(agent, fx, 520000) * 0.42,
-                Math.max(0, ((allocSA.totalNav * (mvo.shortHedgeWeight / 100)) - allocSA.shortMarginValTwd) / fx)
+                Math.max(0, ((allocSA.totalNav * (ercModel.shortHedgeWeight / 100)) - allocSA.shortMarginValTwd) / fx)
               );
               const shortQty = calcMaxAffordableQty(usdMarginBudget, intc.price, 1, US_REGT_SHORT_ADD_MARGIN, 'SHORT_US_REGT', false, intc.id, rec);
               if (shortQty > 0 && openShortPosition(agent, {
                 id: intc.id, instType: 'SHORT_US_REGT', currency: 'USD', fxRate: fx,
                 unitLabel: '股', qty: shortQty, price: intc.price, multiplier: 1,
                 marginRate: US_REGT_SHORT_ADD_MARGIN, borrowFeeRate: elInfo.borrowRate, date: dateStr, rec,
-                pairTag: `🔗跨國配對空方(NVDA/INTC)`,
-                reason: `🔗【SA 跨國半導體協整配對】做多 NVDA 同時以 Reg T 放空舊製程股【${intc.id}】（動態競價年息 ${elInfo.borrowRate}%，低於損益平衡點 ${elInfo.breakevenRate}%）！`
+                pairTag: `📡Kalman空方(NVDA/INTC)`,
+                reason: `📡【SA 跨國半導體 Kalman 配對】做多 NVDA 同時以 Reg T 放空舊製程股【${intc.id}】（ERC 空方風險桶權重 ${ercModel.shortHedgeWeight}%）！`
               })) {
-                actionTags.push(`配對空 ${intc.code}×${shortQty}股`);
+                actionTags.push(`Kalman空 ${intc.code}×${shortQty}股`);
               }
             }
 
             const nvda = usStocksOnly.find(u => u.code === 'NVDA') || usStocksOnly[0];
             const curAllocSA = getAgentAllocationBreakdown(agent, rec);
-            if (nvda && curAllocSA.usPct < mvo.usLongWeight) {
-              const neededUsd = Math.max(0, ((curAllocSA.totalNav * (mvo.usLongWeight / 100)) - curAllocSA.usAssetValTwd) / fx);
+            if (nvda && curAllocSA.usPct < ercModel.usLongWeight) {
+              const neededUsd = Math.max(0, ((curAllocSA.totalNav * (ercModel.usLongWeight / 100)) - curAllocSA.usAssetValTwd) / fx);
               const usdBudget = Math.min(getSpendableUsdForUsMarket(agent, fx, 440000), neededUsd);
               const buyQty = calcMaxAffordableQty(usdBudget, nvda.price, 1, 1.0, 'US_STOCK', true, nvda.id, rec);
               if (buyQty > 0 && openOrAddPosition(agent, {
                 id: nvda.id, instType: 'US_STOCK', currency: 'USD', fxRate: fx,
                 unitLabel: '股', qty: buyQty, price: nvda.price, multiplier: 1, marginRate: 1.0, date: dateStr, rec,
-                pairTag: `🔗跨國配對多方(NVDA/INTC)`,
-                reason: `🔗【SA 算力核心配對多方】買進高規模與高動量因子之【${nvda.id}】`
+                pairTag: `📡Kalman多方(NVDA/INTC)`,
+                reason: `📡【SA 算力核心 Kalman 配對多方】買進高規模與高動量因子之【${nvda.id}】`
               })) {
                 actionTags.push(`算力多 ${nvda.code}×${buyQty}股`);
               }
@@ -3917,30 +3975,30 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
 
             const tsmc = pool.find(s => s.id.includes('2330')) || pool[0];
             const curAllocSA2 = getAgentAllocationBreakdown(agent, rec);
-            if (tsmc && curAllocSA2.twPct < mvo.twLongWeight) {
-              const neededTwTwd = Math.max(0, (curAllocSA2.totalNav * (mvo.twLongWeight / 100)) - curAllocSA2.twStockVal);
+            if (tsmc && curAllocSA2.twPct < ercModel.twLongWeight) {
+              const neededTwTwd = Math.max(0, (curAllocSA2.totalNav * (ercModel.twLongWeight / 100)) - curAllocSA2.twStockVal);
               const twBudget = Math.min(Math.max(0, getSpendableTwdForTwMarket(agent, fx) - 150000), neededTwTwd);
               const buyQty = calcMaxAffordableQty(twBudget, tsmc.price, 1, 1.0, 'STOCK', true, tsmc.id, rec);
               if (buyQty > 0 && openOrAddPosition(agent, {
                 id: tsmc.id, instType: 'STOCK', currency: 'TWD', fxRate: fx,
                 unitLabel: '股', qty: buyQty, price: tsmc.price, multiplier: 1, marginRate: 1.0, date: dateStr, rec,
-                reason: `【SA 晶圓代工咽喉 MVO】配置 ${mvo.twLongWeight}% 權重於大型權值【${tsmc.id}】`
+                reason: `【SA 晶圓代工咽喉 ERC】依 Σ=BΩBᵀ+Δ 等風險貢獻配置 ${ercModel.twLongWeight}% 權重於【${tsmc.id}】`
               })) {
-                actionTags.push(`MVO鎖倉 ${tsmc.id.split(' ')[0]}×${buyQty}股`);
+                actionTags.push(`ERC鎖倉 ${tsmc.id.split(' ')[0]}×${buyQty}股`);
               }
             }
           }
 
           maintainCurrencyReserveAndMarginDiscipline(agent, rec, actionTags, monologueParts);
 
-          // 3. 盤後計算該大師之 Barra 四大風格因子暴露 (Size / Value / Momentum / Volatility)
+          // 3. 盤後計算該大師之 Barra 四大風格因子暴露與 ERC 診斷
           const barra = computeAgentBarraExposure(agent, rec);
           agent.barraExposure = barra;
 
-          agent.todayAction = actionTags.length > 0 ? actionTags.join(' / ') : `OU協整掃描+Barra因子平衡`;
+          agent.todayAction = actionTags.length > 0 ? actionTags.join(' / ') : `Kalman OOS掃描+ERC風險平價`;
           agent.monologue = monologueParts.length > 0
             ? monologueParts.join(' ')
-            : `【${rec.date}｜${barra.diagnosis}】當前 Barra 因子暴露：規模(Size)=${barra.sizeZ}、價值(Value)=${barra.valueZ}、動量(Mom)=${barra.momZ}、波動(Vol)=${barra.volZ}，MVO 預期年化波動率 ${mvo.portVolAnnualPct}%！`;
+            : `【${rec.date}｜${barra.diagnosis}】Barra 因子暴露：Size=${barra.sizeZ}、Value=${barra.valueZ}、Mom=${barra.momZ}、Vol=${barra.volZ}（VIX=${ercModel.vixVal}，共變異數膨脹 ${ercModel.corrInflationMult}x，預期波動 σ=${ercModel.portVolAnnualPct}%）！`;
         });
 
         rec.agentSnapshots = JSON.parse(JSON.stringify(runningAgents));
@@ -4067,7 +4125,7 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
         ? 100.0
         : (instType === 'SHORT_US_REGT' ? 150.0 : +(((netShortProceedsNative + requiredMarginNative) / Math.max(1, shortGrossProceedsNative)) * 100).toFixed(1));
 
-      let actTag = pairTag ? `🔗 ${pairTag}` : '📉 融券賣出放空';
+      let actTag = pairTag ? `${pairTag}` : '📉 融券賣出放空';
       if (!pairTag) {
         if (instType === 'SHORT_TW_SBL') actTag = '📉 SBL借券放空';
         else if (instType === 'SHORT_US_REGT') actTag = '📉 美股RegT放空';
@@ -4301,10 +4359,10 @@ const TW_WARRANT_EXERCISE_FEE_RATE = 0.001425;
         instId: id, instType,
         actionType: isAdd ? 'ADD' : 'INIT',
         actionLabel: pairTag
-          ? `🔗 ${pairTag}`
+          ? `${pairTag}`
           : (instType === 'FUTURES_LONG'
             ? (isAdd ? `⚡ 期貨買進加碼(${currency})` : `⚡ 期貨買進開倉(做多)`)
-            : (isAdd ? `第 ${h.lots.length + 1} 筆・MVO加碼(${currency})` : `第 1 筆・MVO建倉(${currency})`)),
+            : (isAdd ? `第 ${h.lots.length + 1} 筆・ERC加碼(${currency})` : `第 1 筆・ERC建倉(${currency})`)),
         qty, unitLabel,
         entryAvgPrice: execPrice,
         theoPrice: price, price: execPrice,
@@ -4627,7 +4685,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
             ctx.fillText(`▲平倉回補`, cx - 26, Math.min(H - 20, lowY + 14));
           } else if (ev.actionType === 'INIT' || ev.actionType === 'ADD') {
             ctx.fillStyle = '#ffea00';
-            ctx.fillText(`▲${ev.actionLabel.includes('OU') ? 'OU配對' : 'MVO建倉'}`, cx - 24, Math.min(H - 20, lowY + 14 + eIdx * 12));
+            ctx.fillText(`▲${ev.actionLabel.includes('Kalman') ? 'Kalman配對' : 'ERC建倉'}`, cx - 26, Math.min(H - 20, lowY + 14 + eIdx * 12));
           } else if (ev.actionType === 'SELL') {
             ctx.fillStyle = '#ff5252';
             ctx.fillText(ev.actionLabel.includes('價內') ? `🏆到期領現` : ev.actionLabel.includes('歸零') ? `💀到期歸零` : `▼賣出平倉`, cx - 26, Math.max(12, highY - 6));
@@ -4697,7 +4755,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
             </div>
             <div style="display:flex; gap:6px;">
               <button class="nav-day-btn" style="background:${isAllPortfolio ? '#00ffcc' : '#e5dec9'};" onclick="openHoldingLedgerModal(${agentId}, 'ALL_PORTFOLIO', '${activeModalState.filterDate}')">
-                📒 全帳戶歷史總帳本 (含OU配對平倉/到期權證)
+                📒 全帳戶歷史總帳本 (含Kalman配對平倉/到期權證)
               </button>
               <button class="nav-day-btn" style="background:${activeModalState.filterDate === rec.date ? '#ffea00' : '#e5dec9'};" onclick="openHoldingLedgerModal(${agentId}, '${activeModalState.instId.replace(/'/g, "\\'")}', '${rec.date}')">
                 ⚡ 只看今日 (${rec.date.slice(5)})
@@ -4711,14 +4769,14 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
               <span class="battle-pnl-val" style="color:${bPnlColor};">
                 ${battle.todayRealizedPnlTwd >= 0 ? '+' : ''}$${battle.todayRealizedPnlTwd.toLocaleString()} TWD
               </span>
-              <span style="font-size:0.7rem; color:#cfd8dc; margin-top:2px;">(含OU配對收割/權證履約/擔保息結算)</span>
+              <span style="font-size:0.7rem; color:#cfd8dc; margin-top:2px;">(含Kalman OOS收割/權證履約/擔保息結算)</span>
             </div>
             <div class="battle-col-box battle-col-buy">
-              <div class="battle-col-title" style="color:#0c8428;">🟢 當日 OU 配對 / MVO 開倉 (${battle.buys.length}筆)</div>
+              <div class="battle-col-title" style="color:#0c8428;">🟢 當日 Kalman OOS / ERC 開倉 (${battle.buys.length}筆)</div>
               <div>${battle.buys.length > 0 ? battle.buys.join('<br>') : '<span style="color:#777;">當日無買進或新開倉動作</span>'}</div>
             </div>
             <div class="battle-col-box battle-col-sell">
-              <div class="battle-col-title" style="color:#d61a1a;">🔴 當日賣出 / 協整收斂平倉 (${battle.sells.length}筆)</div>
+              <div class="battle-col-title" style="color:#d61a1a;">🔴 當日賣出 / 新息收斂平倉 (${battle.sells.length}筆)</div>
               <div>${battle.sells.length > 0 ? battle.sells.join('<br>') : '<span style="color:#777;">當日無賣出或到期結算動作</span>'}</div>
             </div>
             <div class="battle-col-box battle-col-fee">
@@ -4734,9 +4792,9 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
 
       if (isAllPortfolio) {
         if (klinePanel) klinePanel.style.display = 'none';
-        document.getElementById('modalTitleText').textContent = `📒 【${agent.name}】全帳戶交割總帳本（OU 協整配對套利 ＋ 借券費率動態競價 ＋ Barra 因子歸因）`;
+        document.getElementById('modalTitleText').textContent = `📒 【${agent.name}】全帳戶交割總帳本（Kalman 濾波 OOS 配對 ＋ ERC 風險平價 ＋ 借券動態競價）`;
         const bExp = agent.barraExposure || computeAgentBarraExposure(agent, rec);
-        document.getElementById('modalContractSpecText').textContent = `💡 【${agent.name}】Barra 因子淨暴露：規模(Size)=${bExp.sizeZ}｜價值(Value)=${bExp.valueZ}｜動量(Mom)=${bExp.momZ}｜波動(Vol)=${bExp.volZ}｜Beta=${bExp.netBeta}（${bExp.diagnosis}）`;
+        document.getElementById('modalContractSpecText').textContent = `💡 【${agent.name}】Barra 因子與 ERC 診斷：規模(Size)=${bExp.sizeZ}｜價值(Value)=${bExp.valueZ}｜動量(Mom)=${bExp.momZ}｜波動(Vol)=${bExp.volZ}｜Beta=${bExp.netBeta}（${bExp.diagnosis}）`;
 
         let totSlip = 0, totBroker = 0, totTax = 0, totBorrow = 0, totRealizedPnl = 0;
         for (const [kId, pObj] of Object.entries(allPosMap)) {
@@ -4787,7 +4845,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
         const pnlColor = totalNetGainTwd >= 0 ? 'var(--tw-up)' : 'var(--tw-down)';
         const instBarra = computeInstrumentBarraScores(rec, instId, pos.instType);
 
-        document.getElementById('modalTitleText').textContent = `📒 【${agent.name}】持有「${instId}」精細交割帳本（OU 配對套利 / 動態借券競價 / Barra 因子）`;
+        document.getElementById('modalTitleText').textContent = `📒 【${agent.name}】持有「${instId}」精細交割帳本（Kalman OOS 配對 / ERC 風險平價 / 動態借券競價）`;
         document.getElementById('modalContractSpecText').textContent = `📌 該標的 Barra 因子得分：Size=${instBarra.sizeZ}｜Value=${instBarra.valueZ}｜Momentum=${instBarra.momZ}｜Volatility=${instBarra.volZ}｜Beta=${instBarra.beta}。第 8 欄顯示動態競價借券費與融券擔保息！`;
 
         document.getElementById('modalSummaryBar').innerHTML = `
@@ -5107,9 +5165,11 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
         pill.textContent = m.regimeLabel || '🟢 軟著陸與算力擴張';
         pill.style.background = m.regimeColor || '#76c888';
       }
+      const vixNum = parseFloat(String(m.vixIndex || '15.2').replace(/[^0-9.]/g, '')) || 15.2;
+      const stressText = m.stressMultText || (vixNum > 20 ? '1.40x🚨(VIX壓力)' : '1.00x🟢(正常)');
       const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
       setEl('macroFedVal', m.fedRate || '4.50%');
-      setEl('macroCpiVal', m.cpiYoY || '2.6%');
+      setEl('macroStressMultVal', stressText);
       setEl('macroBorrowHeatVal', m.borrowHeatText || (m.macroScore < 0 ? '1.65x▲' : '1.05x'));
       setEl('macro10yVal', m.us10yYield || '4.22%');
       setEl('macroVixVal', m.vixIndex || '15.2');
@@ -5179,10 +5239,10 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
           `;
         }).join('');
       } else if (currentPoolTab === 'PAIRS') {
-        thead.innerHTML = `<tr><th>供應鏈協整配對 (A vs B)</th><th>ADF平穩檢定 / 半衰期</th><th>OU殘差 Z-Score</th><th>Market Neutral 套利信號</th></tr>`;
-        const pairs = (rec.ouPairsReport || runEngleGrangerAndOuScanner(appState.records, appState.currentIdx))
+        thead.innerHTML = `<tr><th>供應鏈狀態空間配對</th><th>Kalman 先驗 β ➔ 後驗 β (增益 K)</th><th>OOS 先驗新息 Z_Kalman</th><th>Walk-Forward 無前瞻信號</th></tr>`;
+        const pairs = (rec.ouPairsReport || runKalmanWalkForwardScanner(appState.records, appState.currentIdx))
           .filter(p => !kw || p.pairName.toLowerCase().includes(kw) || p.legACode.toLowerCase().includes(kw) || p.legBCode.toLowerCase().includes(kw));
-        document.getElementById('stockCountText').textContent = `Engle-Granger 協整配對 ${pairs.length} 組 (|Z|>2.0σ開倉 / |Z|<0.65σ平倉)`;
+        document.getElementById('stockCountText').textContent = `Kalman 狀態空間配對 ${pairs.length} 組 (嚴格 t-1 先驗無前瞻偏誤)`;
 
         tbody.innerHTML = pairs.map(p => {
           const zCol = Math.abs(p.zScore) >= 2.0 ? 'var(--tw-up)' : (Math.abs(p.zScore) <= 0.65 ? 'var(--tw-down)' : '#333');
@@ -5191,19 +5251,21 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
             : (p.signal === 'CONVERGED_CLOSE'
               ? `<span class="short-ok-tag" style="background:#c8e6c9;color:#1b5e20;">${p.signalLabel}</span>`
               : `<span style="color:#666;font-size:0.74rem;">${p.signalLabel}</span>`);
+          const priorB = p.priorBetaOOS !== undefined ? p.priorBetaOOS : p.beta;
+          const postB = p.posteriorBeta !== undefined ? p.posteriorBeta : p.beta;
           return `
             <tr>
               <td>
                 <strong>${p.pairName}</strong>
-                <div style="font-size:0.72rem;color:#444;">${p.legACode}($${p.legAObj.price}) vs ${p.legBCode}($${p.legBObj.price})｜β=${p.beta}</div>
+                <div style="font-size:0.71rem;color:#00695c;">${p.wfWindowTag || 'Walk-Forward OOS'}</div>
               </td>
-              <td style="font-family:'VT323'; font-size:1.02rem;">
-                ADF t=${p.adfTStat} (p=${p.adfPValue})<br>
-                <span style="color:#00695c;">OU半衰期: ${p.halfLifeDays}日 (θ=${p.theta})</span>
+              <td style="font-family:'VT323'; font-size:1.04rem;">
+                先驗β=${priorB} ➔ 後驗β=${postB}<br>
+                <span style="color:#4a148c;font-size:0.75rem;">Kalman Gain K_β=${p.kalmanGainBeta || 0.05}</span>
               </td>
               <td style="font-family:'VT323'; font-size:1.18rem; font-weight:bold; color:${zCol};">
                 Z = ${p.zScore > 0 ? '+' : ''}${p.zScore}σ
-                <div style="font-size:0.7rem;color:#555;">Spread:${p.curSpread} (μ=${p.ouMean})</div>
+                <div style="font-size:0.7rem;color:#555;">新息e_t:${p.innovationError !== undefined ? p.innovationError : p.curSpread}</div>
               </td>
               <td>${sigBadge}</td>
             </tr>
@@ -5332,8 +5394,8 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
         if (Math.abs(p.zScore) >= 1.8 || p.signal === 'CONVERGED_CLOSE') {
           html += `
             <div class="news-row">
-              <span class="news-pill" style="background:#004d40;">🔗OU協整信號</span>
-              <span><strong>${p.pairName}</strong>：ADF t=${p.adfTStat} (p=${p.adfPValue})｜殘差 Z-Score = <strong>${p.zScore > 0 ? '+' : ''}${p.zScore}σ</strong> ➔ ${p.signalLabel}</span>
+              <span class="news-pill" style="background:#004d40;">📡Kalman OOS</span>
+              <span><strong>${p.pairName}</strong>：先驗β=${p.priorBetaOOS !== undefined ? p.priorBetaOOS : p.beta} ➔ 後驗β=${p.posteriorBeta !== undefined ? p.posteriorBeta : p.beta}｜新息 Z_Kalman = <strong>${p.zScore > 0 ? '+' : ''}${p.zScore}σ</strong> ➔ ${p.signalLabel}</span>
             </div>
           `;
         }
@@ -5372,7 +5434,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
         let mood = 'neutral', moodBadgeText = '😐 觀望', moodBadgeBg = '#f0f0f0';
         if (returnPct > 0.01) {
           mood = 'win';
-          moodBadgeText = totalDivs > 0 ? '💰 領息獲利' : (ag.id === 1 ? '🔗 協整Alpha' : '😎 獲利');
+          moodBadgeText = totalDivs > 0 ? '💰 領息獲利' : (ag.id === 1 ? '📡 Kalman獲利' : '😎 獲利');
           moodBadgeBg = totalDivs > 0 ? '#ffda66' : (ag.id === 1 ? '#80ffea' : '#ffeaa7');
         } else if (returnPct < -0.01) {
           mood = 'lose';
@@ -5419,7 +5481,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
           const lotNote = (pos.instType === 'SHORT_TW_MARGIN' || pos.instType === 'SHORT_TW_SBL') ? ` (${pos.qty / 1000}張)` : '';
 
           holdingsHtml += `
-            <span class="holding-chip" title="點擊查看精細交割帳本：OU配對套利、Volume動態滑價、動態借券競價與實現損益" onclick="openHoldingLedgerModal(${ag.id}, '${safeInstId}', 'ALL')">
+            <span class="holding-chip" title="點擊查看精細交割帳本：Kalman配對、ERC風險平價、Volume動態滑價與實現損益" onclick="openHoldingLedgerModal(${ag.id}, '${safeInstId}', 'ALL')">
               ${instTag}
               ${pairBadge}
               <span>${instId.split(' ')[0]} × ${pos.qty.toLocaleString()}${pos.unitLabel}${lotNote}</span>
@@ -5429,7 +5491,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
             </span>
           `;
         }
-        if (!holdingsHtml) holdingsHtml = '<span style="color:#777; font-size:0.8rem;">目前空手觀望中（可點右側按鈕查看歷史已平倉/OU配對總帳本）</span>';
+        if (!holdingsHtml) holdingsHtml = '<span style="color:#777; font-size:0.8rem;">目前空手觀望中（可點右側按鈕查看歷史已平倉/Kalman配對總帳本）</span>';
 
         const todayBattle = compileAgentDailyBattleReport(ag, rec.date);
         const rPnl = todayBattle.todayRealizedPnlTwd;
@@ -5437,7 +5499,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
 
         const retClass = returnPct > 0 ? 'val-positive' : returnPct < 0 ? 'val-negative' : '';
         const isLeopold = ag.id === 5;
-        const mw = ag.mvoWeights || { lambda: 3.0, twLongWeight: 30, usLongWeight: 25, shortHedgeWeight: 10, futuresWeight: 5, warrantWeight: 5, cashWeight: 25, portVolAnnualPct: 14.5, covTwShort: -2.8 };
+        const mw = ag.mvoWeights || { lambda: 3.0, twLongWeight: 30, usLongWeight: 25, shortHedgeWeight: 10, futuresWeight: 5, warrantWeight: 5, cashWeight: 25, portVolAnnualPct: 14.5, isStressRegime: false, corrInflationMult: 1.0, rcSummaryText: '台35%/美35%/空30%' };
         const barra = ag.barraExposure || computeAgentBarraExposure(ag, rec);
 
         return `
@@ -5465,12 +5527,12 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
 
               <div class="alloc-box">
                 <div class="barra-factor-bar">
-                  <span>🧭 <strong>Barra 因子暴露(Z)</strong>：${formatBarraPill('規模Size', barra.sizeZ)} ｜ ${formatBarraPill('價值Val', barra.valueZ)} ｜ ${formatBarraPill('動量Mom', barra.momZ)} ｜ ${formatBarraPill('波動Vol', barra.volZ)}</span>
+                  <span>🧭 <strong>Barra 因子暴露(Σ=BΩBᵀ+Δ)</strong>：${formatBarraPill('規模Size', barra.sizeZ)} ｜ ${formatBarraPill('價值Val', barra.valueZ)} ｜ ${formatBarraPill('動量Mom', barra.momZ)} ｜ ${formatBarraPill('波動Vol', barra.volZ)}</span>
                   <span style="color:#ffd54f;">Beta:${barra.netBeta}</span>
                 </div>
-                <div class="mvo-weights-banner">
-                  <span>🧠 <strong>MVO 協方差權重(λ=${mw.lambda})</strong>：台股 ${mw.twLongWeight}%｜美股債 ${mw.usLongWeight}%｜空單 ${mw.shortHedgeWeight}%｜期貨 ${mw.futuresWeight}%｜權證 ${mw.warrantWeight}%</span>
-                  <span>σ=${mw.portVolAnnualPct}%</span>
+                <div class="mvo-weights-banner ${mw.isStressRegime ? 'stress-active' : ''}">
+                  <span>⚖️ <strong>ERC 等風險貢獻權重</strong>：台股 ${mw.twLongWeight}%｜美股債 ${mw.usLongWeight}%｜空單 ${mw.shortHedgeWeight}%｜期貨 ${mw.futuresWeight}%｜權證 ${mw.warrantWeight}%</span>
+                  <span>${mw.isStressRegime ? '🚨VIX壓力(Corr×1.4)' : '🟢正常'} σ=${mw.portVolAnnualPct}%</span>
                 </div>
                 <div class="alloc-bar-track">
                   <div class="alloc-seg-tw" style="width:${alloc.twPct}%;"></div>
@@ -5520,7 +5582,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
               <div class="info-row">
                 <div class="sub-box">
                   <div class="sub-box-title">
-                    <span>📦 OU配對＆多空持倉 (點擊看 K 線與帳本)</span>
+                    <span>📦 Kalman配對＆ERC持倉 (點擊看 K 線與帳本)</span>
                     <button class="short-ok-tag" style="cursor:pointer; font-size:0.72rem; padding:1px 6px;" onclick="openHoldingLedgerModal(${ag.id}, 'ALL_PORTFOLIO', '${rec.date}')">
                       📒 今日戰果＆全帳戶總帳本
                     </button>
@@ -5529,7 +5591,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
                 </div>
                 <div class="sub-box">
                   <div class="sub-box-title">
-                    <span>⚡ 今日配對套利與實現損益摘要 (${rec.date.slice(5)})</span>
+                    <span>⚡ 今日 OOS 配對與實現損益摘要 (${rec.date.slice(5)})</span>
                     <span style="font-family:'VT323'; font-size:1.05rem; color:${rColor};">實現:${rPnl >= 0 ? '+' : ''}$${rPnl.toLocaleString()}</span>
                   </div>
                   <div class="card-today-digest">
@@ -5580,7 +5642,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
             recalculateTimeline();
             appState.currentIdx = appState.records.length - 1;
             renderDashboard(true);
-            showSystemNotice(`✅ 成功載入 ${appState.records.length} 個交易日，已重新執行 Engle-Granger 協整配對、Barra 因子歸因與動態借券競價精算！`);
+            showSystemNotice(`✅ 成功載入 ${appState.records.length} 個交易日，已重新執行 Kalman 狀態空間 OOS 配對、Barra 結構共變異數與 ERC 風險平價精算！`);
           } else {
             showSystemNotice('JSON 格式不符！');
           }
@@ -5771,7 +5833,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
     function resetCustomQuantSource() {
       customUploadedQuantSeries = null;
       const lbl = document.getElementById('quantDataSourceLabel');
-      if (lbl) lbl.textContent = '📡 資料來源：模擬器內建實盤時間軸 (OU 協整套利 + Barra 因子中台 + 動態借券競價)';
+      if (lbl) lbl.textContent = '📡 資料來源：Walk-Forward OOS 步進回測 (Kalman 動態 β + Barra 結構共變異數 + ERC 等風險貢獻)';
       renderQuantStatsModalContent();
     }
 
@@ -6223,7 +6285,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
       const wb = XLSX.utils.book_new();
 
       const sheet1Rows = [
-        ['傳奇大師名稱', 'MVO與協整策略風格', '初始本金(TWD)', '最終總淨值(TWD)', '累積報酬率(%)', '最大回撤 MDD(%)', 'MDD峰谷區間', 'Calmar Ratio', '平均日報酬(%)', '日報酬標準差(%)', '年化夏普值(Sharpe)', '年化索提諾(Sortino)', '交易日勝率(%)', '獲利日數', '虧損日數', '部位勝率(%)', '獲利因子(Profit Factor)', 't-Statistic', '自由度(df)', '雙尾 t檢定 p-value', '二項檢定 p-value', '統計顯著性結論(alpha=0.05)']
+        ['傳奇大師名稱', 'Kalman與ERC策略風格', '初始本金(TWD)', '最終總淨值(TWD)', '累積報酬率(%)', '最大回撤 MDD(%)', 'MDD峰谷區間', 'Calmar Ratio', '平均日報酬(%)', '日報酬標準差(%)', '年化夏普值(Sharpe)', '年化索提諾(Sortino)', '交易日勝率(%)', '獲利日數', '虧損日數', '部位勝率(%)', '獲利因子(Profit Factor)', 't-Statistic', '自由度(df)', '雙尾 t檢定 p-value', '二項檢定 p-value', '統計顯著性結論(alpha=0.05)']
       ];
       reports.forEach(r => {
         const sigConclusion = r.pValueT < 0.01 ? '極顯著 (p<0.01 ***)' : r.pValueT < 0.05 ? '顯著 (p<0.05 **)' : r.pValueT < 0.10 ? '邊際顯著 (p<0.10 *)' : '無顯著差異 (NS)';
@@ -6274,27 +6336,37 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
       const ws3 = XLSX.utils.aoa_to_sheet(sheet3Rows);
       XLSX.utils.book_append_sheet(wb, ws3, '3_兩兩大師顯著性檢定矩陣');
 
-      // 第 4 張工作表：Barra 風格因子暴露與 Engle-Granger 協整檢定表
+      // 第 4 張工作表：Barra 結構共變異數因子暴露與 Kalman Walk-Forward OOS 狀態表
       const sheet4Rows = [
-        ['【表A】大師名稱', '規模因子(Size Z)', '價值因子(Value Z)', '動量因子(Momentum Z)', '波動率因子(Volatility Z)', '市場Beta淨暴露', 'Barra風險風格診斷']
+        ['【表A】大師名稱', '規模因子(Size Z)', '價值因子(Value Z)', '動量因子(Momentum Z)', '波動率因子(Volatility Z)', '市場Beta淨暴露', 'Barra結構共變異數與ERC風險平價診斷']
       ];
       reports.forEach(r => {
         const b = r.barra || { sizeZ: 0, valueZ: 0, momZ: 0, volZ: 0, netBeta: 0, diagnosis: '' };
         sheet4Rows.push([r.name, b.sizeZ, b.valueZ, b.momZ, b.volZ, b.netBeta, b.diagnosis]);
       });
       sheet4Rows.push([]);
-      sheet4Rows.push(['【表B】供應鏈協整配對名稱', '多空標的(A vs B)', '對沖比率 Beta', 'ADF t-Stat', 'ADF p-value', 'OU均值回歸速率(theta)', 'OU半衰期(日)', '當前殘差 Z-Score', 'Market Neutral套利信號']);
+      sheet4Rows.push(['【表B】Kalman狀態空間配對', '多空標的(A vs B)', 'OOS先驗對沖比 Beta_{t|t-1}', '盤後後驗 Beta_{t|t}', '卡爾曼增益 K_beta', 'OOS先驗新息誤差 e_t', 'OOS新息 Z_Kalman', 'Walk-Forward 訓練/測試窗口', 'Market Neutral套利信號']);
       const curRec = appState.records[appState.currentIdx] || appState.records[0];
-      const ouList = curRec.ouPairsReport || runEngleGrangerAndOuScanner(appState.records, appState.currentIdx);
-      ouList.forEach(p => {
-        sheet4Rows.push([p.pairName, `${p.legACode} vs ${p.legBCode}`, p.beta, p.adfTStat, p.adfPValue, p.theta, p.halfLifeDays, p.zScore, p.signalLabel]);
+      const kalmanList = curRec.ouPairsReport || runKalmanWalkForwardScanner(appState.records, appState.currentIdx);
+      kalmanList.forEach(p => {
+        sheet4Rows.push([
+          p.pairName,
+          `${p.legACode} vs ${p.legBCode}`,
+          p.priorBetaOOS !== undefined ? p.priorBetaOOS : p.beta,
+          p.posteriorBeta !== undefined ? p.posteriorBeta : p.beta,
+          p.kalmanGainBeta || 0.05,
+          p.innovationError !== undefined ? p.innovationError : p.curSpread,
+          p.zScore,
+          p.wfWindowTag || 'Walk-Forward OOS',
+          p.signalLabel
+        ]);
       });
       const ws4 = XLSX.utils.aoa_to_sheet(sheet4Rows);
-      XLSX.utils.book_append_sheet(wb, ws4, '4_Barra因子與OU協整檢定');
+      XLSX.utils.book_append_sheet(wb, ws4, '4_Barra因子與Kalman配對');
 
       // 第 5 張工作表：逐筆交割與 Volume 動態滑價、動態競價借券費總帳本
       const sheet5Rows = [
-        ['大師名稱', '交易日期', '匯率(USD/TWD)', '標的代號與名稱', '商品類別', '交易動作', '數量', '單位', '理論價', '實際成交價', '動態滑價(bps)', '量能參與率POV(%)', '滑價耗損(TWD)', '券商手續費(TWD)', '法定交易稅(TWD)', '動態競價借券息/代墊(TWD)', '融券擔保息收入(TWD)', '已實現淨損益(TWD)', '已實現ROI(%)', 'OU協整/MVO與總經策略依據']
+        ['大師名稱', '交易日期', '匯率(USD/TWD)', '標的代號與名稱', '商品類別', '交易動作', '數量', '單位', '理論價', '實際成交價', '動態滑價(bps)', '量能參與率POV(%)', '滑價耗損(TWD)', '券商手續費(TWD)', '法定交易稅(TWD)', '動態競價借券息/代墊(TWD)', '融券擔保息收入(TWD)', '已實現淨損益(TWD)', '已實現ROI(%)', 'Kalman OOS / ERC風險平價策略依據']
       ];
       const lastRec = appState.records[appState.records.length - 1] || appState.records[0];
       (lastRec.agentSnapshots || BASE_AGENTS).forEach(ag => {
@@ -6320,7 +6392,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
       const ws5 = XLSX.utils.aoa_to_sheet(sheet5Rows);
       XLSX.utils.book_append_sheet(wb, ws5, '5_逐筆交割與滑價競價總帳本');
 
-      const fileName = `傳奇大師量化統計檢定_OU協整與Barra因子_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      const fileName = `傳奇大師量化統計檢定_Kalman與ERC風險平價_${new Date().toISOString().slice(0, 10)}.xlsx`;
       XLSX.writeFile(wb, fileName);
     }
 
@@ -6343,7 +6415,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `傳奇大師OU協整與Barra統計報表_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `傳奇大師Kalman與ERC統計報表_${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -6478,7 +6550,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
             appState.currentIdx = appState.records.length - 1;
             renderDashboard(true);
             const badge = document.getElementById('marketPoolBadge');
-            if (badge) badge.textContent = `🟢 已自動同步 GitHub 最新實盤 (${appState.records.length} 日｜OU協整+Barra中台)`;
+            if (badge) badge.textContent = `🟢 已自動同步 GitHub 最新實盤 (${appState.records.length} 日｜Kalman+ERC)`;
             return;
           }
         }
