@@ -155,6 +155,18 @@ def safe_float(val, default=0.0):
     except ValueError:
         return default
 
+def is_within_six_days_before_ex_div(cur_date_str, ex_div_date_str):
+    """判斷是否處於台股除息前 6 個營業日（約日曆日 1~7 天）之融券強制回補/停券期間"""
+    if not cur_date_str or not ex_div_date_str:
+        return False
+    try:
+        cur_dt = datetime.datetime.strptime(cur_date_str, "%Y-%m-%d").date()
+        ex_dt = datetime.datetime.strptime(ex_div_date_str, "%Y-%m-%d").date()
+        diff_days = (ex_dt - cur_dt).days
+        return 0 < diff_days <= 7
+    except Exception:
+        return False
+
 def fetch_twse_official_taiex(headers):
     """直接從台灣證交所官方 API 抓取當日『發行量加權股價指數』真實點數與漲跌幅"""
     try:
@@ -269,7 +281,7 @@ def fetch_all_yahoo_series(headers):
     return fx_bars, twii_bars, dji_bars, us_series_map
 
 def build_macro_futures_for_specific_date(target_date_str, twii_bars, dji_bars, official_taiex=None, stocks_pool=None):
-    """根據指定日期組裝真實『TX 臺股大台指期貨』、『TMF 微型臺指期貨』與『UDF 美國道瓊30期貨』報價"""
+    """根據指定日期組裝符合 TAIFEX 官方契約規格之『TX 大台($200/點)』、『MTX 小台($50/點)』、『TMF 微台($10/點)』與『UDF 道瓊($20/點)』報價"""
     tw_bar = get_bar_for_date(twii_bars, target_date_str)
     dj_bar = get_bar_for_date(dji_bars, target_date_str)
 
@@ -289,14 +301,14 @@ def build_macro_futures_for_specific_date(target_date_str, twii_bars, dji_bars, 
         etf0050 = next((s for s in (stocks_pool or []) if s.get("code") == "0050"), None)
         etf685L = next((s for s in (stocks_pool or []) if s.get("code") == "00685L"), None)
         if etf0050 and etf0050["price"] > 0:
-            mult = 365.0 if etf0050["price"] < 140 else 122.0
+            mult = 118.5 if etf0050["price"] >= 140 else 365.0
             tx_c = round(etf0050["price"] * mult)
             tx_o = round(etf0050.get("open", etf0050["price"]) * mult)
             tx_h = round(etf0050.get("high", etf0050["price"]) * mult)
             tx_l = round(etf0050.get("low", etf0050["price"]) * mult)
             tx_chg = round(etf685L["changePct"] / 2, 2) if etf685L else etf0050["changePct"]
         else:
-            tx_o, tx_h, tx_l, tx_c, tx_chg = 36800, 37050, 36600, 36850, 0.0
+            tx_o, tx_h, tx_l, tx_c, tx_chg = 23500, 23750, 23350, 23600, 0.0
 
     if dj_bar and dj_bar["price"] > 15000:
         ud_o = round(dj_bar["open"])
@@ -318,10 +330,26 @@ def build_macro_futures_for_specific_date(target_date_str, twii_bars, dji_bars, 
             "low": tx_l,
             "price": tx_c,
             "changePct": tx_chg,
-            "sharesPerContract": 10,
-            "marginRate": 0.16,
-            "marginReq": 292000,
-            "maintMargin": 224000,
+            "sharesPerContract": 200,
+            "marginRate": 0.051,
+            "marginReq": 242000,
+            "maintMargin": 185000,
+            "settlementDate": "2026-11-18"
+        },
+        {
+            "id": "MTX 小型臺指期貨",
+            "futCode": "MTX",
+            "futName": "小型臺指期貨",
+            "underlyingId": "臺灣加權指數",
+            "open": tx_o,
+            "high": tx_h,
+            "low": tx_l,
+            "price": tx_c,
+            "changePct": tx_chg,
+            "sharesPerContract": 50,
+            "marginRate": 0.051,
+            "marginReq": 60500,
+            "maintMargin": 46250,
             "settlementDate": "2026-11-18"
         },
         {
@@ -334,10 +362,10 @@ def build_macro_futures_for_specific_date(target_date_str, twii_bars, dji_bars, 
             "low": tx_l,
             "price": tx_c,
             "changePct": tx_chg,
-            "sharesPerContract": 2,
-            "marginRate": 0.16,
-            "marginReq": 14600,
-            "maintMargin": 11200,
+            "sharesPerContract": 10,
+            "marginRate": 0.051,
+            "marginReq": 12100,
+            "maintMargin": 9250,
             "settlementDate": "2026-11-18"
         },
         {
@@ -350,10 +378,10 @@ def build_macro_futures_for_specific_date(target_date_str, twii_bars, dji_bars, 
             "low": ud_l,
             "price": ud_c,
             "changePct": ud_chg,
-            "sharesPerContract": 10,
-            "marginRate": 0.16,
-            "marginReq": 150000,
-            "maintMargin": 112500,
+            "sharesPerContract": 20,
+            "marginRate": 0.051,
+            "marginReq": 45000,
+            "maintMargin": 35000,
             "settlementDate": "2026-11-18"
         }
     ]
@@ -368,6 +396,16 @@ def build_us_assets_for_specific_date(target_date_str, fx_bars, us_series_map):
         bars = us_series_map.get(sym)
         q = get_bar_for_date(bars, target_date_str)
         if q and q["price"] > 0:
+            is_etb = sym not in ["GME", "AMC"]
+            if not is_etb:
+                borrow_fee = 28.50
+            elif sym in ["TSLA", "MSTR", "COIN", "RDDT", "SMCI", "RIVN"]:
+                borrow_fee = 2.20
+            elif item.get("sector") == "AI_SEMI":
+                borrow_fee = 0.55
+            else:
+                borrow_fee = 0.30
+
             us_assets.append({
                 "id": f"{sym} {item['name']}",
                 "code": sym,
@@ -382,7 +420,9 @@ def build_us_assets_for_specific_date(target_date_str, fx_bars, us_series_map):
                 "changePct": q["changePct"],
                 "yield": item["yield"],
                 "exDividendDate": q["exDividendDate"],
-                "cashDividend": q["cashDividend"] if q["cashDividend"] > 0 else item["cashDividend"]
+                "cashDividend": q["cashDividend"] if q["cashDividend"] > 0 else item["cashDividend"],
+                "isETB": is_etb,
+                "borrowFeeRate": borrow_fee
             })
     return fx_rate, us_assets
 
@@ -454,12 +494,18 @@ def fetch_fallback_mi_index(headers):
         print(f"⚠️ 主站備援抓取失敗: {e}")
         return [], ""
 
-def fetch_macro_environment(headers):
+def fetch_macro_environment(headers, target_date_str=None, tnx_bars=None, vix_bars=None):
     print("6. 正在抓取全球總經指標 (10Y美債殖利率、VIX恐慌指數) 與總經新聞...")
-    tnx_bars = fetch_yahoo_history_series("^TNX", headers)
-    vix_bars = fetch_yahoo_history_series("^VIX", headers)
-    us10y = tnx_bars[-1]["price"] if tnx_bars else 4.25
-    vix = vix_bars[-1]["price"] if vix_bars else 16.5
+    if tnx_bars is None:
+        tnx_bars = fetch_yahoo_history_series("^TNX", headers)
+    if vix_bars is None:
+        vix_bars = fetch_yahoo_history_series("^VIX", headers)
+
+    tnx_q = get_bar_for_date(tnx_bars, target_date_str) if target_date_str else (tnx_bars[-1] if tnx_bars else None)
+    vix_q = get_bar_for_date(vix_bars, target_date_str) if target_date_str else (vix_bars[-1] if vix_bars else None)
+
+    us10y = tnx_q["price"] if tnx_q else 4.25
+    vix = vix_q["price"] if vix_q else 16.5
 
     macro_queries = ["聯準會 利率 CPI 非農", "台積電 法說會 景氣 央行"]
     macro_news = []
@@ -549,6 +595,8 @@ def fetch_all_tw_stocks_warrants_dividends():
             price_data = fallback_data
             actual_data_date = fallback_date
 
+    record_date_str = actual_data_date if actual_data_date else today_str
+
     print("2. 正在抓取全台股個股本益比與殖利率 (BWIBBU_ALL)...")
     val_url = f"https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL?_={ts}"
     val_res = requests.get(val_url, headers=headers, timeout=15)
@@ -631,6 +679,11 @@ def fetch_all_tw_stocks_warrants_dividends():
         else:
             fair_value = round(close_p / (1 + (change_pct / 100) * 0.5), 2)
 
+        in_halt_window = is_within_six_days_before_ex_div(record_date_str, ex_div_date)
+        allow_margin_short = not in_halt_window
+        halt_reason = f"{ex_div_date[5:]}除息前6日停券" if in_halt_window else ""
+        sbl_fee_rate = 5.5 if pe > 32 else (3.8 if close_p > 300 else 1.8)
+
         all_stocks.append({
             "id": f"{code} {name}",
             "code": code,
@@ -648,6 +701,10 @@ def fetch_all_tw_stocks_warrants_dividends():
             "cashDividend": cash_div,
             "fairValue": fair_value,
             "sentiment": round(max(-1.0, min(1.0, change_pct / 5.0)), 2),
+            "allowMarginShort": allow_margin_short,
+            "allowSBL": True,
+            "sblFeeRate": sbl_fee_rate,
+            "haltReason": halt_reason,
             "news": []
         })
 
@@ -657,7 +714,6 @@ def fetch_all_tw_stocks_warrants_dividends():
         reverse=True
     )[:35]
 
-    record_date_str = actual_data_date if actual_data_date else today_str
     try:
         record_dt = datetime.datetime.strptime(record_date_str, "%Y-%m-%d")
     except ValueError:
@@ -697,7 +753,9 @@ def fetch_all_tw_stocks_warrants_dividends():
                 "score": 1 if stock["changePct"] > 0.5 else -1 if stock["changePct"] < -0.5 else 0
             }]
 
-    macro_info = fetch_macro_environment(headers)
+    tnx_bars = fetch_yahoo_history_series("^TNX", headers)
+    vix_bars = fetch_yahoo_history_series("^VIX", headers)
+    macro_info = fetch_macro_environment(headers, record_date_str, tnx_bars, vix_bars)
 
     today_record = {
         "date": record_date_str,
@@ -735,6 +793,8 @@ def fetch_all_tw_stocks_warrants_dividends():
                 official_taiex if r_date == record_date_str else None,
                 rec_stocks
             )
+            if not rec.get("macro"):
+                rec["macro"] = fetch_macro_environment(headers, r_date, tnx_bars, vix_bars)
             if rec.get("allStocks") and rec.get("sectors"):
                 sec_codes = {s.get("code") for s in rec["sectors"]}
                 for st in rec["allStocks"]:
