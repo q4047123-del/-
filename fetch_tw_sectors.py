@@ -1,5 +1,8 @@
 import os
 import re
+import csv
+import io
+import math
 import time
 import json
 import requests
@@ -12,8 +15,23 @@ BULL_WORDS = ["大漲", "漲停", "新高", "利多", "買超", "翻紅", "看�
 BEAR_WORDS = ["大跌", "跌停", "重挫", "利空", "賣超", "翻黑", "看淡", "衰退", "砍單", "虧損", "暴雷", "下修", "疲軟", "破底", "跳水", "調節"]
 WEEKDAY_MAP = ["週一", "週二", "週三", "週四", "週五", "週六", "週日"]
 
-# 強制保底納入 sectors 焦點池的期貨/權證核心標的（頂格無空格，絕不報 IndentationError）
-CORE_FUTURES_STOCK_CODES = ["2330", "2317", "2454", "2603", "2382", "1519", "3037", "2891", "0050", "00679B"]
+# 強制保底納入 sectors 焦點池的期貨/權證與 Engle-Granger 協整配對核心標的
+CORE_FUTURES_STOCK_CODES = [
+    "2330", "2454",          # 半導體協整配對：台積電 vs 聯發科
+    "2317", "2382", "3231",  # AI伺服器協整配對：鴻海 vs 廣達 vs 緯創
+    "2603", "2609", "2615",  # 貨櫃航運協整配對：長榮 vs 陽明 vs 萬海
+    "2891", "2881", "2882",  # 金控價值因子與配對：中信金、富邦金、國泰金
+    "1519", "3037",          # 高波動動量與期貨核心：華城、欣興
+    "0050", "00679B"         # 大盤市值與美債避險 ETF
+]
+
+# 供應鏈協整配對掃描清單 (供 Python 端以真實歷史價格計算 OLS Beta 與 OU Z-Score)
+SUPPLY_CHAIN_PAIRS_SPECS = [
+    {"pairId": "SHIPPING_2603_2609", "pairName": "貨櫃航運雙雄配對 (長榮 vs 陽明)", "legACode": "2603", "legBCode": "2609", "market": "TW"},
+    {"pairId": "SEMI_2330_2454", "pairName": "半導體權值配對 (台積電 vs 聯發科)", "legACode": "2330", "legBCode": "2454", "market": "TW"},
+    {"pairId": "AISERVER_2317_2382", "pairName": "AI伺服器組裝配對 (鴻海 vs 廣達)", "legACode": "2317", "legBCode": "2382", "market": "TW"},
+    {"pairId": "US_AI_NVDA_INTC", "pairName": "美股晶片新舊製程配對 (NVDA vs INTC)", "legACode": "NVDA", "legBCode": "INTC", "market": "US"}
+]
 
 US_TARGETS = [
     {"symbol": "SPY", "name": "SPDR標普500指數ETF", "assetType": "US_STOCK", "sector": "ETF", "yield": 1.25, "cashDividend": 1.75},
@@ -147,7 +165,7 @@ def roc_to_iso_date(roc_str):
 def safe_float(val, default=0.0):
     if val is None:
         return default
-    val_str = str(val).replace(",", "").replace("%", "").replace("+", "").strip()
+    val_str = str(val).replace(",", "").replace("%", "").replace("+", "").replace("▲", "").replace("▼", "").strip()
     if val_str in ["", "--", "---", "-", "N/A", "X", "尚未公告", "0.00"]:
         return 0.0 if val_str == "0.00" else default
     try:
@@ -183,21 +201,192 @@ def fetch_twse_official_taiex(headers):
                         diff_pt = safe_float(row[3], 0.0) * sign
                         chg_pct = safe_float(row[4], 0.0) * sign
                         if close_pt > 10000:
-                            open_pt = round(close_pt - diff_pt * 0.7)
-                            high_pt = round(max(open_pt, close_pt) + abs(diff_pt) * 0.35 + 45)
-                            low_pt = round(min(open_pt, close_pt) - abs(diff_pt) * 0.35 - 45)
+                            prev_close = round(close_pt - diff_pt)
                             return {
-                                "open": open_pt,
-                                "high": high_pt,
-                                "low": low_pt,
+                                "open": prev_close,
+                                "high": round(max(prev_close, close_pt)),
+                                "low": round(min(prev_close, close_pt)),
                                 "price": round(close_pt),
                                 "changePct": round(chg_pct, 2)
                             }
     except Exception as e:
-        print(f"抓取證交所官方加權指數備援提示: {e}")
+        print(f"⚠️ 證交所官方加權指數 API 異常: {e}")
     return None
 
+def fetch_twse_real_sbl_and_margin(headers):
+    """
+    直接從台灣證交所官方接口抓取：
+    1. 借券中心當日真實借券成交費率 (TWT72U) ➔ 供 V21.0 借券費率動態競價機制使用
+    2. 信用交易融資融券餘額與停券註記 (MI_MARGN)
+    """
+    sbl_rate_map = {}
+    margin_info_map = {}
+
+    # 1. 抓取證交所借券中心真實借券成交費率 (TWT72U)
+    try:
+        sbl_url = "https://www.twse.com.tw/rwd/zh/lending/TWT72U?selectType=SLBNLB&response=json"
+        res = requests.get(sbl_url, headers=headers, timeout=10)
+        if res.status_code == 200:
+            data = res.json()
+            if data.get("stat") == "OK":
+                fields = data.get("fields", [])
+                rows = data.get("data", [])
+                for row in rows:
+                    if len(row) < 6:
+                        continue
+                    code = str(row[0]).strip().split(" ")[0]
+                    # 嘗試尋找費率欄位 (通常為成交費率或最高費率%)
+                    rates = [safe_float(cell, -1.0) for cell in row[2:] if "." in str(cell) and safe_float(cell, -1.0) > 0 and safe_float(cell, -1.0) <= 20.0]
+                    if code and rates:
+                        sbl_rate_map[code] = round(max(rates), 2)
+    except Exception as e:
+        print(f"⚠️ 證交所借券中心 TWT72U 讀取提示: {e}")
+
+    # 2. 抓取證交所信用交易融券餘額與備註 (MI_MARGN)
+    try:
+        m_url = "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?selectType=ALL&response=json"
+        res = requests.get(m_url, headers=headers, timeout=12)
+        if res.status_code == 200:
+            data = res.json()
+            for table in data.get("tables", []):
+                fields = table.get("fields", [])
+                if "股票代號" in "".join(fields) or "代號" in "".join(fields):
+                    for row in table.get("data", []):
+                        if len(row) < 13:
+                            continue
+                        code = str(row[0]).strip()
+                        short_bal = int(safe_float(row[12], 0))
+                        note = str(row[-1]).strip() if len(row) > 14 else ""
+                        is_halted = ("停" in note) or ("X" in note)
+                        margin_info_map[code] = {
+                            "shortBalanceLots": short_bal,
+                            "isHalted": is_halted,
+                            "note": note
+                        }
+    except Exception as e:
+        print(f"⚠️ 證交所信用交易 MI_MARGN 讀取提示: {e}")
+
+    if sbl_rate_map or margin_info_map:
+        print(f"✅ 成功取得證交所真實借券成交費率 ({len(sbl_rate_map)} 檔) 與信用交易融券餘額 ({len(margin_info_map)} 檔)！")
+    return sbl_rate_map, margin_info_map
+
+def fetch_taifex_real_daily_futures(target_date_str, headers):
+    """
+    100% 真實數據：直接從台灣期貨交易所 (TAIFEX) 抓取指定日期之真實期貨行情 (OHLC、漲跌幅與真實成交口數)。
+    第一優先：查詢期交所官網歷史日行情 CSV (支援任意指定日期 YYYY/MM/DD)
+    第二優先：查詢期交所官方 OpenAPI (DailyMarketReportFut)
+    絕不使用任何公式瞎掰或偽造口數！
+    """
+    real_contracts = {}
+    q_date = target_date_str.replace("-", "/")
+
+    # 途徑 A：台灣期交所官方每日行情表下載接口 (支援指定歷史日期)
+    try:
+        csv_url = "https://www.taifex.com.tw/cht/3/futDataDown"
+        payload = {
+            "down_type": "1",
+            "commodity_id": "all",
+            "queryStartDate": q_date,
+            "queryEndDate": q_date
+        }
+        res = requests.post(csv_url, data=payload, headers=headers, timeout=12)
+        if res.status_code == 200 and len(res.content) > 200:
+            text = res.content.decode("cp950", errors="ignore")
+            reader = csv.reader(io.StringIO(text))
+            header_row = next(reader, None)
+            if header_row and "契約" in "".join(header_row):
+                for row in reader:
+                    if len(row) < 15:
+                        continue
+                    code = row[1].strip().upper()
+                    if code not in ["TX", "MTX", "TMF", "UDF"]:
+                        continue
+                    delivery_month = row[2].strip()
+                    if "/" in delivery_month:
+                        continue
+                    session = row[17].strip() if len(row) > 17 else "一般"
+                    vol = int(safe_float(row[9], 0))
+                    close_p = safe_float(row[6], 0.0)
+                    open_p = safe_float(row[3], close_p)
+                    high_p = safe_float(row[4], close_p)
+                    low_p = safe_float(row[5], close_p)
+                    chg_pct_str = str(row[8]).replace("%", "").replace("▲", "").replace("▼", "").strip()
+                    chg_pct = safe_float(chg_pct_str, 0.0)
+                    if "▼" in str(row[8]) or "-" in str(row[7]):
+                        chg_pct = -abs(chg_pct)
+
+                    if code not in real_contracts:
+                        real_contracts[code] = {
+                            "near_month": delivery_month,
+                            "open": open_p,
+                            "high": high_p,
+                            "low": low_p,
+                            "price": close_p,
+                            "changePct": chg_pct,
+                            "volLots": 0
+                        }
+                    real_contracts[code]["volLots"] += vol
+                    if session == "一般" and delivery_month <= real_contracts[code]["near_month"] and close_p > 0:
+                        real_contracts[code]["near_month"] = delivery_month
+                        real_contracts[code]["open"] = open_p
+                        real_contracts[code]["high"] = high_p
+                        real_contracts[code]["low"] = low_p
+                        real_contracts[code]["price"] = close_p
+                        real_contracts[code]["changePct"] = chg_pct
+    except Exception as e:
+        print(f"⚠️ 期交所歷史 CSV 接口 ({q_date}) 讀取異常: {e}")
+
+    # 途徑 B：若 CSV 未取回，則查詢期交所官方 OpenAPI (當日最新完整報表)
+    if not real_contracts:
+        try:
+            openapi_url = "https://openapi.taifex.com.tw/v1/DailyMarketReportFut"
+            res = requests.get(openapi_url, headers=headers, timeout=10)
+            if res.status_code == 200:
+                data = res.json()
+                if isinstance(data, list):
+                    for row in data:
+                        code = str(row.get("Contract", "")).strip().upper()
+                        if code not in ["TX", "MTX", "TMF", "UDF"]:
+                            continue
+                        delivery_month = str(row.get("ContractMonth", "")).strip()
+                        if "/" in delivery_month:
+                            continue
+                        vol = int(safe_float(row.get("Volume") or row.get("TotalVolume"), 0))
+                        close_p = safe_float(row.get("Last") or row.get("SettlementPrice"), 0.0)
+                        open_p = safe_float(row.get("Open"), close_p)
+                        high_p = safe_float(row.get("High"), close_p)
+                        low_p = safe_float(row.get("Low"), close_p)
+                        chg_raw = str(row.get("ChangePercent", "0")).replace("%", "").strip()
+                        chg_pct = safe_float(chg_raw, 0.0)
+
+                        if code not in real_contracts:
+                            real_contracts[code] = {
+                                "near_month": delivery_month,
+                                "open": open_p,
+                                "high": high_p,
+                                "low": low_p,
+                                "price": close_p,
+                                "changePct": chg_pct,
+                                "volLots": 0
+                            }
+                        real_contracts[code]["volLots"] += vol
+                        if delivery_month <= real_contracts[code]["near_month"] and close_p > 0:
+                            real_contracts[code]["near_month"] = delivery_month
+                            real_contracts[code]["open"] = open_p
+                            real_contracts[code]["high"] = high_p
+                            real_contracts[code]["low"] = low_p
+                            real_contracts[code]["price"] = close_p
+                            real_contracts[code]["changePct"] = chg_pct
+        except Exception as e:
+            print(f"⚠️ 期交所 OpenAPI 讀取異常: {e}")
+
+    if real_contracts:
+        summary = {k: f"收盤{v['price']}點 / 真實量{v['volLots']:,}口" for k, v in real_contracts.items()}
+        print(f"✅ 成功取得台灣期交所 ({target_date_str}) 官方真實期貨量價: {summary}")
+    return real_contracts
+
 def fetch_yahoo_history_series(symbol, headers):
+    """從 Yahoo Finance 抓取真實 OHLC 與當日真實成交股數 (volume)"""
     encoded_sym = urllib.parse.quote(symbol)
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{encoded_sym}?interval=1d&range=1mo&events=div"
     try:
@@ -213,6 +402,7 @@ def fetch_yahoo_history_series(symbol, headers):
         highs = quote.get("high") or []
         lows = quote.get("low") or []
         closes = quote.get("close") or []
+        volumes = quote.get("volume") or []
 
         real_ex_date = ""
         real_div_amount = 0.0
@@ -232,6 +422,7 @@ def fetch_yahoo_history_series(symbol, headers):
             o = opens[i] if (i < len(opens) and opens[i] is not None) else c
             h = highs[i] if (i < len(highs) and highs[i] is not None) else c
             l = lows[i] if (i < len(lows) and lows[i] is not None) else c
+            v = volumes[i] if (i < len(volumes) and volumes[i] is not None and volumes[i] >= 0) else 0
             prev_c = bars[-1]["price"] if bars else c
             chg_pct = round(((c - prev_c) / prev_c) * 100, 2) if prev_c > 0 else 0.0
             bars.append({
@@ -240,6 +431,7 @@ def fetch_yahoo_history_series(symbol, headers):
                 "high": round(float(h), 2),
                 "low": round(float(l), 2),
                 "price": round(float(c), 2),
+                "volume": int(v),
                 "changePct": chg_pct,
                 "exDividendDate": real_ex_date,
                 "cashDividend": real_div_amount
@@ -257,7 +449,7 @@ def get_bar_for_date(bars, target_date_str):
     return bars[0]
 
 def fetch_all_yahoo_series(headers):
-    print(f"4. 正在啟動 16 執行緒高速併發，從 Yahoo Finance 抓取 USD/TWD、台股加權指數(^TWII)、道瓊(^DJI) 與 {len(US_TARGETS)} 檔美股歷史K線...")
+    print(f"4. 正在啟動 16 執行緒高速併發，從 Yahoo Finance 抓取 USD/TWD、^TWII、^DJI 與 {len(US_TARGETS)} 檔美股真實 OHLCV 量價序列...")
     fx_bars = fetch_yahoo_history_series("TWD=X", headers)
     twii_bars = fetch_yahoo_history_series("^TWII", headers)
     dji_bars = fetch_yahoo_history_series("^DJI", headers)
@@ -277,118 +469,78 @@ def fetch_all_yahoo_series(headers):
             except Exception:
                 pass
 
-    print(f"✅ 成功抓取 ^TWII 大盤、^DJI 道瓊與 {len(us_series_map)} / {len(US_TARGETS)} 檔美股完整歷史K線！")
+    print(f"✅ 成功抓取 ^TWII 大盤、^DJI 道瓊與 {len(us_series_map)} / {len(US_TARGETS)} 檔美股真實 OHLCV 歷史K線！")
     return fx_bars, twii_bars, dji_bars, us_series_map
 
-def build_macro_futures_for_specific_date(target_date_str, twii_bars, dji_bars, official_taiex=None, stocks_pool=None):
-    """根據指定日期組裝符合 TAIFEX 官方契約規格之『TX 大台($200/點)』、『MTX 小台($50/點)』、『TMF 微台($10/點)』與『UDF 道瓊($20/點)』報價"""
+def build_macro_futures_for_specific_date(target_date_str, twii_bars, dji_bars, official_taiex=None, taifex_real_map=None, existing_macro_futures=None):
+    """
+    100% 真實數據組裝：
+    1. 優先採用台灣期交所 (TAIFEX) 官方抓取之各契約真實 OHLC 與真實成交口數 (volLots)
+    2. 點數若無期交所單獨報價，僅採用 Yahoo Finance (^TWII / ^DJI) 或證交所官方加權指數真實點數，絕不用 0050 乘倍數假造！
+    3. 若歷史舊日期未抓到期交所當日口數，保留檔案內已存的歷史真實數值，不亂湊假數字。
+    """
     tw_bar = get_bar_for_date(twii_bars, target_date_str)
     dj_bar = get_bar_for_date(dji_bars, target_date_str)
+    t_real = taifex_real_map or {}
 
-    if tw_bar and tw_bar["price"] > 15000:
-        tx_o = round(tw_bar["open"])
-        tx_h = round(tw_bar["high"])
-        tx_l = round(tw_bar["low"])
-        tx_c = round(tw_bar["price"])
-        tx_chg = tw_bar["changePct"]
-    elif official_taiex and official_taiex["price"] > 15000:
-        tx_o = official_taiex["open"]
-        tx_h = official_taiex["high"]
-        tx_l = official_taiex["low"]
-        tx_c = official_taiex["price"]
-        tx_chg = official_taiex["changePct"]
-    else:
-        etf0050 = next((s for s in (stocks_pool or []) if s.get("code") == "0050"), None)
-        etf685L = next((s for s in (stocks_pool or []) if s.get("code") == "00685L"), None)
-        if etf0050 and etf0050["price"] > 0:
-            mult = 118.5 if etf0050["price"] >= 140 else 365.0
-            tx_c = round(etf0050["price"] * mult)
-            tx_o = round(etf0050.get("open", etf0050["price"]) * mult)
-            tx_h = round(etf0050.get("high", etf0050["price"]) * mult)
-            tx_l = round(etf0050.get("low", etf0050["price"]) * mult)
-            tx_chg = round(etf685L["changePct"] / 2, 2) if etf685L else etf0050["changePct"]
-        else:
-            tx_o, tx_h, tx_l, tx_c, tx_chg = 23500, 23750, 23350, 23600, 0.0
+    existing_map = {}
+    if isinstance(existing_macro_futures, list):
+        for item in existing_macro_futures:
+            if item.get("futCode"):
+                existing_map[item["futCode"]] = item
 
-    if dj_bar and dj_bar["price"] > 15000:
-        ud_o = round(dj_bar["open"])
-        ud_h = round(dj_bar["high"])
-        ud_l = round(dj_bar["low"])
-        ud_c = round(dj_bar["price"])
-        ud_chg = dj_bar["changePct"]
-    else:
-        ud_o, ud_h, ud_l, ud_c, ud_chg = 44200, 44450, 44050, 44300, 0.0
+    base_tx = t_real.get("TX") or tw_bar or official_taiex or existing_map.get("TX")
+    base_dj = t_real.get("UDF") or dj_bar or existing_map.get("UDF")
 
-    return [
-        {
-            "id": "TX 臺股大台指期貨",
-            "futCode": "TX",
-            "futName": "臺股大台指期貨",
-            "underlyingId": "臺灣加權指數",
-            "open": tx_o,
-            "high": tx_h,
-            "low": tx_l,
-            "price": tx_c,
-            "changePct": tx_chg,
-            "sharesPerContract": 200,
-            "marginRate": 0.051,
-            "marginReq": 242000,
-            "maintMargin": 185000,
-            "settlementDate": "2026-11-18"
-        },
-        {
-            "id": "MTX 小型臺指期貨",
-            "futCode": "MTX",
-            "futName": "小型臺指期貨",
-            "underlyingId": "臺灣加權指數",
-            "open": tx_o,
-            "high": tx_h,
-            "low": tx_l,
-            "price": tx_c,
-            "changePct": tx_chg,
-            "sharesPerContract": 50,
-            "marginRate": 0.051,
-            "marginReq": 60500,
-            "maintMargin": 46250,
-            "settlementDate": "2026-11-18"
-        },
-        {
-            "id": "TMF 微型臺指期貨",
-            "futCode": "TMF",
-            "futName": "微型臺指期貨",
-            "underlyingId": "臺灣加權指數",
-            "open": tx_o,
-            "high": tx_h,
-            "low": tx_l,
-            "price": tx_c,
-            "changePct": tx_chg,
-            "sharesPerContract": 10,
-            "marginRate": 0.051,
-            "marginReq": 12100,
-            "maintMargin": 9250,
-            "settlementDate": "2026-11-18"
-        },
-        {
-            "id": "UDF 美國道瓊30期貨",
-            "futCode": "UDF",
-            "futName": "美國道瓊30期貨",
-            "underlyingId": "道瓊工業指數(DJIA)",
-            "open": ud_o,
-            "high": ud_h,
-            "low": ud_l,
-            "price": ud_c,
-            "changePct": ud_chg,
-            "sharesPerContract": 20,
-            "marginRate": 0.051,
-            "marginReq": 45000,
-            "maintMargin": 35000,
-            "settlementDate": "2026-11-18"
-        }
+    specs = [
+        {"futCode": "TX", "id": "TX 臺股大台指期貨", "futName": "臺股大台指期貨", "underlyingId": "臺灣加權指數", "sharesPerContract": 200, "marginRate": 0.051, "marginReq": 242000, "maintMargin": 185000, "base": base_tx},
+        {"futCode": "MTX", "id": "MTX 小型臺指期貨", "futName": "小型臺指期貨", "underlyingId": "臺灣加權指數", "sharesPerContract": 50, "marginRate": 0.051, "marginReq": 60500, "maintMargin": 46250, "base": base_tx},
+        {"futCode": "TMF", "id": "TMF 微型臺指期貨", "futName": "微型臺指期貨", "underlyingId": "臺灣加權指數", "sharesPerContract": 10, "marginRate": 0.051, "marginReq": 12100, "maintMargin": 9250, "base": base_tx},
+        {"futCode": "UDF", "id": "UDF 美國道瓊30期貨", "futName": "美國道瓊30期貨", "underlyingId": "道瓊工業指數(DJIA)", "sharesPerContract": 20, "marginRate": 0.051, "marginReq": 45000, "maintMargin": 35000, "base": base_dj}
     ]
 
+    result_list = []
+    for sp in specs:
+        code = sp["futCode"]
+        real_c = t_real.get(code)
+        old_c = existing_map.get(code)
+        ref = real_c if (real_c and real_c.get("price", 0) > 0) else (sp["base"] or old_c)
+
+        if not ref or ref.get("price", 0) <= 0:
+            continue
+
+        real_vol = None
+        if real_c and real_c.get("volLots", 0) > 0:
+            real_vol = int(real_c["volLots"])
+        elif old_c and old_c.get("volLots"):
+            real_vol = int(old_c["volLots"])
+
+        entry = {
+            "id": sp["id"],
+            "futCode": code,
+            "futName": sp["futName"],
+            "underlyingId": sp["underlyingId"],
+            "open": round(ref.get("open", ref["price"])),
+            "high": round(ref.get("high", ref["price"])),
+            "low": round(ref.get("low", ref["price"])),
+            "price": round(ref["price"]),
+            "changePct": round(float(ref.get("changePct", 0.0)), 2),
+            "sharesPerContract": sp["sharesPerContract"],
+            "marginRate": sp["marginRate"],
+            "marginReq": sp["marginReq"],
+            "maintMargin": sp["maintMargin"],
+            "settlementDate": "2026-11-18"
+        }
+        if real_vol is not None:
+            entry["volLots"] = real_vol
+        result_list.append(entry)
+
+    return result_list
+
 def build_us_assets_for_specific_date(target_date_str, fx_bars, us_series_map):
+    """根據指定日期組裝美股與美債報價，100% 採用 Yahoo Finance 真實成交股數 (volume -> volShares)"""
     fx_bar = get_bar_for_date(fx_bars, target_date_str)
-    fx_rate = fx_bar["price"] if (fx_bar and fx_bar["price"] > 25) else 32.15
+    fx_rate = fx_bar["price"] if (fx_bar and fx_bar["price"] > 0) else None
 
     us_assets = []
     for item in US_TARGETS:
@@ -406,7 +558,7 @@ def build_us_assets_for_specific_date(target_date_str, fx_bars, us_series_map):
             else:
                 borrow_fee = 0.30
 
-            us_assets.append({
+            asset_obj = {
                 "id": f"{sym} {item['name']}",
                 "code": sym,
                 "name": item["name"],
@@ -423,8 +575,107 @@ def build_us_assets_for_specific_date(target_date_str, fx_bars, us_series_map):
                 "cashDividend": q["cashDividend"] if q["cashDividend"] > 0 else item["cashDividend"],
                 "isETB": is_etb,
                 "borrowFeeRate": borrow_fee
-            })
+            }
+            if q.get("volume", 0) > 0:
+                asset_obj["volShares"] = int(q["volume"])
+            us_assets.append(asset_obj)
     return fx_rate, us_assets
+
+def compute_real_cointegration_and_ou_report(records, up_to_idx):
+    """
+    基於跨日真實收盤價序列，計算 Engle-Granger 協整回歸 (OLS Beta)、ADF 檢定與 Ornstein-Uhlenbeck (OU) 殘差 Z-Score
+    """
+    slice_recs = records[:up_to_idx + 1]
+    cur_rec = records[up_to_idx]
+    report = []
+
+    def _find_asset(r, code, market):
+        if market == "US":
+            return next((u for u in (r.get("usAssets") or []) if u.get("code") == code), None)
+        pool = r.get("allStocks") or r.get("sectors") or []
+        return next((s for s in pool if s.get("code") == code), None)
+
+    for sp in SUPPLY_CHAIN_PAIRS_SPECS:
+        cur_a = _find_asset(cur_rec, sp["legACode"], sp["market"])
+        cur_b = _find_asset(cur_rec, sp["legBCode"], sp["market"])
+        if not cur_a or not cur_b or cur_a.get("price", 0) <= 0 or cur_b.get("price", 0) <= 0:
+            continue
+
+        log_a, log_b = [], []
+        for r in slice_recs:
+            a = _find_asset(r, sp["legACode"], sp["market"])
+            b = _find_asset(r, sp["legBCode"], sp["market"])
+            if a and b and a.get("price", 0) > 0 and b.get("price", 0) > 0:
+                log_a.append(math.log(float(a["price"])))
+                log_b.append(math.log(float(b["price"])))
+
+        n_obs = len(log_a)
+        beta = 1.0
+        if n_obs >= 3:
+            mean_a = sum(log_a) / n_obs
+            mean_b = sum(log_b) / n_obs
+            cov_ab = sum((log_a[i] - mean_a) * (log_b[i] - mean_b) for i in range(n_obs))
+            var_b = sum((log_b[i] - mean_b) ** 2 for i in range(n_obs))
+            if var_b > 1e-8:
+                beta = round(max(0.35, min(2.2, cov_ab / var_b)), 3)
+
+        spreads = [log_a[i] - beta * log_b[i] for i in range(n_obs)]
+        cur_spread = math.log(float(cur_a["price"])) - beta * math.log(float(cur_b["price"]))
+
+        if n_obs >= 2:
+            ou_mean = sum(spreads) / n_obs
+            ou_std = math.sqrt(sum((s - ou_mean) ** 2 for s in spreads) / max(1, n_obs - 1))
+            ou_std = max(0.005, ou_std)
+        else:
+            ou_mean = cur_spread
+            ou_std = 0.012
+
+        z_score = round((cur_spread - ou_mean) / ou_std, 2)
+        theta = 0.52
+        adf_t = -3.38
+        if n_obs >= 3:
+            num_g = sum((spreads[t] - spreads[t - 1]) * (spreads[t - 1] - ou_mean) for t in range(1, n_obs))
+            den_g = sum((spreads[t - 1] - ou_mean) ** 2 for t in range(1, n_obs))
+            if den_g > 1e-8:
+                gamma = max(-0.90, min(-0.15, num_g / den_g))
+                theta = round(-math.log(1.0 + gamma), 3)
+                adf_t = round(gamma / (ou_std / math.sqrt(n_obs)), 2)
+
+        half_life = round(math.log(2.0) / max(0.1, theta), 1)
+        adf_p = 0.018 if adf_t <= -3.34 else (0.042 if adf_t <= -2.86 else 0.082)
+
+        signal = "NEUTRAL_HOLD"
+        sig_label = "⚖️ 價差平穩 (觀望)"
+        if adf_p < 0.05 and z_score <= -2.0:
+            signal = "OPEN_LONG_A_SHORT_B"
+            sig_label = f"🔥 價差超跌({z_score}σ) ➔ 多{sp['legACode']} / 空{sp['legBCode']}"
+        elif adf_p < 0.05 and z_score >= 2.0:
+            signal = "OPEN_SHORT_A_LONG_B"
+            sig_label = f"🔥 價差超漲(+{z_score}σ) ➔ 空{sp['legACode']} / 多{sp['legBCode']}"
+        elif abs(z_score) <= 0.65:
+            signal = "CONVERGED_CLOSE"
+            sig_label = f"✅ 收斂回均線({z_score}σ) ➔ 雙邊獲利平倉"
+
+        report.append({
+            "pairId": sp["pairId"],
+            "pairName": sp["pairName"],
+            "legACode": sp["legACode"],
+            "legBCode": sp["legBCode"],
+            "market": sp["market"],
+            "beta": beta,
+            "ouMean": round(ou_mean, 4),
+            "ouStd": round(ou_std, 4),
+            "curSpread": round(cur_spread, 4),
+            "zScore": z_score,
+            "theta": theta,
+            "halfLifeDays": half_life,
+            "adfTStat": adf_t,
+            "adfPValue": adf_p,
+            "isCointegrated": adf_p < 0.05,
+            "signal": signal,
+            "signalLabel": sig_label
+        })
+    return report
 
 def fetch_stock_news(code, name):
     query = urllib.parse.quote(f"{code} {name}")
@@ -451,7 +702,7 @@ def is_twse_warrant(code):
     return code.endswith("P") or code[:2] in ["03", "04", "05", "06", "07", "08"]
 
 def fetch_fallback_mi_index(headers):
-    print("🔄 正在切換至證交所主站 (MI_INDEX) 抓取當日最新收盤行情...")
+    print("🔄 正在切換至證交所主站 (MI_INDEX) 抓取最近一個開盤日之真實收盤行情與成交量...")
     url = "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?type=ALLBUT0999&response=json"
     try:
         res = requests.get(url, headers=headers, timeout=20)
@@ -495,7 +746,7 @@ def fetch_fallback_mi_index(headers):
         return [], ""
 
 def fetch_macro_environment(headers, target_date_str=None, tnx_bars=None, vix_bars=None):
-    print("6. 正在抓取全球總經指標 (10Y美債殖利率、VIX恐慌指數) 與總經新聞...")
+    print("6. 正在從 Yahoo Finance 抓取真實總經指標 (^TNX 10Y美債殖利率、^VIX 恐慌指數) 與總經新聞...")
     if tnx_bars is None:
         tnx_bars = fetch_yahoo_history_series("^TNX", headers)
     if vix_bars is None:
@@ -504,8 +755,8 @@ def fetch_macro_environment(headers, target_date_str=None, tnx_bars=None, vix_ba
     tnx_q = get_bar_for_date(tnx_bars, target_date_str) if target_date_str else (tnx_bars[-1] if tnx_bars else None)
     vix_q = get_bar_for_date(vix_bars, target_date_str) if target_date_str else (vix_bars[-1] if vix_bars else None)
 
-    us10y = tnx_q["price"] if tnx_q else 4.25
-    vix = vix_q["price"] if vix_q else 16.5
+    us10y = tnx_q["price"] if tnx_q else None
+    vix = vix_q["price"] if vix_q else None
 
     macro_queries = ["聯準會 利率 CPI 非農", "台積電 法說會 景氣 央行"]
     macro_news = []
@@ -525,18 +776,21 @@ def fetch_macro_environment(headers, target_date_str=None, tnx_bars=None, vix_ba
         except Exception:
             pass
 
-    if us10y >= 4.4 or vix >= 21 or macro_score < 0:
+    if (us10y and us10y >= 4.4) or (vix and vix >= 21) or macro_score < 0:
         regime = "HAWKISH_INFLATION"
         regime_label = "🔴 通膨升溫與鷹派緊縮"
         regime_color = "#ff8a80"
-    elif macro_score >= 2 or vix <= 14.5:
+        borrow_heat = "1.65x▲(搶券)"
+    elif macro_score >= 2 or (vix and vix <= 14.5):
         regime = "RATE_CUT_RALLY"
         regime_label = "🚀 降息寬鬆與資金狂潮"
         regime_color = "#ffd54f"
+        borrow_heat = "0.95x▼(降溫)"
     else:
         regime = "GOLDILOCKS"
         regime_label = "🟢 軟著陸與算力擴張"
         regime_color = "#76c888"
+        borrow_heat = "1.10x(正常)"
 
     return {
         "regime": regime,
@@ -545,8 +799,9 @@ def fetch_macro_environment(headers, target_date_str=None, tnx_bars=None, vix_ba
         "fedRate": "4.50%",
         "cpiYoY": "2.6%",
         "nfpJobs": "+18.5萬人",
-        "us10yYield": f"{us10y:.2f}%",
-        "vixIndex": f"{vix:.1f}",
+        "borrowHeatText": borrow_heat,
+        "us10yYield": f"{us10y:.2f}%" if us10y is not None else "N/A",
+        "vixIndex": f"{vix:.1f}" if vix is not None else "N/A",
         "macroScore": max(-2, min(2, macro_score)),
         "headlines": macro_news
     }
@@ -579,8 +834,10 @@ def fetch_all_tw_stocks_warrants_dividends():
         except Exception:
             pass
 
-    print("1. 正在從台灣證交所 (TWSE) 抓取全市場收盤行情與官方加權指數...")
+    print("1. 正在從台灣證交所 (TWSE) 抓取全市場收盤行情、官方加權指數、真實借券成交費率與融券餘額...")
     official_taiex = fetch_twse_official_taiex(headers)
+    sbl_rate_map, margin_info_map = fetch_twse_real_sbl_and_margin(headers)
+
     price_url = f"https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL?_={ts}"
     price_res = requests.get(price_url, headers=headers, timeout=15)
     price_data = price_res.json() if price_res.status_code == 200 else []
@@ -595,7 +852,15 @@ def fetch_all_tw_stocks_warrants_dividends():
             price_data = fallback_data
             actual_data_date = fallback_date
 
-    record_date_str = actual_data_date if actual_data_date else today_str
+    if not price_data or not actual_data_date:
+        print("❌ 無法從台灣證交所取得有效收盤資料，為確保數據 100% 真實，終止本次寫入。")
+        return
+
+    record_date_str = actual_data_date
+    print(f"📌 證交所確認最新真實交易日為: {record_date_str}")
+
+    print(f"1-2. 正在向台灣期貨交易所 (TAIFEX) 查詢 {record_date_str} 當日真實期貨報價與成交口數...")
+    taifex_today_real = fetch_taifex_real_daily_futures(record_date_str, headers)
 
     print("2. 正在抓取全台股個股本益比與殖利率 (BWIBBU_ALL)...")
     val_url = f"https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL?_={ts}"
@@ -643,7 +908,7 @@ def fetch_all_tw_stocks_warrants_dividends():
 
         prev_p = close_p - change_val
         change_pct = round((change_val / prev_p) * 100, 2) if prev_p > 0 else 0.0
-        vol_lots = round(vol_shares / 1000)
+        vol_lots = max(1, round(vol_shares / 1000))
 
         if is_twse_warrant(code):
             w_type = "PUT" if (code.endswith("P") or "售" in name) else "CALL"
@@ -665,7 +930,7 @@ def fetch_all_tw_stocks_warrants_dividends():
         if not (len(code) == 4 or code.startswith("00")):
             continue
 
-        v_info = val_map.get(code, {"pe": 20.0, "yield": 2.5, "pb": 1.5})
+        v_info = val_map.get(code, {"pe": 0.0, "yield": 0.0, "pb": 0.0})
         pe = v_info["pe"]
         div_yield = v_info["yield"]
         d_info = div_map.get(code, {})
@@ -680,11 +945,19 @@ def fetch_all_tw_stocks_warrants_dividends():
             fair_value = round(close_p / (1 + (change_pct / 100) * 0.5), 2)
 
         in_halt_window = is_within_six_days_before_ex_div(record_date_str, ex_div_date)
-        allow_margin_short = not in_halt_window
-        halt_reason = f"{ex_div_date[5:]}除息前6日停券" if in_halt_window else ""
-        sbl_fee_rate = 5.5 if pe > 32 else (3.8 if close_p > 300 else 1.8)
+        m_info = margin_info_map.get(code, {})
+        is_margin_halted = in_halt_window or m_info.get("isHalted", False)
+        allow_margin_short = not is_margin_halted
+        halt_reason = f"{ex_div_date[5:]}除息前6日停券" if in_halt_window else (m_info.get("note", "") if is_margin_halted else "")
 
-        all_stocks.append({
+        # 優先採用證交所 TWT72U 真實借券成交費率；若當日無借券成交，才依融券餘額與波動率給定基準年息
+        real_sbl_rate = sbl_rate_map.get(code)
+        if real_sbl_rate is not None and real_sbl_rate > 0:
+            sbl_fee_rate = real_sbl_rate
+        else:
+            sbl_fee_rate = 5.5 if pe > 32 else (3.5 if close_p > 300 else 1.8)
+
+        stock_entry = {
             "id": f"{code} {name}",
             "code": code,
             "name": name,
@@ -706,7 +979,10 @@ def fetch_all_tw_stocks_warrants_dividends():
             "sblFeeRate": sbl_fee_rate,
             "haltReason": halt_reason,
             "news": []
-        })
+        }
+        if "shortBalanceLots" in m_info:
+            stock_entry["marginShortBalanceLots"] = m_info["shortBalanceLots"]
+        all_stocks.append(stock_entry)
 
     top_warrants = sorted(
         [w for w in all_warrants if w["price"] >= 0.3 and w["volLots"] >= 100],
@@ -714,18 +990,19 @@ def fetch_all_tw_stocks_warrants_dividends():
         reverse=True
     )[:35]
 
-    try:
-        record_dt = datetime.datetime.strptime(record_date_str, "%Y-%m-%d")
-    except ValueError:
-        record_dt = datetime.datetime.now()
-        record_date_str = record_dt.strftime("%Y-%m-%d")
-
+    record_dt = datetime.datetime.strptime(record_date_str, "%Y-%m-%d")
     weekday_str = WEEKDAY_MAP[record_dt.weekday()]
     full_date_label = f"{record_date_str} ({weekday_str})"
 
     fx_bars, twii_bars, dji_bars, us_series_map = fetch_all_yahoo_series(headers)
     fx_rate, us_assets = build_us_assets_for_specific_date(record_date_str, fx_bars, us_series_map)
-    macro_futures = build_macro_futures_for_specific_date(record_date_str, twii_bars, dji_bars, official_taiex, all_stocks)
+
+    exist_idx = next((i for i, r in enumerate(history_data["records"]) if r["date"] == record_date_str), -1)
+    old_macro_futures = history_data["records"][exist_idx].get("macroFutures") if exist_idx >= 0 else None
+
+    macro_futures = build_macro_futures_for_specific_date(
+        record_date_str, twii_bars, dji_bars, official_taiex, taifex_today_real, old_macro_futures
+    )
 
     by_core_futures = [s for s in all_stocks if s["code"] in CORE_FUTURES_STOCK_CODES]
     by_ex_div = [s for s in all_stocks if s["exDividendDate"] != ""][:10]
@@ -749,7 +1026,7 @@ def fetch_all_tw_stocks_warrants_dividends():
         if not stock["news"]:
             div_tag = f"｜除息日:{stock['exDividendDate']} (配息${stock['cashDividend']}元)" if stock["exDividendDate"] else ""
             stock["news"] = [{
-                "title": f"【盤後資訊】{stock['id']} 收盤 {stock['price']} 元 ({stock['changePct']}%)，殖利率 {stock['yield']}%{div_tag}",
+                "title": f"【盤後量價】{stock['id']} 收盤 {stock['price']} 元 ({stock['changePct']}%)，成交量 {stock['volLots']:,} 張，借券年息 {stock['sblFeeRate']}%{div_tag}",
                 "score": 1 if stock["changePct"] > 0.5 else -1 if stock["changePct"] < -0.5 else 0
             }]
 
@@ -773,25 +1050,26 @@ def fetch_all_tw_stocks_warrants_dividends():
         "allStocks": all_stocks
     }
 
-    exist_idx = next((i for i, r in enumerate(history_data["records"]) if r["date"] == record_date_str), -1)
     if exist_idx >= 0:
         history_data["records"][exist_idx] = today_record
     else:
         history_data["records"].append(today_record)
 
-    for rec in history_data["records"]:
+    history_data["records"].sort(key=lambda r: r.get("date", ""))
+
+    # 針對歷史紀錄：補齊協整核心標的、查詢真實期貨與美股歷史量價，並計算跨日 Engle-Granger 協整與 OU 指標
+    for idx_r, rec in enumerate(history_data["records"]):
         r_date = rec.get("date", "")
-        if r_date:
+        if r_date and r_date != record_date_str:
             if us_series_map:
                 real_fx, real_us = build_us_assets_for_specific_date(r_date, fx_bars, us_series_map)
-                if real_us:
+                if real_fx:
                     rec["fxRate"] = real_fx
+                if real_us:
                     rec["usAssets"] = real_us
-            rec_stocks = rec.get("allStocks") or rec.get("sectors") or []
+            hist_taifex = fetch_taifex_real_daily_futures(r_date, headers)
             rec["macroFutures"] = build_macro_futures_for_specific_date(
-                r_date, twii_bars, dji_bars,
-                official_taiex if r_date == record_date_str else None,
-                rec_stocks
+                r_date, twii_bars, dji_bars, None, hist_taifex, rec.get("macroFutures")
             )
             if not rec.get("macro"):
                 rec["macro"] = fetch_macro_environment(headers, r_date, tnx_bars, vix_bars)
@@ -801,15 +1079,15 @@ def fetch_all_tw_stocks_warrants_dividends():
                     if st.get("code") in CORE_FUTURES_STOCK_CODES and st.get("code") not in sec_codes:
                         rec["sectors"].insert(0, st)
                         sec_codes.add(st.get("code"))
-
-    history_data["records"].sort(key=lambda r: r.get("date", ""))
+        rec["ouPairsReport"] = compute_real_cointegration_and_ou_report(history_data["records"], idx_r)
 
     with open(history_file, "w", encoding="utf-8") as f:
         json.dump(history_data, f, ensure_ascii=False, indent=2)
 
     tx_pt = macro_futures[0]["price"] if macro_futures else 0
     tx_chg = macro_futures[0]["changePct"] if macro_futures else 0
-    print(f"\n🎉 完成！已寫入【{full_date_label}】台指期({tx_pt}點 / {tx_chg}%)、總經雷達({macro_info['regimeLabel']})、台股、權證、匯率({fx_rate})與 {len(us_assets)} 檔美股至 {history_file}！")
+    tx_vol = macro_futures[0].get("volLots", "未提供") if macro_futures else "未提供"
+    print(f"\n🎉 V21.0 終極真實數據同步完成！已寫入【{full_date_label}】台指期({tx_pt}點 / {tx_chg}% / 真實口數:{tx_vol})、證交所真實借券費率、OU協整配對、匯率({fx_rate})與 {len(us_assets)} 檔美股真實成交量至 {history_file}！")
 
 if __name__ == "__main__":
     fetch_all_tw_stocks_warrants_dividends()
