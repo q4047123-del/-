@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>【傳奇大師賽博炒股 V19.2】TAIFEX期貨實務＋融券擔保息回補結算・量化統計檢定(MDD/勝率分佈/p-value/Excel讀寫)</title>
+  <title>【傳奇大師賽博炒股 V19.3】TAIFEX期貨實務＋融券擔保息回補結算・量化統計檢定(MDD/勝率分佈/p-value/Excel讀寫)</title>
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&display=swap" rel="stylesheet">
   <!-- 引入 SheetJS 支援直接匯出與讀取 .xlsx Excel 檔案 -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -1175,10 +1175,10 @@
 
   <div class="pixel-window">
     <div class="sys-titlebar">
-      <div>🎮 [傳奇大師賽博炒股 V19.2] TAIFEX期貨實務＋融券擔保息回補結算・量化統計檢定(MDD/勝率分佈/p-value/Excel讀寫)</div>
+      <div>🎮 [傳奇大師賽博炒股 V19.3] TAIFEX期貨實務＋融券擔保息回補結算・量化統計檢定(MDD/勝率分佈/p-value/Excel讀寫)</div>
       <div class="title-controls">
         <span id="marketPoolBadge" style="font-size:0.76rem; background:#0f2018; padding:2px 8px; border:1.5px solid #00ffcc; color:#00ffcc;">
-          TAIFEX FUTURES &amp; COLLATERAL INT V19.2
+          TAIFEX FUTURES &amp; COLLATERAL INT V19.3
         </span>
         <div class="win-ctrl-btns">
           <div class="win-ctrl-btn">_</div>
@@ -1459,8 +1459,7 @@
       </div>
     </div>
   </div>
-
-  <script>
+<script>
     function showSystemNotice(msg) {
       const textEl = document.getElementById('customNoticeText');
       const modalEl = document.getElementById('customNoticeModal');
@@ -1473,17 +1472,6 @@
     function closeNoticeModal() {
       const modalEl = document.getElementById('customNoticeModal');
       if (modalEl) modalEl.classList.remove('open');
-    }
-
-    function downloadCleanSelfHtml() {
-      const rawHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML.replace(/[\u00A0\u2000-\u200B\uFEFF]/g, ' ');
-      const blob = new Blob([rawHtml], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'index.html';
-      a.click();
-      URL.revokeObjectURL(url);
     }
 
     /* =========================================================================
@@ -1537,8 +1525,8 @@
       '3037': { futCode: 'IRF', futName: '欣興期貨', underlying: '3037 欣興', sharesPerContract: 2000, marginRate: 0.135 }
     };
 
-    // 升級 STORAGE_KEY 為 V19_2，確保打開網頁時不會讀到舊版沒算擔保息的快取
-    const STORAGE_KEY = 'AZHOU_ULTIMATE_V19_2_COLLATERAL_REAL';
+    // 升級 STORAGE_KEY 為 V19_3_PERFECT_FINAL，確保不會讀到舊版快取
+    const STORAGE_KEY = 'AZHOU_ULTIMATE_V19_3_PERFECT_FINAL';
     const WEEKDAYS = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
     let currentPoolTab = 'STOCK';
 
@@ -2941,7 +2929,7 @@
               if (isShortPositionType(pos.instType)) {
                 const ev = evaluatePosition(rec, instId, pos);
                 if (isRateCutRally || ev.roiPct >= 5.5) {
-coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
+                  coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
                     `【總經轉向：${macro.regimeLabel}】李佛摩買進回補空單鎖定 +${ev.roiPct}% 獲利（連同融券擔保息一併結算入帳）並反手做多！`
                   );
                   actionTags.push(`回補空單 ${instId.split(' ')[0]}`);
@@ -3292,7 +3280,6 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
       const totalFeeAndTaxNative = +(feeNative + taxNative + borrowInitFeeNative).toFixed(2);
       const totalCashOutlayNative = +(requiredMarginNative + totalFeeAndTaxNative).toFixed(2);
 
-      // 實務修正：台股融券擔保價款為賣出總價金「扣除」手續費、證交稅與融券借券費後之「淨價款」
       const netShortProceedsNative = instType === 'SHORT_TW_MARGIN'
         ? Math.max(0, +(shortGrossProceedsNative - totalFeeAndTaxNative).toFixed(2))
         : shortGrossProceedsNative;
@@ -3308,20 +3295,28 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
       const brokerFeeTwd = isUsd ? Math.round(feeNative * fxRate) : feeNative;
       const taxCostTwd = isUsd ? Math.round(taxNative * fxRate) : taxNative;
       const borrowInitFeeTwd = isUsd ? Math.round(borrowInitFeeNative * fxRate) : borrowInitFeeNative;
-      const feeAndTaxTwd = brokerFeeTwd + taxCostTwd + borrowInitFeeTwd + slipCostTwd;
-      agent.totalFeesPaid = (agent.totalFeesPaid || 0) + feeAndTaxTwd;
+
+      const cashFeeAndTaxTwd = brokerFeeTwd + taxCostTwd + borrowInitFeeTwd;
+      const totalFrictionDisplayTwd = cashFeeAndTaxTwd + slipCostTwd;
+      agent.totalFeesPaid = (agent.totalFeesPaid || 0) + totalFrictionDisplayTwd;
 
       if (!agent.holdings[id]) {
+        const prevClosed = agent.closedPositions && agent.closedPositions[id] ? agent.closedPositions[id] : null;
         agent.holdings[id] = {
           instType, currency, unitLabel, multiplier, marginRate, borrowFeeRate,
           qty: 0, theoAvgCost: 0, avgCost: 0, avgFxRate: fxRate,
           shortProceedsNative: 0,
           marginDepositedNative: 0, marginDepositedTwd: 0,
-          dividendsReceivedTwd: 0, accruedCollateralIntTwd: 0,
+          dividendsReceivedTwd: prevClosed ? (prevClosed.dividendsReceivedTwd || 0) : 0,
+          accruedCollateralIntTwd: 0,
           feesPaidOnPosTwd: 0,
-          cumSlippageTwd: 0, cumBrokerFeeTwd: 0, cumTaxTwd: 0,
-          accruedBorrowFeeTwd: 0, inLieuDivPaidTwd: 0,
-          lots: [], history: []
+          cumSlippageTwd: prevClosed ? (prevClosed.cumSlippageTwd || 0) : 0,
+          cumBrokerFeeTwd: prevClosed ? (prevClosed.cumBrokerFeeTwd || 0) : 0,
+          cumTaxTwd: prevClosed ? (prevClosed.cumTaxTwd || 0) : 0,
+          accruedBorrowFeeTwd: prevClosed ? (prevClosed.accruedBorrowFeeTwd || 0) : 0,
+          inLieuDivPaidTwd: prevClosed ? (prevClosed.inLieuDivPaidTwd || 0) : 0,
+          lots: prevClosed ? [...(prevClosed.lots || [])] : [],
+          history: prevClosed ? [...(prevClosed.history || [])] : []
         };
       }
 
@@ -3341,7 +3336,7 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
       h.cumBrokerFeeTwd = (h.cumBrokerFeeTwd || 0) + brokerFeeTwd;
       h.cumTaxTwd = (h.cumTaxTwd || 0) + taxCostTwd;
       h.accruedBorrowFeeTwd = (h.accruedBorrowFeeTwd || 0) + borrowInitFeeTwd;
-      h.feesPaidOnPosTwd = (h.feesPaidOnPosTwd || 0) + feeAndTaxTwd;
+      h.feesPaidOnPosTwd = (h.feesPaidOnPosTwd || 0) + cashFeeAndTaxTwd;
 
       const initMaintRatio = instType === 'FUTURES_SHORT'
         ? 100.0
@@ -3364,7 +3359,7 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
         brokerFeeTwd, taxCostTwd,
         borrowOrDivCostTwd: borrowInitFeeTwd,
         cumBorrowFeeTwd: h.accruedBorrowFeeTwd,
-        feePaidTwd: feeAndTaxTwd,
+        feePaidTwd: totalFrictionDisplayTwd,
         feeLabel: feeBreakdownLabel,
         totalCostNative: requiredMarginNative,
         totalCostTwd: isUsd ? Math.round(requiredMarginNative * fxRate) : requiredMarginNative,
@@ -3410,19 +3405,19 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
         feeBreakdownLabel = `融券回補手續費 $${feeNative.toLocaleString()} (免證交稅)`;
       }
 
-      // 實務修正：回補平倉時，按比例結算該部位累積之「融券擔保息 (+settledCollateralIntTwd)」與「持有期間借券費/代墊息 (-settledPeriodFeesTwd)」
       const settledCollateralIntTwd = Math.round((h.accruedCollateralIntTwd || 0) * ratio);
       const settledPeriodFeesTwd = Math.round((h.feesPaidOnPosTwd || 0) * ratio);
 
       const shortGrossPnlNative = (entryAvgPrice - execPrice) * actual * h.multiplier;
       const closeTradeNetPnlNative = shortGrossPnlNative - feeNative - taxNative;
-      const closeTradeNetPnlTwd = isUsd ? Math.round(closeTradeNetPnlNative * fxRate) : Math.round(closeTradeNetPnlNative);
-
-      const realizedPnlTwd = closeTradeNetPnlTwd + settledCollateralIntTwd - settledPeriodFeesTwd;
-      const realizedRoiPct = releasedMarginTwd > 0 ? +((realizedPnlTwd / releasedMarginTwd) * 100).toFixed(2) : 0;
 
       const collateralIntNative = isUsd ? +(settledCollateralIntTwd / fxRate).toFixed(2) : settledCollateralIntTwd;
       const rawReturnNative = +(releasedMarginNative + closeTradeNetPnlNative + collateralIntNative).toFixed(2);
+
+      const rawReturnTwd = isUsd ? Math.round(rawReturnNative * fxRate) : Math.round(rawReturnNative);
+      const realizedPnlTwd = rawReturnTwd - releasedMarginTwd - settledPeriodFeesTwd;
+      const realizedRoiPct = releasedMarginTwd > 0 ? +((realizedPnlTwd / releasedMarginTwd) * 100).toFixed(2) : 0;
+
       let overlossNote = '';
       if (rawReturnNative >= 0) {
         if (isUsd) agent.usdCash = +((agent.usdCash || 0) + rawReturnNative).toFixed(2);
@@ -3442,13 +3437,13 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
 
       const brokerFeeTwd = isUsd ? Math.round(feeNative * fxRate) : feeNative;
       const taxCostTwd = isUsd ? Math.round(taxNative * fxRate) : taxNative;
-      const feeAndTaxTwd = brokerFeeTwd + taxCostTwd + slipCostTwd;
+      const totalFrictionDisplayTwd = brokerFeeTwd + taxCostTwd + slipCostTwd;
 
-      agent.totalFeesPaid = (agent.totalFeesPaid || 0) + feeAndTaxTwd;
+      agent.totalFeesPaid = (agent.totalFeesPaid || 0) + totalFrictionDisplayTwd;
       h.cumSlippageTwd = (h.cumSlippageTwd || 0) + slipCostTwd;
       h.cumBrokerFeeTwd = (h.cumBrokerFeeTwd || 0) + brokerFeeTwd;
       h.cumTaxTwd = (h.cumTaxTwd || 0) + taxCostTwd;
-      h.feesPaidOnPosTwd = Math.max(0, (h.feesPaidOnPosTwd || 0) - settledPeriodFeesTwd) + feeAndTaxTwd;
+      h.feesPaidOnPosTwd = Math.max(0, (h.feesPaidOnPosTwd || 0) - settledPeriodFeesTwd);
       h.accruedCollateralIntTwd = Math.max(0, (h.accruedCollateralIntTwd || 0) - settledCollateralIntTwd);
 
       h.qty -= actual;
@@ -3471,7 +3466,7 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
         borrowOrDivCostTwd: 0,
         collateralIntEarnedTwd: settledCollateralIntTwd,
         cumBorrowFeeTwd: h.accruedBorrowFeeTwd || 0,
-        feePaidTwd: feeAndTaxTwd, feeLabel: `${feeBreakdownLabel}${intNote}`,
+        feePaidTwd: totalFrictionDisplayTwd, feeLabel: `${feeBreakdownLabel}${intNote}`,
         realizedPnlTwd, realizedRoiPct,
         totalCostNative: returnNative,
         totalCostTwd: isUsd ? Math.round(returnNative * fxRate) : Math.round(returnNative),
@@ -3536,8 +3531,9 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
 
       const brokerFeeTwd = isUsd ? Math.round(feeNative * fxRate) : feeNative;
       const taxCostTwd = isUsd ? Math.round(taxNative * fxRate) : taxNative;
-      const feeAndTaxTwd = brokerFeeTwd + taxCostTwd + slipCostTwd;
-      agent.totalFeesPaid = (agent.totalFeesPaid || 0) + feeAndTaxTwd;
+      const cashFeeAndTaxTwd = brokerFeeTwd + taxCostTwd;
+      const totalFrictionDisplayTwd = cashFeeAndTaxTwd + slipCostTwd;
+      agent.totalFeesPaid = (agent.totalFeesPaid || 0) + totalFrictionDisplayTwd;
 
       if (!agent.holdings[id]) {
         const prevClosed = agent.closedPositions && agent.closedPositions[id] ? agent.closedPositions[id] : null;
@@ -3546,7 +3542,7 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
           qty: 0, theoAvgCost: 0, avgCost: 0, avgFxRate: fxRate,
           marginDepositedNative: 0, marginDepositedTwd: 0,
           dividendsReceivedTwd: prevClosed ? (prevClosed.dividendsReceivedTwd || 0) : 0,
-          feesPaidOnPosTwd: prevClosed ? (prevClosed.feesPaidOnPosTwd || 0) : 0,
+          feesPaidOnPosTwd: 0,
           cumSlippageTwd: prevClosed ? (prevClosed.cumSlippageTwd || 0) : 0,
           cumBrokerFeeTwd: prevClosed ? (prevClosed.cumBrokerFeeTwd || 0) : 0,
           cumTaxTwd: prevClosed ? (prevClosed.cumTaxTwd || 0) : 0,
@@ -3570,7 +3566,7 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
       h.cumSlippageTwd = (h.cumSlippageTwd || 0) + slipCostTwd;
       h.cumBrokerFeeTwd = (h.cumBrokerFeeTwd || 0) + brokerFeeTwd;
       h.cumTaxTwd = (h.cumTaxTwd || 0) + taxCostTwd;
-      h.feesPaidOnPosTwd = (h.feesPaidOnPosTwd || 0) + feeAndTaxTwd;
+      h.feesPaidOnPosTwd = (h.feesPaidOnPosTwd || 0) + cashFeeAndTaxTwd;
 
       const lotEntry = {
         lotNumber: h.lots.length + 1, date, fxRate, currency,
@@ -3586,7 +3582,7 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
         brokerFeeTwd, taxCostTwd,
         borrowOrDivCostTwd: 0,
         cumBorrowFeeTwd: h.accruedBorrowFeeTwd || 0,
-        feePaidTwd: feeAndTaxTwd,
+        feePaidTwd: totalFrictionDisplayTwd,
         feeLabel: feeBreakdownLabel,
         totalCostNative: requiredPrincipalNative,
         totalCostTwd: isUsd ? Math.round(requiredPrincipalNative * fxRate) : requiredPrincipalNative,
@@ -3642,12 +3638,15 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
         feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()} + 台灣證交稅 $${taxNative.toLocaleString()}(0.3%)`;
       }
 
+      const settledOpenFeesTwd = Math.round((h.feesPaidOnPosTwd || 0) * ratio);
       const grossPnlNative = (execPrice - entryAvgPrice) * actual * h.multiplier;
       const netPnlNative = grossPnlNative - feeNative - taxNative;
-      const realizedPnlTwd = isUsd ? Math.round(netPnlNative * fxRate) : Math.round(netPnlNative);
+      const rawReturnNative = +(releasedMarginNative + netPnlNative).toFixed(2);
+
+      const rawReturnTwd = isUsd ? Math.round(rawReturnNative * fxRate) : Math.round(rawReturnNative);
+      const realizedPnlTwd = rawReturnTwd - releasedMarginTwd - settledOpenFeesTwd;
       const realizedRoiPct = releasedMarginTwd > 0 ? +((realizedPnlTwd / releasedMarginTwd) * 100).toFixed(2) : 0;
 
-      const rawReturnNative = +(releasedMarginNative + netPnlNative).toFixed(2);
       let overlossNote = '';
       if (rawReturnNative >= 0 || h.instType === 'WARRANT') {
         const safeRet = Math.max(0, rawReturnNative);
@@ -3668,13 +3667,13 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
 
       const brokerFeeTwd = isUsd ? Math.round(feeNative * fxRate) : feeNative;
       const taxCostTwd = isUsd ? Math.round(taxNative * fxRate) : taxNative;
-      const feeAndTaxTwd = brokerFeeTwd + taxCostTwd + slipCostTwd;
+      const totalFrictionDisplayTwd = brokerFeeTwd + taxCostTwd + slipCostTwd;
 
-      agent.totalFeesPaid = (agent.totalFeesPaid || 0) + feeAndTaxTwd;
+      agent.totalFeesPaid = (agent.totalFeesPaid || 0) + totalFrictionDisplayTwd;
       h.cumSlippageTwd = (h.cumSlippageTwd || 0) + slipCostTwd;
       h.cumBrokerFeeTwd = (h.cumBrokerFeeTwd || 0) + brokerFeeTwd;
       h.cumTaxTwd = (h.cumTaxTwd || 0) + taxCostTwd;
-      h.feesPaidOnPosTwd = (h.feesPaidOnPosTwd || 0) + feeAndTaxTwd;
+      h.feesPaidOnPosTwd = Math.max(0, (h.feesPaidOnPosTwd || 0) - settledOpenFeesTwd);
 
       h.qty -= actual;
       h.marginDepositedNative = Math.max(0, +(h.marginDepositedNative - releasedMarginNative).toFixed(2));
@@ -3694,7 +3693,7 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
         brokerFeeTwd, taxCostTwd,
         borrowOrDivCostTwd: 0,
         cumBorrowFeeTwd: h.accruedBorrowFeeTwd || 0,
-        feePaidTwd: feeAndTaxTwd, feeLabel: feeBreakdownLabel,
+        feePaidTwd: totalFrictionDisplayTwd, feeLabel: feeBreakdownLabel,
         realizedPnlTwd, realizedRoiPct,
         totalCostNative: returnNative,
         totalCostTwd: isUsd ? Math.round(returnNative * fxRate) : Math.round(returnNative),
@@ -3723,7 +3722,7 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
         const priceDiff = isShortFut ? (pos.avgCost - curPrice) : (curPrice - pos.avgCost);
         const unrealizedPnlNative = priceDiff * pos.qty * pos.multiplier;
         const unrealizedPnlTwd = Math.round(unrealizedPnlNative);
-        const rawEquityTwd = pos.marginDepositedTwd + unrealizedPnlTwd + (pos.dividendsReceivedTwd || 0) - (pos.feesPaidOnPosTwd || 0);
+        const rawEquityTwd = pos.marginDepositedTwd + unrealizedPnlTwd;
         const equityValueTwd = Math.max(0, rawEquityTwd);
         const maintRatioPct = +((rawEquityTwd / Math.max(1, pos.marginDepositedTwd)) * 100).toFixed(1);
         const totalNetGainTwd = unrealizedPnlTwd + (pos.dividendsReceivedTwd || 0) - (pos.feesPaidOnPosTwd || 0);
@@ -3742,7 +3741,6 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
         const priceDiff = pos.avgCost - curPrice;
         const unrealizedPnlNative = priceDiff * pos.qty * pos.multiplier;
         const unrealizedPnlTwd = isUsd ? Math.round(unrealizedPnlNative * fx) : Math.round(unrealizedPnlNative);
-        // 實務修正：融券未平倉前，已計提之擔保息屬於該部位待結算權益，回補時轉入現金
         const pendingCollateralInt = pos.accruedCollateralIntTwd || 0;
         const equityValueTwd = Math.max(0, pos.marginDepositedTwd + unrealizedPnlTwd + pendingCollateralInt);
 
@@ -3771,8 +3769,7 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
         return { curPrice, unrealizedPnlTwd, equityValueTwd, roiPct, maintRatioPct: 100, isMarginCall: false };
       }
     }
-
-    let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
+let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
 
     function compileAgentDailyBattleReport(agent, targetDate) {
       const allPosMap = { ...(agent.closedPositions || {}), ...(agent.holdings || {}) };
@@ -4041,6 +4038,9 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
         const isShort = isShortPositionType(pos.instType);
         const sym = isUsd ? 'US$' : '$';
         const { curPrice, unrealizedPnlTwd, roiPct } = evaluatePosition(rec, instId, pos);
+        const displayRoiPct = pos.qty > 0
+          ? roiPct
+          : +(pos.history || []).filter(x => x.realizedRoiPct !== undefined).reduce((acc, x) => acc + Number(x.realizedRoiPct || 0), 0).toFixed(2);
 
         const divEarnedTwd = pos.dividendsReceivedTwd || 0;
         const feesPaidTwd = pos.feesPaidOnPosTwd || 0;
@@ -4048,9 +4048,10 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
         const cumBrokerTwd = pos.cumBrokerFeeTwd || 0;
         const cumTaxTwd = pos.cumTaxTwd || 0;
         const borrowFeeAccrued = pos.accruedBorrowFeeTwd || 0;
+        const closedRealizedSum = (pos.history || []).reduce((acc, x) => acc + (x.realizedPnlTwd || 0), 0);
         const totalNetGainTwd = pos.qty > 0
           ? (unrealizedPnlTwd + divEarnedTwd - feesPaidTwd)
-          : (pos.history || []).reduce((acc, x) => acc + (x.realizedPnlTwd || 0), 0);
+          : (isShort ? closedRealizedSum : (closedRealizedSum + divEarnedTwd));
         const pnlColor = totalNetGainTwd >= 0 ? 'var(--tw-up)' : 'var(--tw-down)';
 
         document.getElementById('modalTitleText').textContent = `📒 【${agent.name}】持有「${instId}」精細交割帳本（滑價 / 手續費 / 證交稅 / 融券擔保息 / 實現損益）`;
@@ -4088,7 +4089,7 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
           <div class="ledger-sum-cell">
             <span class="ledger-sum-label">扣除所有摩擦後淨損益</span>
             <span class="ledger-sum-val" style="color:${pnlColor};">
-              ${totalNetGainTwd >= 0 ? '+' : ''}$${totalNetGainTwd.toLocaleString()} (${roiPct >= 0 ? '+' : ''}${roiPct}%)
+              ${totalNetGainTwd >= 0 ? '+' : ''}$${totalNetGainTwd.toLocaleString()} (${displayRoiPct >= 0 ? '+' : ''}${displayRoiPct}%)
             </span>
           </div>
         `;
@@ -5439,7 +5440,6 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
       const ws3 = XLSX.utils.aoa_to_sheet(sheet3Rows);
       XLSX.utils.book_append_sheet(wb, ws3, '3_兩兩大師顯著性檢定矩陣');
 
-      // 修正第 4 張工作表：明確區分「借券息/代墊扣款(TWD)」與「融券擔保息收入(TWD)」兩個獨立欄位
       const sheet4Rows = [
         ['大師名稱', '交易日期', '匯率(USD/TWD)', '標的代號與名稱', '商品類別', '交易動作', '數量', '單位', '理論價', '實際成交價', '滑價(bps)', '滑價耗損(TWD)', '券商手續費(TWD)', '法定交易稅(TWD)', '借券息/代墊扣款(TWD)', '融券擔保息收入(TWD)', '已實現淨損益(TWD)', '已實現ROI(%)', '策略與總經依據']
       ];
@@ -5636,7 +5636,7 @@ coverOrCloseShortPosition(agent, instId, pos.qty, q.price, dateStr, fx,
             appState.currentIdx = typeof parsed.currentIdx === 'number' ? parsed.currentIdx : (parsed.records.length - 1);
             renderDashboard(true);
             return;
-          }
+                    }
         } catch (e) {}
       }
 
