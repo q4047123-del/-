@@ -29517,7 +29517,7 @@
       "date": "2026-11-13",
       "weekday": "週五",
       "fullDateLabel": "2026-11-13 (週五)",
-      "fxRate": 32.9,
+      "fxRate": 32.88,
       "macro": {
         "regime": "HAWKISH_INFLATION",
         "regimeLabel": "🔴 VIX>20啟動1.4x壓力共變異數",
@@ -29528,7 +29528,7 @@
         "stressMultText": "1.40x🚨(VIX壓力)",
         "borrowHeatText": "1.65x▲(搶券)",
         "us10yYield": "5.13%",
-        "vixIndex": "20.7",
+        "vixIndex": "20.2",
         "macroScore": -2,
         "headlines": [
           {
@@ -29693,7 +29693,7 @@
           "haltReason": "",
           "news": [
             {
-              "title": "【12:13 即時新聞】華城(1519)亮燈漲停，綠能電網與電網設備題材受關注",
+              "title": "【即時新聞】最新！華城前三季EPS達10.48元賺逾一個股本，訂單滿載至2030年",
               "score": 1
             },
             {
@@ -29726,7 +29726,7 @@
           "haltReason": "",
           "news": [
             {
-              "title": "鴻海(2317) 個股概覽 | 個股",
+              "title": "2317 鴻海",
               "score": 0
             },
             {
@@ -29759,11 +29759,11 @@
           "haltReason": "",
           "news": [
             {
-              "title": "【零股排行榜】 盤中零股成交量TOP 20｜0050 元大台灣50、2330 台積電、00878 國泰永續高股息、1802 台玻、1303 南亞 (1111)｜豐雲學堂2026 年 11 月",
+              "title": "2330 台積電",
               "score": 0
             },
             {
-              "title": "2330 台積電",
+              "title": "三大法人買賣超 – 外資買超(2454)聯發科、(2303)聯電，投信買超(2330)台積電、(3017)奇鋐，法人合計買超439.66億元",
               "score": 0
             }
           ],
@@ -29818,18 +29818,18 @@
           "exDividendDate": "",
           "cashDividend": 57.27,
           "fairValue": 3708.0,
-          "sentiment": 0.85,
+          "sentiment": 0.5,
           "allowMarginShort": true,
           "allowSBL": true,
           "sblFeeRate": 5.5,
           "haltReason": "",
           "news": [
             {
-              "title": "黃仁勳辭職資金大搬風！聯發科被搶買飆漲停 3千多張排隊等買",
-              "score": 2
+              "title": "2454 聯發科",
+              "score": 0
             },
             {
-              "title": "【09:01 即時新聞】聯發科(2454)強攻走揚，AI與ASIC題材成盤中焦點",
+              "title": "【即時新聞】今日聯發科宣布AI ASIC商機爆發，2027年EPS上看137.69元！",
               "score": 0
             }
           ],
@@ -29858,7 +29858,7 @@
           "haltReason": "",
           "news": [
             {
-              "title": "大航運-長榮&萬海百億買櫃（更新",
+              "title": "2603 長榮",
               "score": 0
             },
             {
@@ -29994,7 +29994,7 @@
               "score": 0
             },
             {
-              "title": "國泰金發重訊！重大交易斥資350億",
+              "title": "快訊／注意！國泰金1630將召開重訊 有重大交易宣布",
               "score": 0
             }
           ],
@@ -30214,7 +30214,7 @@
           "exDividendDate": "2026-11-17",
           "cashDividend": 1.25,
           "fairValue": 33.3,
-          "sentiment": 0.35,
+          "sentiment": 0.53,
           "allowMarginShort": false,
           "allowSBL": true,
           "sblFeeRate": 1.8,
@@ -30225,8 +30225,8 @@
               "score": 1
             },
             {
-              "title": "1圖懂》00878配息1.25元確定！含息報酬率61.4％狠甩大盤…賺價差又領股息「這張數以下」免補充保費- 基金",
-              "score": 0
+              "title": "00878配息創新高！174萬受益人關注領息，最後買進日曝光、單季配息率3.79% | 下班經濟學 | 財經",
+              "score": 1
             }
           ],
           "marginShortBalanceLots": 0
@@ -31693,14 +31693,14 @@
           "open": 760.07,
           "high": 760.12,
           "low": 747.89,
-          "price": 750.12,
-          "changePct": -0.92,
+          "price": 751.18,
+          "changePct": -0.78,
           "yield": 1.25,
           "exDividendDate": "",
           "cashDividend": 1.75,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 10237539
+          "volShares": 16281896
         },
         {
           "id": "VOO Vanguard標普500ETF",
@@ -31712,14 +31712,14 @@
           "open": 698.66,
           "high": 698.81,
           "low": 687.52,
-          "price": 689.56,
-          "changePct": -0.93,
+          "price": 690.46,
+          "changePct": -0.8,
           "yield": 1.3,
           "exDividendDate": "",
           "cashDividend": 1.65,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 2420100
+          "volShares": 3357306
         },
         {
           "id": "QQQ Invesco那斯達克100ETF",
@@ -31730,15 +31730,15 @@
           "currency": "USD",
           "open": 688.51,
           "high": 688.75,
-          "low": 672.3,
-          "price": 673.77,
-          "changePct": -2.09,
+          "low": 671.71,
+          "price": 676.45,
+          "changePct": -1.7,
           "yield": 0.6,
           "exDividendDate": "",
           "cashDividend": 0.7,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 13497504
+          "volShares": 22795594
         },
         {
           "id": "SOXX iShares費城半導體ETF",
@@ -31749,15 +31749,15 @@
           "currency": "USD",
           "open": 153.26,
           "high": 154.37,
-          "low": 145.09,
-          "price": 145.71,
-          "changePct": -5.98,
+          "low": 144.65,
+          "price": 147.46,
+          "changePct": -4.86,
           "yield": 0.75,
           "exDividendDate": "",
           "cashDividend": 0.45,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 22027954
+          "volShares": 33255786
         },
         {
           "id": "TLT iShares 20年期美債ETF",
@@ -31767,16 +31767,16 @@
           "usSector": "BOND",
           "currency": "USD",
           "open": 79.31,
-          "high": 79.6,
+          "high": 79.64,
           "low": 79.11,
-          "price": 79.55,
-          "changePct": -0.22,
+          "price": 79.51,
+          "changePct": -0.27,
           "yield": 4.45,
           "exDividendDate": "2026-11-02",
           "cashDividend": 0.343,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 10137680
+          "volShares": 15766287
         },
         {
           "id": "IEF iShares 7-10年美債ETF",
@@ -31788,14 +31788,14 @@
           "open": 90.01,
           "high": 90.26,
           "low": 89.95,
-          "price": 90.24,
-          "changePct": 0.03,
+          "price": 90.19,
+          "changePct": -0.02,
           "yield": 4.1,
           "exDividendDate": "2026-11-02",
           "cashDividend": 0.311,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 3306841
+          "volShares": 5231916
         },
         {
           "id": "SHY iShares 1-3年短期美債",
@@ -31807,14 +31807,14 @@
           "open": 81.17,
           "high": 81.24,
           "low": 81.17,
-          "price": 81.24,
-          "changePct": 0.12,
+          "price": 81.22,
+          "changePct": 0.1,
           "yield": 4.35,
           "exDividendDate": "2026-11-02",
           "cashDividend": 0.254,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 669553
+          "volShares": 1162554
         },
         {
           "id": "SGOV iShares 0-3月極短國庫券",
@@ -31826,14 +31826,14 @@
           "open": 100.56,
           "high": 100.56,
           "low": 100.55,
-          "price": 100.56,
-          "changePct": 0.03,
+          "price": 100.55,
+          "changePct": 0.02,
           "yield": 4.85,
           "exDividendDate": "2026-11-02",
           "cashDividend": 0.33,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 6728986
+          "volShares": 11304730
         },
         {
           "id": "LQD iShares投資級公司債ETF",
@@ -31843,16 +31843,16 @@
           "usSector": "BOND",
           "currency": "USD",
           "open": 102.87,
-          "high": 103.03,
+          "high": 103.05,
           "low": 102.74,
-          "price": 103.0,
-          "changePct": -0.04,
+          "price": 102.96,
+          "changePct": -0.09,
           "yield": 4.9,
           "exDividendDate": "2026-11-02",
           "cashDividend": 0.4,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 5379715
+          "volShares": 9103507
         },
         {
           "id": "NVDA 輝達 (NVIDIA)",
@@ -31863,15 +31863,15 @@
           "currency": "USD",
           "open": 169.89,
           "high": 170.0,
-          "low": 159.04,
-          "price": 159.54,
-          "changePct": -4.0,
+          "low": 158.39,
+          "price": 160.78,
+          "changePct": -3.26,
           "yield": 0.03,
           "exDividendDate": "",
           "cashDividend": 0.01,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 155380724
+          "volShares": 231733672
         },
         {
           "id": "AAPL 蘋果 (Apple)",
@@ -31882,15 +31882,15 @@
           "currency": "USD",
           "open": 357.96,
           "high": 360.83,
-          "low": 357.34,
-          "price": 358.67,
-          "changePct": 1.07,
+          "low": 357.3,
+          "price": 358.23,
+          "changePct": 0.94,
           "yield": 0.45,
           "exDividendDate": "2026-11-12",
           "cashDividend": 0.27,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 10306561
+          "volShares": 15149522
         },
         {
           "id": "MSFT 微軟 (Microsoft)",
@@ -31900,16 +31900,16 @@
           "usSector": "AI_CLOUD",
           "currency": "USD",
           "open": 519.91,
-          "high": 523.57,
+          "high": 526.07,
           "low": 513.82,
-          "price": 522.71,
-          "changePct": -0.06,
+          "price": 523.95,
+          "changePct": 0.18,
           "yield": 0.75,
           "exDividendDate": "",
           "cashDividend": 0.83,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 6413313
+          "volShares": 10813850
         },
         {
           "id": "GOOGL Alphabet (Google)",
@@ -31920,15 +31920,15 @@
           "currency": "USD",
           "open": 302.98,
           "high": 304.97,
-          "low": 294.02,
-          "price": 294.5,
-          "changePct": -1.41,
+          "low": 293.44,
+          "price": 294.77,
+          "changePct": -1.32,
           "yield": 0.45,
           "exDividendDate": "",
           "cashDividend": 0.2,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 10691939
+          "volShares": 16461715
         },
         {
           "id": "AMZN 亞馬遜 (Amazon)",
@@ -31939,15 +31939,15 @@
           "currency": "USD",
           "open": 269.55,
           "high": 269.94,
-          "low": 264.61,
-          "price": 265.03,
-          "changePct": -0.9,
+          "low": 263.91,
+          "price": 265.06,
+          "changePct": -0.89,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 7472509
+          "volShares": 12743893
         },
         {
           "id": "META Meta (臉書)",
@@ -31959,14 +31959,14 @@
           "open": 627.21,
           "high": 637.24,
           "low": 624.83,
-          "price": 626.24,
-          "changePct": 0.42,
+          "price": 634.0,
+          "changePct": 1.67,
           "yield": 0.35,
           "exDividendDate": "",
           "cashDividend": 0.5,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 4510697
+          "volShares": 6732367
         },
         {
           "id": "TSLA 特斯拉 (Tesla)",
@@ -31977,15 +31977,15 @@
           "currency": "USD",
           "open": 401.94,
           "high": 404.4,
-          "low": 386.02,
-          "price": 387.99,
-          "changePct": -2.38,
+          "low": 385.83,
+          "price": 391.25,
+          "changePct": -1.56,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 2.2,
-          "volShares": 13902861
+          "volShares": 19478523
         },
         {
           "id": "PLTR Palantir (AI大數據)",
@@ -31997,14 +31997,14 @@
           "open": 171.98,
           "high": 172.28,
           "low": 164.75,
-          "price": 165.76,
-          "changePct": -3.39,
+          "price": 167.8,
+          "changePct": -2.2,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 4213180
+          "volShares": 7374996
         },
         {
           "id": "NFLX Netflix (網飛)",
@@ -32015,15 +32015,15 @@
           "currency": "USD",
           "open": 62.85,
           "high": 63.95,
-          "low": 62.47,
-          "price": 62.9,
-          "changePct": 0.34,
+          "low": 62.12,
+          "price": 62.32,
+          "changePct": -0.59,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 11349970
+          "volShares": 18590089
         },
         {
           "id": "CRM Salesforce",
@@ -32034,15 +32034,15 @@
           "currency": "USD",
           "open": 220.0,
           "high": 220.0,
-          "low": 216.01,
-          "price": 216.74,
-          "changePct": -0.38,
+          "low": 215.58,
+          "price": 217.54,
+          "changePct": -0.01,
           "yield": 0.55,
           "exDividendDate": "",
           "cashDividend": 0.4,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 1070578
+          "volShares": 2071573
         },
         {
           "id": "ORCL 甲骨文 (Oracle)",
@@ -32054,14 +32054,14 @@
           "open": 127.5,
           "high": 128.0,
           "low": 121.76,
-          "price": 123.86,
-          "changePct": -2.56,
+          "price": 123.83,
+          "changePct": -2.58,
           "yield": 0.95,
           "exDividendDate": "",
           "cashDividend": 0.4,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 7422572
+          "volShares": 11868013
         },
         {
           "id": "ADBE Adobe",
@@ -32073,14 +32073,14 @@
           "open": 240.19,
           "high": 241.96,
           "low": 237.94,
-          "price": 241.0,
-          "changePct": 1.03,
+          "price": 241.18,
+          "changePct": 1.11,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 482618
+          "volShares": 882683
         },
         {
           "id": "NOW ServiceNow",
@@ -32091,15 +32091,15 @@
           "currency": "USD",
           "open": 102.2,
           "high": 102.5,
-          "low": 99.92,
-          "price": 100.53,
-          "changePct": -0.13,
+          "low": 99.72,
+          "price": 101.09,
+          "changePct": 0.43,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 2350718
+          "volShares": 3807105
         },
         {
           "id": "INTU Intuit",
@@ -32111,14 +32111,14 @@
           "open": 344.55,
           "high": 345.95,
           "low": 341.06,
-          "price": 344.5,
-          "changePct": 1.27,
+          "price": 341.69,
+          "changePct": 0.45,
           "yield": 0.65,
           "exDividendDate": "",
           "cashDividend": 1.04,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 211213
+          "volShares": 393805
         },
         {
           "id": "IBM IBM",
@@ -32128,16 +32128,16 @@
           "usSector": "VALUE",
           "currency": "USD",
           "open": 246.63,
-          "high": 247.09,
+          "high": 247.1,
           "low": 244.83,
-          "price": 246.85,
-          "changePct": 0.89,
+          "price": 246.46,
+          "changePct": 0.73,
           "yield": 3.1,
           "exDividendDate": "2026-11-10",
           "cashDividend": 1.69,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 682990
+          "volShares": 930508
         },
         {
           "id": "PANW Palo Alto (資安)",
@@ -32148,15 +32148,15 @@
           "currency": "USD",
           "open": 331.75,
           "high": 332.0,
-          "low": 315.25,
-          "price": 317.05,
-          "changePct": -1.74,
+          "low": 314.86,
+          "price": 320.88,
+          "changePct": -0.55,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 1434437
+          "volShares": 2242594
         },
         {
           "id": "CRWD CrowdStrike (資安)",
@@ -32168,14 +32168,14 @@
           "open": 235.5,
           "high": 235.85,
           "low": 219.35,
-          "price": 220.73,
-          "changePct": -3.98,
+          "price": 224.54,
+          "changePct": -2.32,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 1882303
+          "volShares": 2806704
         },
         {
           "id": "FTNT Fortinet (資安)",
@@ -32186,15 +32186,15 @@
           "currency": "USD",
           "open": 131.71,
           "high": 131.71,
-          "low": 125.25,
-          "price": 125.69,
-          "changePct": -2.97,
+          "low": 125.14,
+          "price": 126.65,
+          "changePct": -2.23,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 622070
+          "volShares": 1103795
         },
         {
           "id": "SNOW Snowflake",
@@ -32206,14 +32206,14 @@
           "open": 301.62,
           "high": 301.62,
           "low": 283.41,
-          "price": 285.09,
-          "changePct": -4.56,
+          "price": 287.24,
+          "changePct": -3.83,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 726180
+          "volShares": 1422996
         },
         {
           "id": "DDOG Datadog",
@@ -32224,15 +32224,15 @@
           "currency": "USD",
           "open": 188.24,
           "high": 188.44,
-          "low": 178.46,
-          "price": 179.0,
-          "changePct": -2.96,
+          "low": 178.1,
+          "price": 181.22,
+          "changePct": -1.76,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 712573
+          "volShares": 1155585
         },
         {
           "id": "APP AppLovin (AI廣告)",
@@ -32244,14 +32244,14 @@
           "open": 394.88,
           "high": 413.88,
           "low": 391.49,
-          "price": 403.5,
-          "changePct": 2.49,
+          "price": 408.4,
+          "changePct": 3.74,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 1145433
+          "volShares": 1740758
         },
         {
           "id": "UBER Uber (優步)",
@@ -32263,14 +32263,14 @@
           "open": 69.32,
           "high": 70.5,
           "low": 69.03,
-          "price": 69.31,
-          "changePct": 0.28,
+          "price": 69.59,
+          "changePct": 0.68,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 2514303
+          "volShares": 4802815
         },
         {
           "id": "ABNB Airbnb",
@@ -32280,16 +32280,16 @@
           "usSector": "TECH",
           "currency": "USD",
           "open": 182.66,
-          "high": 186.07,
+          "high": 186.63,
           "low": 181.8,
-          "price": 184.99,
-          "changePct": 2.13,
+          "price": 186.27,
+          "changePct": 2.84,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 1006061
+          "volShares": 1739803
         },
         {
           "id": "BKNG Booking Holdings",
@@ -32301,14 +32301,14 @@
           "open": 161.93,
           "high": 163.36,
           "low": 159.59,
-          "price": 161.44,
-          "changePct": 0.15,
+          "price": 160.49,
+          "changePct": -0.44,
           "yield": 0.75,
           "exDividendDate": "",
           "cashDividend": 8.75,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 610089
+          "volShares": 1011635
         },
         {
           "id": "MELI MercadoLibre",
@@ -32318,16 +32318,16 @@
           "usSector": "TECH",
           "currency": "USD",
           "open": 1479.8,
-          "high": 1492.03,
+          "high": 1495.0,
           "low": 1463.2,
-          "price": 1477.36,
-          "changePct": 0.15,
+          "price": 1491.14,
+          "changePct": 1.09,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 101913
+          "volShares": 191900
         },
         {
           "id": "AVGO 博通 (Broadcom)",
@@ -32338,15 +32338,15 @@
           "currency": "USD",
           "open": 356.54,
           "high": 358.47,
-          "low": 339.53,
-          "price": 340.8,
-          "changePct": -6.47,
+          "low": 337.67,
+          "price": 344.82,
+          "changePct": -5.36,
           "yield": 1.2,
           "exDividendDate": "",
           "cashDividend": 0.53,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 9497986
+          "volShares": 15031679
         },
         {
           "id": "AMD 超微 (AMD)",
@@ -32357,15 +32357,15 @@
           "currency": "USD",
           "open": 566.67,
           "high": 571.12,
-          "low": 525.05,
-          "price": 528.5,
-          "changePct": -9.7,
+          "low": 520.01,
+          "price": 523.27,
+          "changePct": -10.6,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 17440742
+          "volShares": 27714886
         },
         {
           "id": "TSM 台積電ADR (TSMC)",
@@ -32376,15 +32376,15 @@
           "currency": "USD",
           "open": 407.6,
           "high": 408.08,
-          "low": 392.02,
-          "price": 393.57,
-          "changePct": -2.94,
+          "low": 391.5,
+          "price": 395.12,
+          "changePct": -2.56,
           "yield": 1.35,
           "exDividendDate": "",
           "cashDividend": 0.68,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 4549275
+          "volShares": 6586897
         },
         {
           "id": "ASML 艾司摩爾 (ASML)",
@@ -32396,14 +32396,14 @@
           "open": 1488.18,
           "high": 1506.51,
           "low": 1462.41,
-          "price": 1469.9,
-          "changePct": -1.82,
+          "price": 1479.0,
+          "changePct": -1.21,
           "yield": 0.95,
           "exDividendDate": "2026-10-27",
           "cashDividend": 2.096,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 531148
+          "volShares": 773329
         },
         {
           "id": "QCOM 高通 (Qualcomm)",
@@ -32414,15 +32414,15 @@
           "currency": "USD",
           "open": 176.4,
           "high": 177.53,
-          "low": 167.5,
-          "price": 168.06,
-          "changePct": -5.13,
+          "low": 167.2,
+          "price": 170.58,
+          "changePct": -3.7,
           "yield": 2.0,
           "exDividendDate": "",
           "cashDividend": 0.85,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 2517742
+          "volShares": 4069941
         },
         {
           "id": "TXN 德州儀器 (TI)",
@@ -32433,15 +32433,15 @@
           "currency": "USD",
           "open": 311.5,
           "high": 312.0,
-          "low": 296.26,
-          "price": 297.31,
-          "changePct": -4.85,
+          "low": 294.74,
+          "price": 300.59,
+          "changePct": -3.81,
           "yield": 2.65,
           "exDividendDate": "2026-10-30",
           "cashDividend": 1.52,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 1058172
+          "volShares": 1746077
         },
         {
           "id": "MU 美光 (Micron)",
@@ -32452,15 +32452,15 @@
           "currency": "USD",
           "open": 782.66,
           "high": 796.18,
-          "low": 754.0,
-          "price": 758.76,
-          "changePct": -4.97,
+          "low": 750.25,
+          "price": 760.25,
+          "changePct": -4.78,
           "yield": 0.45,
           "exDividendDate": "2026-10-14",
           "cashDividend": 0.15,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 9740176
+          "volShares": 14703262
         },
         {
           "id": "AMAT 應用材料",
@@ -32471,15 +32471,15 @@
           "currency": "USD",
           "open": 376.39,
           "high": 381.22,
-          "low": 354.81,
-          "price": 356.08,
-          "changePct": -6.53,
+          "low": 352.23,
+          "price": 362.69,
+          "changePct": -4.79,
           "yield": 0.85,
           "exDividendDate": "",
           "cashDividend": 0.4,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 3204475
+          "volShares": 4511019
         },
         {
           "id": "LRCX 科林研發 (Lam)",
@@ -32490,15 +32490,15 @@
           "currency": "USD",
           "open": 229.57,
           "high": 233.75,
-          "low": 220.71,
-          "price": 222.05,
-          "changePct": -5.02,
+          "low": 218.9,
+          "price": 224.47,
+          "changePct": -3.98,
           "yield": 1.1,
           "exDividendDate": "",
           "cashDividend": 0.23,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 1852807
+          "volShares": 3538541
         },
         {
           "id": "KLAC 科磊 (KLA)",
@@ -32510,14 +32510,14 @@
           "open": 154.28,
           "high": 156.42,
           "low": 146.8,
-          "price": 148.31,
-          "changePct": -5.72,
+          "price": 150.77,
+          "changePct": -4.15,
           "yield": 0.9,
           "exDividendDate": "",
           "cashDividend": 1.7,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 2722259
+          "volShares": 3961733
         },
         {
           "id": "ADI 亞德諾半導體",
@@ -32528,15 +32528,15 @@
           "currency": "USD",
           "open": 407.89,
           "high": 410.09,
-          "low": 390.25,
-          "price": 391.77,
-          "changePct": -4.28,
+          "low": 388.87,
+          "price": 394.8,
+          "changePct": -3.54,
           "yield": 1.65,
           "exDividendDate": "",
           "cashDividend": 0.92,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 544982
+          "volShares": 987660
         },
         {
           "id": "INTC 英特爾 (Intel)",
@@ -32548,14 +32548,14 @@
           "open": 60.65,
           "high": 61.34,
           "low": 57.0,
-          "price": 57.26,
-          "changePct": -6.45,
+          "price": 58.48,
+          "changePct": -4.44,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 32532844
+          "volShares": 51997462
         },
         {
           "id": "ARM 安謀 (Arm Holdings)",
@@ -32566,15 +32566,15 @@
           "currency": "USD",
           "open": 196.66,
           "high": 199.39,
-          "low": 183.84,
-          "price": 184.57,
-          "changePct": -7.61,
+          "low": 180.5,
+          "price": 188.99,
+          "changePct": -5.4,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 1655368
+          "volShares": 3623285
         },
         {
           "id": "MRVL 邁威爾 (Marvell)",
@@ -32586,14 +32586,14 @@
           "open": 161.9,
           "high": 163.89,
           "low": 149.17,
-          "price": 150.68,
-          "changePct": -8.38,
+          "price": 153.85,
+          "changePct": -6.45,
           "yield": 0.28,
           "exDividendDate": "",
           "cashDividend": 0.06,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 9401981
+          "volShares": 13296936
         },
         {
           "id": "NXPI 恩智浦 (NXP)",
@@ -32604,15 +32604,15 @@
           "currency": "USD",
           "open": 267.04,
           "high": 267.32,
-          "low": 254.53,
-          "price": 255.62,
-          "changePct": -4.37,
+          "low": 253.31,
+          "price": 260.24,
+          "changePct": -2.64,
           "yield": 1.75,
           "exDividendDate": "",
           "cashDividend": 1.014,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 883672
+          "volShares": 1418085
         },
         {
           "id": "SNPS 新思科技 (Synopsys)",
@@ -32623,15 +32623,15 @@
           "currency": "USD",
           "open": 462.4,
           "high": 462.59,
-          "low": 449.21,
-          "price": 451.5,
-          "changePct": -2.42,
+          "low": 447.21,
+          "price": 452.89,
+          "changePct": -2.12,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 164107
+          "volShares": 419461
         },
         {
           "id": "CDNS 益華電腦 (Cadence)",
@@ -32642,15 +32642,15 @@
           "currency": "USD",
           "open": 334.19,
           "high": 335.0,
-          "low": 321.99,
-          "price": 324.91,
-          "changePct": -2.52,
+          "low": 319.86,
+          "price": 322.83,
+          "changePct": -3.15,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 217797
+          "volShares": 461389
         },
         {
           "id": "ANET Arista (AI高速網通)",
@@ -32661,15 +32661,15 @@
           "currency": "USD",
           "open": 204.9,
           "high": 212.15,
-          "low": 196.02,
-          "price": 196.85,
-          "changePct": -4.74,
+          "low": 195.26,
+          "price": 198.1,
+          "changePct": -4.13,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 2627394
+          "volShares": 4520290
         },
         {
           "id": "SMCI 美超微 (SuperMicro)",
@@ -32680,15 +32680,15 @@
           "currency": "USD",
           "open": 27.0,
           "high": 27.3,
-          "low": 26.11,
+          "low": 25.89,
           "price": 26.28,
-          "changePct": -2.63,
+          "changePct": -2.61,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 2.2,
-          "volShares": 15588580
+          "volShares": 24448314
         },
         {
           "id": "DELL 戴爾 (Dell AI伺服器)",
@@ -32699,15 +32699,15 @@
           "currency": "USD",
           "open": 367.51,
           "high": 375.27,
-          "low": 336.14,
-          "price": 339.93,
-          "changePct": -8.42,
+          "low": 330.42,
+          "price": 336.32,
+          "changePct": -9.39,
           "yield": 1.4,
           "exDividendDate": "2026-10-20",
           "cashDividend": 0.63,
           "isETB": true,
           "borrowFeeRate": 0.55,
-          "volShares": 2667650
+          "volShares": 5122776
         },
         {
           "id": "VRT Vertiv (AI液冷散熱)",
@@ -32719,14 +32719,14 @@
           "open": 213.06,
           "high": 214.49,
           "low": 196.01,
-          "price": 197.73,
-          "changePct": -5.68,
+          "price": 200.21,
+          "changePct": -4.5,
           "yield": 0.1,
           "exDividendDate": "",
           "cashDividend": 0.025,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 1602288
+          "volShares": 2383246
         },
         {
           "id": "VST Vistra (AI核能電力)",
@@ -32738,14 +32738,14 @@
           "open": 134.74,
           "high": 135.36,
           "low": 130.34,
-          "price": 132.06,
-          "changePct": -1.82,
+          "price": 131.19,
+          "changePct": -2.47,
           "yield": 0.65,
           "exDividendDate": "",
           "cashDividend": 0.22,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 696801
+          "volShares": 1288960
         },
         {
           "id": "CEG Constellation (核電)",
@@ -32756,15 +32756,15 @@
           "currency": "USD",
           "open": 284.97,
           "high": 284.97,
-          "low": 275.52,
-          "price": 277.54,
-          "changePct": -1.72,
+          "low": 275.48,
+          "price": 276.8,
+          "changePct": -1.98,
           "yield": 0.55,
           "exDividendDate": "",
           "cashDividend": 0.35,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 476130
+          "volShares": 944378
         },
         {
           "id": "GEV GE Vernova (重電渦輪)",
@@ -32775,15 +32775,15 @@
           "currency": "USD",
           "open": 831.62,
           "high": 838.97,
-          "low": 790.13,
-          "price": 793.19,
+          "low": 787.31,
+          "price": 793.16,
           "changePct": -3.09,
           "yield": 0.0,
           "exDividendDate": "2026-10-27",
           "cashDividend": 0.5,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 855706
+          "volShares": 1551420
         },
         {
           "id": "ETN 伊頓 (Eaton 電網基建)",
@@ -32795,14 +32795,14 @@
           "open": 361.5,
           "high": 363.13,
           "low": 347.58,
-          "price": 348.95,
-          "changePct": -2.81,
+          "price": 351.48,
+          "changePct": -2.11,
           "yield": 1.1,
           "exDividendDate": "2026-11-10",
           "cashDividend": 1.1,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 332743
+          "volShares": 603591
         },
         {
           "id": "BRK-B 波克夏B (Berkshire)",
@@ -32812,16 +32812,16 @@
           "usSector": "BUFFETT_VALUE",
           "currency": "USD",
           "open": 592.5,
-          "high": 595.0,
+          "high": 595.15,
           "low": 590.62,
-          "price": 593.15,
-          "changePct": 0.56,
+          "price": 594.04,
+          "changePct": 0.71,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 1135817
+          "volShares": 2205456
         },
         {
           "id": "JPM 摩根大通 (JPMorgan)",
@@ -32833,14 +32833,14 @@
           "open": 346.41,
           "high": 346.8,
           "low": 342.79,
-          "price": 344.45,
-          "changePct": 0.48,
+          "price": 344.26,
+          "changePct": 0.42,
           "yield": 2.1,
           "exDividendDate": "",
           "cashDividend": 1.25,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 737231
+          "volShares": 1386709
         },
         {
           "id": "BAC 美國銀行 (BoA)",
@@ -32852,14 +32852,14 @@
           "open": 50.89,
           "high": 50.92,
           "low": 50.43,
-          "price": 50.6,
-          "changePct": 0.18,
+          "price": 50.67,
+          "changePct": 0.32,
           "yield": 2.45,
           "exDividendDate": "",
           "cashDividend": 0.26,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 3884493
+          "volShares": 6975244
         },
         {
           "id": "WFC 富國銀行 (WellsFargo)",
@@ -32870,15 +32870,15 @@
           "currency": "USD",
           "open": 86.47,
           "high": 86.85,
-          "low": 85.64,
-          "price": 86.09,
-          "changePct": 0.38,
+          "low": 85.6,
+          "price": 85.63,
+          "changePct": -0.15,
           "yield": 2.3,
           "exDividendDate": "2026-11-06",
           "cashDividend": 0.5,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 3249391
+          "volShares": 4485803
         },
         {
           "id": "GS 高盛 (Goldman Sachs)",
@@ -32889,15 +32889,15 @@
           "currency": "USD",
           "open": 922.7,
           "high": 923.0,
-          "low": 904.41,
-          "price": 909.47,
-          "changePct": -0.45,
+          "low": 903.35,
+          "price": 909.03,
+          "changePct": -0.5,
           "yield": 2.2,
           "exDividendDate": "",
           "cashDividend": 3.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 304299
+          "volShares": 508821
         },
         {
           "id": "MS 摩根士丹利",
@@ -32909,14 +32909,14 @@
           "open": 191.99,
           "high": 192.01,
           "low": 188.32,
-          "price": 188.8,
-          "changePct": -0.2,
+          "price": 189.83,
+          "changePct": 0.35,
           "yield": 3.05,
           "exDividendDate": "2026-10-30",
           "cashDividend": 1.15,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 1027328
+          "volShares": 1783624
         },
         {
           "id": "AXP 美國運通 (Amex)",
@@ -32928,14 +32928,14 @@
           "open": 320.7,
           "high": 321.94,
           "low": 318.56,
-          "price": 320.8,
-          "changePct": 0.86,
+          "price": 319.31,
+          "changePct": 0.39,
           "yield": 1.05,
           "exDividendDate": "",
           "cashDividend": 0.7,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 334063
+          "volShares": 604312
         },
         {
           "id": "V Visa",
@@ -32945,16 +32945,16 @@
           "usSector": "BUFFETT_VALUE",
           "currency": "USD",
           "open": 423.67,
-          "high": 426.64,
+          "high": 427.11,
           "low": 422.59,
-          "price": 426.38,
-          "changePct": 1.44,
+          "price": 426.55,
+          "changePct": 1.48,
           "yield": 0.78,
           "exDividendDate": "2026-11-10",
           "cashDividend": 0.78,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 959188
+          "volShares": 1868413
         },
         {
           "id": "MA Mastercard",
@@ -32964,16 +32964,16 @@
           "usSector": "BUFFETT_VALUE",
           "currency": "USD",
           "open": 655.9,
-          "high": 661.86,
+          "high": 662.68,
           "low": 655.0,
-          "price": 661.45,
+          "price": 661.48,
           "changePct": 1.36,
           "yield": 0.55,
           "exDividendDate": "",
           "cashDividend": 0.66,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 470973
+          "volShares": 850512
         },
         {
           "id": "BLK 貝萊德 (BlackRock)",
@@ -32985,14 +32985,14 @@
           "open": 1229.72,
           "high": 1232.7,
           "low": 1210.85,
-          "price": 1219.33,
-          "changePct": 0.22,
+          "price": 1218.28,
+          "changePct": 0.14,
           "yield": 2.05,
           "exDividendDate": "",
           "cashDividend": 5.1,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 64247
+          "volShares": 124109
         },
         {
           "id": "WMT 沃爾瑪 (Walmart)",
@@ -33002,16 +33002,16 @@
           "usSector": "BUFFETT_VALUE",
           "currency": "USD",
           "open": 126.76,
-          "high": 128.19,
+          "high": 128.27,
           "low": 126.24,
-          "price": 127.99,
-          "changePct": 1.42,
+          "price": 128.23,
+          "changePct": 1.61,
           "yield": 1.05,
           "exDividendDate": "",
           "cashDividend": 0.2075,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 3622782
+          "volShares": 6014582
         },
         {
           "id": "COST 好市多 (Costco)",
@@ -33021,16 +33021,16 @@
           "usSector": "BUFFETT_VALUE",
           "currency": "USD",
           "open": 1094.59,
-          "high": 1109.31,
+          "high": 1109.5,
           "low": 1092.64,
-          "price": 1108.48,
-          "changePct": 1.49,
+          "price": 1107.86,
+          "changePct": 1.43,
           "yield": 0.52,
           "exDividendDate": "2026-10-30",
           "cashDividend": 1.47,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 418732
+          "volShares": 746117
         },
         {
           "id": "HD 家得寶 (Home Depot)",
@@ -33040,16 +33040,16 @@
           "usSector": "VALUE",
           "currency": "USD",
           "open": 344.0,
-          "high": 347.59,
+          "high": 349.43,
           "low": 343.26,
-          "price": 347.34,
-          "changePct": -0.26,
+          "price": 348.98,
+          "changePct": 0.21,
           "yield": 2.25,
           "exDividendDate": "",
           "cashDividend": 2.25,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 1088611
+          "volShares": 1570982
         },
         {
           "id": "KO 可口可樂 (Coca-Cola)",
@@ -33059,16 +33059,16 @@
           "usSector": "BUFFETT_VALUE",
           "currency": "USD",
           "open": 98.18,
-          "high": 99.23,
+          "high": 99.29,
           "low": 97.96,
-          "price": 99.09,
-          "changePct": 1.69,
+          "price": 98.96,
+          "changePct": 1.56,
           "yield": 3.05,
           "exDividendDate": "",
           "cashDividend": 0.485,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 3364445
+          "volShares": 6314187
         },
         {
           "id": "PEP 百事可樂 (PepsiCo)",
@@ -33078,16 +33078,16 @@
           "usSector": "BUFFETT_VALUE",
           "currency": "USD",
           "open": 142.96,
-          "high": 144.74,
+          "high": 144.93,
           "low": 142.53,
-          "price": 144.61,
-          "changePct": 1.65,
+          "price": 144.26,
+          "changePct": 1.41,
           "yield": 3.25,
           "exDividendDate": "",
           "cashDividend": 1.355,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 862396
+          "volShares": 2020321
         },
         {
           "id": "PG 寶僑 (P&G)",
@@ -33097,16 +33097,16 @@
           "usSector": "BUFFETT_VALUE",
           "currency": "USD",
           "open": 168.97,
-          "high": 170.67,
+          "high": 170.73,
           "low": 168.5,
-          "price": 170.49,
-          "changePct": 1.47,
+          "price": 169.84,
+          "changePct": 1.08,
           "yield": 2.4,
           "exDividendDate": "2026-10-23",
           "cashDividend": 1.089,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 1579286
+          "volShares": 3179753
         },
         {
           "id": "MCD 麥當勞 (McDonald's)",
@@ -33118,14 +33118,14 @@
           "open": 274.4,
           "high": 275.64,
           "low": 273.13,
-          "price": 275.56,
-          "changePct": 0.71,
+          "price": 273.8,
+          "changePct": 0.06,
           "yield": 2.35,
           "exDividendDate": "",
           "cashDividend": 1.77,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 575893
+          "volShares": 1283644
         },
         {
           "id": "SBUX 星巴克 (Starbucks)",
@@ -33137,14 +33137,14 @@
           "open": 106.61,
           "high": 107.61,
           "low": 106.39,
-          "price": 107.18,
-          "changePct": -0.07,
+          "price": 106.71,
+          "changePct": -0.51,
           "yield": 2.45,
           "exDividendDate": "",
           "cashDividend": 0.61,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 805148
+          "volShares": 1560694
         },
         {
           "id": "NKE 耐吉 (Nike)",
@@ -33156,14 +33156,14 @@
           "open": 37.9,
           "high": 38.33,
           "low": 37.63,
-          "price": 38.12,
-          "changePct": 0.97,
+          "price": 37.94,
+          "changePct": 0.49,
           "yield": 1.95,
           "exDividendDate": "",
           "cashDividend": 0.4,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 2963665
+          "volShares": 5009293
         },
         {
           "id": "DIS 迪士尼 (Disney)",
@@ -33175,14 +33175,14 @@
           "open": 118.43,
           "high": 119.47,
           "low": 118.0,
-          "price": 119.06,
-          "changePct": 0.7,
+          "price": 119.3,
+          "changePct": 0.91,
           "yield": 0.9,
           "exDividendDate": "",
           "cashDividend": 0.45,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 989926
+          "volShares": 2311799
         },
         {
           "id": "LLY 禮來 (Eli Lilly)",
@@ -33192,16 +33192,16 @@
           "usSector": "HEALTH",
           "currency": "USD",
           "open": 1429.91,
-          "high": 1438.99,
+          "high": 1441.83,
           "low": 1419.81,
-          "price": 1437.27,
-          "changePct": 0.7,
+          "price": 1440.49,
+          "changePct": 0.93,
           "yield": 0.65,
           "exDividendDate": "",
           "cashDividend": 1.3,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 436896
+          "volShares": 745981
         },
         {
           "id": "UNH 聯合健康 (UnitedHealth)",
@@ -33212,15 +33212,15 @@
           "currency": "USD",
           "open": 407.89,
           "high": 408.0,
-          "low": 400.55,
-          "price": 403.86,
-          "changePct": -0.31,
+          "low": 400.5,
+          "price": 401.18,
+          "changePct": -0.97,
           "yield": 1.5,
           "exDividendDate": "",
           "cashDividend": 2.1,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 803531
+          "volShares": 1259536
         },
         {
           "id": "JNJ 嬌生 (J&J)",
@@ -33232,14 +33232,14 @@
           "open": 285.0,
           "high": 288.11,
           "low": 284.03,
-          "price": 287.74,
-          "changePct": 1.49,
+          "price": 285.95,
+          "changePct": 0.86,
           "yield": 3.2,
           "exDividendDate": "",
           "cashDividend": 1.24,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 1189162
+          "volShares": 2123530
         },
         {
           "id": "ABBV 艾伯維 (AbbVie)",
@@ -33251,14 +33251,14 @@
           "open": 296.58,
           "high": 297.25,
           "low": 293.56,
-          "price": 296.33,
-          "changePct": 0.64,
+          "price": 294.36,
+          "changePct": -0.03,
           "yield": 3.55,
           "exDividendDate": "2026-10-15",
           "cashDividend": 1.73,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 671612
+          "volShares": 1235768
         },
         {
           "id": "MRK 默克 (Merck)",
@@ -33270,14 +33270,14 @@
           "open": 147.31,
           "high": 147.79,
           "low": 145.24,
-          "price": 146.73,
-          "changePct": -0.15,
+          "price": 146.33,
+          "changePct": -0.42,
           "yield": 3.1,
           "exDividendDate": "",
           "cashDividend": 0.81,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 970813
+          "volShares": 1736967
         },
         {
           "id": "PFE 輝瑞 (Pfizer)",
@@ -33288,15 +33288,15 @@
           "currency": "USD",
           "open": 28.92,
           "high": 28.99,
-          "low": 28.66,
-          "price": 28.77,
-          "changePct": -0.19,
+          "low": 28.62,
+          "price": 28.7,
+          "changePct": -0.44,
           "yield": 6.1,
           "exDividendDate": "2026-11-06",
           "cashDividend": 0.43,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 4885043
+          "volShares": 8735186
         },
         {
           "id": "AMGN 安進 (Amgen)",
@@ -33308,14 +33308,14 @@
           "open": 467.53,
           "high": 468.0,
           "low": 462.22,
-          "price": 466.06,
-          "changePct": -0.21,
+          "price": 465.95,
+          "changePct": -0.24,
           "yield": 3.0,
           "exDividendDate": "",
           "cashDividend": 2.25,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 210579
+          "volShares": 381306
         },
         {
           "id": "ISRG 直覺手術 (達文西手臂)",
@@ -33327,14 +33327,14 @@
           "open": 443.69,
           "high": 448.77,
           "low": 441.0,
-          "price": 447.16,
-          "changePct": 1.65,
+          "price": 444.82,
+          "changePct": 1.12,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 330241
+          "volShares": 517540
         },
         {
           "id": "GILD 吉利德科學",
@@ -33346,14 +33346,14 @@
           "open": 168.54,
           "high": 169.12,
           "low": 166.94,
-          "price": 168.9,
-          "changePct": 0.56,
+          "price": 168.4,
+          "changePct": 0.27,
           "yield": 3.4,
           "exDividendDate": "",
           "cashDividend": 0.77,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 486755
+          "volShares": 1102791
         },
         {
           "id": "VRTX 福泰製藥 (Vertex)",
@@ -33365,14 +33365,14 @@
           "open": 542.0,
           "high": 543.73,
           "low": 536.12,
-          "price": 539.99,
-          "changePct": -0.48,
+          "price": 538.55,
+          "changePct": -0.75,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 89716
+          "volShares": 189089
         },
         {
           "id": "REGN 再生元製藥",
@@ -33382,16 +33382,16 @@
           "usSector": "HEALTH",
           "currency": "USD",
           "open": 952.47,
-          "high": 955.04,
+          "high": 956.36,
           "low": 942.0,
-          "price": 951.0,
-          "changePct": -0.02,
+          "price": 954.38,
+          "changePct": 0.34,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 107866
+          "volShares": 188246
         },
         {
           "id": "XOM 埃克森美孚 (Exxon)",
@@ -33402,15 +33402,15 @@
           "currency": "USD",
           "open": 171.43,
           "high": 171.71,
-          "low": 169.29,
-          "price": 170.4,
-          "changePct": 0.37,
+          "low": 169.21,
+          "price": 169.5,
+          "changePct": -0.16,
           "yield": 3.35,
           "exDividendDate": "",
           "cashDividend": 0.99,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 1780159
+          "volShares": 3365972
         },
         {
           "id": "CVX 雪佛龍 (Chevron)",
@@ -33420,16 +33420,16 @@
           "usSector": "BUFFETT_VALUE",
           "currency": "USD",
           "open": 218.27,
-          "high": 218.94,
+          "high": 218.99,
           "low": 216.58,
-          "price": 218.14,
-          "changePct": 0.83,
+          "price": 217.88,
+          "changePct": 0.71,
           "yield": 4.15,
           "exDividendDate": "",
           "cashDividend": 1.63,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 892718
+          "volShares": 1754125
         },
         {
           "id": "OXY 西方石油 (Occidental)",
@@ -33441,14 +33441,14 @@
           "open": 59.0,
           "high": 59.03,
           "low": 58.15,
-          "price": 58.58,
-          "changePct": 0.32,
+          "price": 58.53,
+          "changePct": 0.23,
           "yield": 1.75,
           "exDividendDate": "",
           "cashDividend": 0.22,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 1731547
+          "volShares": 3627298
         },
         {
           "id": "CAT 卡特彼勒 (Caterpillar)",
@@ -33459,15 +33459,15 @@
           "currency": "USD",
           "open": 611.93,
           "high": 611.19,
-          "low": 591.62,
-          "price": 593.5,
-          "changePct": -1.95,
+          "low": 590.26,
+          "price": 594.5,
+          "changePct": -1.78,
           "yield": 1.45,
           "exDividendDate": "2026-10-26",
           "cashDividend": 1.63,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 449256
+          "volShares": 844640
         },
         {
           "id": "GE 奇異航太 (GE Aerospace)",
@@ -33479,14 +33479,14 @@
           "open": 332.38,
           "high": 333.39,
           "low": 328.1,
-          "price": 331.25,
-          "changePct": 0.12,
+          "price": 331.92,
+          "changePct": 0.32,
           "yield": 0.65,
           "exDividendDate": "",
           "cashDividend": 0.28,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 399376
+          "volShares": 858376
         },
         {
           "id": "RTX 雷神技術 (RTX軍工)",
@@ -33498,14 +33498,14 @@
           "open": 199.39,
           "high": 200.0,
           "low": 196.37,
-          "price": 198.05,
-          "changePct": -0.16,
+          "price": 198.09,
+          "changePct": -0.14,
           "yield": 2.05,
           "exDividendDate": "",
           "cashDividend": 0.63,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 330225
+          "volShares": 719316
         },
         {
           "id": "LMT 洛克希德馬丁 (軍工)",
@@ -33516,15 +33516,15 @@
           "currency": "USD",
           "open": 605.0,
           "high": 605.86,
-          "low": 590.73,
-          "price": 595.21,
-          "changePct": -1.47,
+          "low": 588.74,
+          "price": 590.82,
+          "changePct": -2.2,
           "yield": 2.35,
           "exDividendDate": "",
           "cashDividend": 3.3,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 136411
+          "volShares": 295891
         },
         {
           "id": "BA 波音 (Boeing)",
@@ -33535,15 +33535,15 @@
           "currency": "USD",
           "open": 171.49,
           "high": 171.75,
-          "low": 169.74,
-          "price": 170.5,
-          "changePct": -0.61,
+          "low": 169.56,
+          "price": 170.59,
+          "changePct": -0.56,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 1221081
+          "volShares": 2041557
         },
         {
           "id": "HON 霍尼韋爾 (Honeywell)",
@@ -33555,14 +33555,14 @@
           "open": 222.75,
           "high": 223.43,
           "low": 219.68,
-          "price": 221.45,
-          "changePct": -0.9,
+          "price": 220.91,
+          "changePct": -1.13,
           "yield": 2.1,
           "exDividendDate": "",
           "cashDividend": 1.13,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 257742
+          "volShares": 449486
         },
         {
           "id": "UNP 聯合太平洋鐵路",
@@ -33573,15 +33573,15 @@
           "currency": "USD",
           "open": 306.39,
           "high": 307.16,
-          "low": 304.62,
-          "price": 306.82,
-          "changePct": 0.86,
+          "low": 303.55,
+          "price": 304.37,
+          "changePct": 0.06,
           "yield": 2.2,
           "exDividendDate": "",
           "cashDividend": 1.34,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 337802
+          "volShares": 599146
         },
         {
           "id": "LIN 林德集團 (Linde)",
@@ -33591,16 +33591,16 @@
           "usSector": "VALUE",
           "currency": "USD",
           "open": 526.15,
-          "high": 526.72,
+          "high": 526.78,
           "low": 521.47,
-          "price": 524.72,
+          "price": 524.75,
           "changePct": 0.43,
           "yield": 1.25,
           "exDividendDate": "",
           "cashDividend": 1.39,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 270565
+          "volShares": 498445
         },
         {
           "id": "NEE NextEra (北美綠電王)",
@@ -33612,14 +33612,14 @@
           "open": 84.98,
           "high": 85.42,
           "low": 84.37,
-          "price": 84.82,
-          "changePct": -0.55,
+          "price": 84.86,
+          "changePct": -0.5,
           "yield": 2.75,
           "exDividendDate": "",
           "cashDividend": 0.515,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 3542132
+          "volShares": 5437355
         },
         {
           "id": "GME GameStop (遊戲驛站)",
@@ -33631,14 +33631,14 @@
           "open": 25.75,
           "high": 26.47,
           "low": 25.78,
-          "price": 26.29,
-          "changePct": 2.62,
+          "price": 26.13,
+          "changePct": 1.98,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": false,
           "borrowFeeRate": 28.5,
-          "volShares": 5123139
+          "volShares": 6402315
         },
         {
           "id": "AMC AMC院線 (AMC迷因)",
@@ -33649,15 +33649,15 @@
           "currency": "USD",
           "open": 3.34,
           "high": 3.37,
-          "low": 3.27,
-          "price": 3.29,
-          "changePct": -1.65,
+          "low": 3.23,
+          "price": 3.26,
+          "changePct": -2.54,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": false,
           "borrowFeeRate": 28.5,
-          "volShares": 3061973
+          "volShares": 8555875
         },
         {
           "id": "RDDT Reddit (鄉民論壇本尊)",
@@ -33669,14 +33669,14 @@
           "open": 98.75,
           "high": 100.59,
           "low": 97.98,
-          "price": 98.98,
-          "changePct": -0.57,
+          "price": 99.65,
+          "changePct": 0.1,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 2.2,
-          "volShares": 963910
+          "volShares": 1456897
         },
         {
           "id": "MSTR MicroStrategy (微策略)",
@@ -33688,14 +33688,14 @@
           "open": 112.0,
           "high": 112.63,
           "low": 108.25,
-          "price": 108.75,
-          "changePct": -4.95,
+          "price": 109.38,
+          "changePct": -4.4,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 2.2,
-          "volShares": 7218706
+          "volShares": 10378543
         },
         {
           "id": "COIN Coinbase (加密交易所)",
@@ -33707,14 +33707,14 @@
           "open": 127.28,
           "high": 130.6,
           "low": 125.38,
-          "price": 125.78,
-          "changePct": -3.75,
+          "price": 127.58,
+          "changePct": -2.36,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 2.2,
-          "volShares": 2966758
+          "volShares": 4493797
         },
         {
           "id": "HOOD Robinhood (散戶券商)",
@@ -33725,15 +33725,15 @@
           "currency": "USD",
           "open": 79.79,
           "high": 79.96,
-          "low": 76.81,
-          "price": 77.12,
-          "changePct": -5.2,
+          "low": 76.61,
+          "price": 77.78,
+          "changePct": -4.39,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 6121993
+          "volShares": 9477662
         },
         {
           "id": "SOFI SoFi Technologies",
@@ -33745,14 +33745,14 @@
           "open": 15.65,
           "high": 15.75,
           "low": 15.08,
-          "price": 15.25,
-          "changePct": -2.43,
+          "price": 15.48,
+          "changePct": -0.99,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 0.3,
-          "volShares": 11778050
+          "volShares": 20940357
         },
         {
           "id": "RIVN Rivian (電動皮卡)",
@@ -33763,15 +33763,15 @@
           "currency": "USD",
           "open": 12.78,
           "high": 12.79,
-          "low": 12.47,
-          "price": 12.49,
-          "changePct": -2.38,
+          "low": 12.45,
+          "price": 12.58,
+          "changePct": -1.72,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
           "isETB": true,
           "borrowFeeRate": 2.2,
-          "volShares": 5845056
+          "volShares": 9430460
         }
       ],
       "allStocks": [
@@ -36854,7 +36854,7 @@
           "exDividendDate": "2026-11-17",
           "cashDividend": 1.25,
           "fairValue": 33.3,
-          "sentiment": 0.35,
+          "sentiment": 0.53,
           "allowMarginShort": false,
           "allowSBL": true,
           "sblFeeRate": 1.8,
@@ -36865,8 +36865,8 @@
               "score": 1
             },
             {
-              "title": "1圖懂》00878配息1.25元確定！含息報酬率61.4％狠甩大盤…賺價差又領股息「這張數以下」免補充保費- 基金",
-              "score": 0
+              "title": "00878配息創新高！174萬受益人關注領息，最後買進日曝光、單季配息率3.79% | 下班經濟學 | 財經",
+              "score": 1
             }
           ],
           "marginShortBalanceLots": 0
@@ -42386,7 +42386,7 @@
           "haltReason": "",
           "news": [
             {
-              "title": "【12:13 即時新聞】華城(1519)亮燈漲停，綠能電網與電網設備題材受關注",
+              "title": "【即時新聞】最新！華城前三季EPS達10.48元賺逾一個股本，訂單滿載至2030年",
               "score": 1
             },
             {
@@ -46262,7 +46262,7 @@
           "haltReason": "",
           "news": [
             {
-              "title": "鴻海(2317) 個股概覽 | 個股",
+              "title": "2317 鴻海",
               "score": 0
             },
             {
@@ -46439,11 +46439,11 @@
           "haltReason": "",
           "news": [
             {
-              "title": "【零股排行榜】 盤中零股成交量TOP 20｜0050 元大台灣50、2330 台積電、00878 國泰永續高股息、1802 台玻、1303 南亞 (1111)｜豐雲學堂2026 年 11 月",
+              "title": "2330 台積電",
               "score": 0
             },
             {
-              "title": "2330 台積電",
+              "title": "三大法人買賣超 – 外資買超(2454)聯發科、(2303)聯電，投信買超(2330)台積電、(3017)奇鋐，法人合計買超439.66億元",
               "score": 0
             }
           ],
@@ -48515,18 +48515,18 @@
           "exDividendDate": "",
           "cashDividend": 57.27,
           "fairValue": 3708.0,
-          "sentiment": 0.85,
+          "sentiment": 0.5,
           "allowMarginShort": true,
           "allowSBL": true,
           "sblFeeRate": 5.5,
           "haltReason": "",
           "news": [
             {
-              "title": "黃仁勳辭職資金大搬風！聯發科被搶買飆漲停 3千多張排隊等買",
-              "score": 2
+              "title": "2454 聯發科",
+              "score": 0
             },
             {
-              "title": "【09:01 即時新聞】聯發科(2454)強攻走揚，AI與ASIC題材成盤中焦點",
+              "title": "【即時新聞】今日聯發科宣布AI ASIC商機爆發，2027年EPS上看137.69元！",
               "score": 0
             }
           ],
@@ -50097,7 +50097,7 @@
           "haltReason": "",
           "news": [
             {
-              "title": "大航運-長榮&萬海百億買櫃（更新",
+              "title": "2603 長榮",
               "score": 0
             },
             {
@@ -51438,7 +51438,7 @@
               "score": 0
             },
             {
-              "title": "國泰金發重訊！重大交易斥資350億",
+              "title": "快訊／注意！國泰金1630將召開重訊 有重大交易宣布",
               "score": 0
             }
           ],
@@ -66203,15 +66203,15 @@
           "legBCode": "INTC",
           "market": "US",
           "priorBetaOOS": 0.835,
-          "posteriorBeta": 0.816,
+          "posteriorBeta": 0.815,
           "beta": 0.835,
           "ouMean": 1.8228,
-          "ouStd": 0.0967,
-          "curSpread": 1.6924,
-          "innovationError": -0.1304,
-          "kalmanGainBeta": 0.1432,
+          "ouStd": 0.097,
+          "curSpread": 1.6826,
+          "innovationError": -0.1403,
+          "kalmanGainBeta": 0.1431,
           "wfWindowTag": "IS訓練:1期 ➔ OOS測試:當日",
-          "zScore": -1.35,
+          "zScore": -1.45,
           "theta": 0.35,
           "halfLifeDays": 2.0,
           "adfTStat": -3.48,
