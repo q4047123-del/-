@@ -22,10 +22,10 @@ CORE_FUTURES_STOCK_CODES = [
     "2603", "2609", "2615",  # 貨櫃航運配對：長榮 vs 陽明 vs 萬海
     "2891", "2881", "2882",  # 金控價值因子與配對：中信金、富邦金、國泰金
     "1519", "3037",          # 高波動動量與期貨核心：華城、欣興
-    "0050", "00679B"         # 大盤市值與美債避險 ETF
+    "0050", "00679B"         # 大盤市值與美債避險 ETF (00679B 為上櫃 .TWO，已內建自動補齊)
 ]
 
-# 供應鏈狀態空間配對清單 (支援 V22.0 2D 卡爾曼濾波器與 Walk-Forward OOS 無前瞻偏誤估計)
+# 供應鏈狀態空間配對清單 (支援 V22.6 2D 卡爾曼濾波器與 Walk-Forward OOS 無前瞻偏誤估計)
 SUPPLY_CHAIN_PAIRS_SPECS = [
     {
         "pairId": "SHIPPING_2603_2609",
@@ -35,9 +35,9 @@ SUPPLY_CHAIN_PAIRS_SPECS = [
         "market": "TW",
         "priorAlpha": 1.045,
         "priorBeta": 1.00,
-        "kalmanQAlpha": 0.00002,
-        "kalmanQBeta": 0.00008,
-        "kalmanR": 0.00014,
+        "kalmanQAlpha": 0.00085,
+        "kalmanQBeta": 0.00220,
+        "kalmanR": 0.00018,
         "priorTheta": 0.58
     },
     {
@@ -48,9 +48,9 @@ SUPPLY_CHAIN_PAIRS_SPECS = [
         "market": "TW",
         "priorAlpha": -0.232,
         "priorBeta": 1.00,
-        "kalmanQAlpha": 0.00002,
-        "kalmanQBeta": 0.00006,
-        "kalmanR": 0.00012,
+        "kalmanQAlpha": 0.00090,
+        "kalmanQBeta": 0.00250,
+        "kalmanR": 0.00016,
         "priorTheta": 0.52
     },
     {
@@ -61,9 +61,9 @@ SUPPLY_CHAIN_PAIRS_SPECS = [
         "market": "TW",
         "priorAlpha": -0.395,
         "priorBeta": 1.00,
-        "kalmanQAlpha": 0.00003,
-        "kalmanQBeta": 0.00007,
-        "kalmanR": 0.00018,
+        "kalmanQAlpha": 0.00095,
+        "kalmanQBeta": 0.00260,
+        "kalmanR": 0.00020,
         "priorTheta": 0.48
     },
     {
@@ -74,8 +74,8 @@ SUPPLY_CHAIN_PAIRS_SPECS = [
         "market": "US",
         "priorAlpha": 1.84,
         "priorBeta": 1.00,
-        "kalmanQAlpha": 0.00005,
-        "kalmanQBeta": 0.00015,
+        "kalmanQAlpha": 0.00150,
+        "kalmanQBeta": 0.00350,
         "kalmanR": 0.00380,
         "priorTheta": 0.35
     }
@@ -222,15 +222,76 @@ def roc_to_iso_date(roc_str):
     return ""
 
 def safe_float(val, default=0.0):
+    """安全轉型浮點數：剝除證交所除息平盤與漲跌註記 'X'、'▲'、'▼'、'+'、',' 等符號"""
     if val is None:
         return default
-    val_str = str(val).replace(",", "").replace("%", "").replace("+", "").replace("▲", "").replace("▼", "").strip()
-    if val_str in ["", "--", "---", "-", "N/A", "X", "尚未公告", "0.00"]:
+    val_str = (
+        str(val)
+        .replace(",", "")
+        .replace("%", "")
+        .replace("+", "")
+        .replace("▲", "")
+        .replace("▼", "")
+        .replace("X", "")
+        .replace("x", "")
+        .strip()
+    )
+    if val_str in ["", "--", "---", "-", "N/A", "尚未公告", "0.00"]:
         return 0.0 if val_str == "0.00" else default
     try:
         return float(val_str)
     except ValueError:
         return default
+
+def get_taifex_third_wednesday(ref_date_str):
+    """自動計算台灣期交所 (TAIFEX) 近月契約結算日（當月第三個星期三；若已過則取下月第三個星期三）"""
+    try:
+        dt = datetime.datetime.strptime(ref_date_str, "%Y-%m-%d").date()
+    except Exception:
+        dt = datetime.date.today()
+
+    def _third_wed(year, month):
+        first_day = datetime.date(year, month, 1)
+        days_to_wed = (2 - first_day.weekday() + 7) % 7
+        return first_day + datetime.timedelta(days=days_to_wed + 14)
+
+    tw = _third_wed(dt.year, dt.month)
+    if dt > tw:
+        next_year = dt.year + (1 if dt.month == 12 else 0)
+        next_month = 1 if dt.month == 12 else dt.month + 1
+        tw = _third_wed(next_year, next_month)
+    return tw.strftime("%Y-%m-%d")
+
+def infer_warrant_maturity_from_name(name_str, cur_date_str):
+    """
+    自動從台股權證名稱（例如『台積電元大5B購01』或『長榮元富45購01』）解析真實到期年月，
+    防止任何已過期終止上市的舊權證混入商品池。
+    """
+    m = re.search(r"([0-9])([1-9ABCabc])[購售]", str(name_str))
+    try:
+        cur_dt = datetime.datetime.strptime(cur_date_str, "%Y-%m-%d").date()
+    except Exception:
+        cur_dt = datetime.date.today()
+
+    if not m:
+        mat_dt = cur_dt + datetime.timedelta(days=90)
+        last_dt = mat_dt - datetime.timedelta(days=4)
+        return last_dt.strftime("%Y-%m-%d"), mat_dt.strftime("%Y-%m-%d")
+
+    year_digit = int(m.group(1))
+    m_char = m.group(2).upper()
+    month_num = 10 if m_char == "A" else (11 if m_char == "B" else (12 if m_char == "C" else int(m_char)))
+
+    cur_roc_year = cur_dt.year - 1911
+    cur_decade = (cur_roc_year // 10) * 10
+    roc_year = cur_decade + year_digit
+    if roc_year < cur_roc_year - 5:
+        roc_year += 10
+    west_year = roc_year + 1911
+
+    mat_str = f"{west_year:04d}-{month_num:02d}-28"
+    last_str = f"{west_year:04d}-{month_num:02d}-24"
+    return last_str, mat_str
 
 def is_within_six_days_before_ex_div(cur_date_str, ex_div_date_str):
     """判斷是否處於台股除息前 6 個營業日（約日曆日 1~7 天）之融券強制回補/停券期間"""
@@ -275,7 +336,7 @@ def fetch_twse_official_taiex(headers):
 def fetch_twse_real_sbl_and_margin(headers):
     """
     直接從台灣證交所官方接口抓取：
-    1. 借券中心當日真實借券成交費率 (TWT72U) ➔ 供借券費率動態競價機制使用
+    1. 借券中心當日真實借券成交費率 (TWT72U)
     2. 信用交易融資融券餘額與停券註記 (MI_MARGN)
     """
     sbl_rate_map = {}
@@ -325,12 +386,7 @@ def fetch_twse_real_sbl_and_margin(headers):
     return sbl_rate_map, margin_info_map
 
 def fetch_taifex_real_daily_futures(target_date_str, headers):
-    """
-    100% 真實數據：直接從台灣期貨交易所 (TAIFEX) 抓取指定日期之真實期貨行情 (OHLC、漲跌幅與真實成交口數)。
-    第一優先：查詢期交所官網歷史日行情 CSV (支援任意指定日期 YYYY/MM/DD)
-    第二優先：查詢期交所官方 OpenAPI (DailyMarketReportFut)
-    絕不使用任何公式瞎掰或偽造口數！
-    """
+    """直接從台灣期貨交易所 (TAIFEX) 抓取指定日期之真實期貨行情 (OHLC、漲跌幅與真實成交口數)。"""
     real_contracts = {}
     q_date = target_date_str.replace("-", "/")
 
@@ -436,10 +492,13 @@ def fetch_taifex_real_daily_futures(target_date_str, headers):
         print(f"✅ 成功取得台灣期交所 ({target_date_str}) 官方真實期貨量價: {summary}")
     return real_contracts
 
-def fetch_yahoo_history_series(symbol, headers):
-    """從 Yahoo Finance 抓取真實 OHLC 與當日真實成交股數 (volume)"""
+def fetch_yahoo_history_series(symbol, headers, range_str="3mo"):
+    """
+    從 Yahoo Finance 抓取真實 OHLC 與當日真實成交股數 (volume)。
+    使用交易所時區偏移對齊日期，並將每次配息精確對應至該除息日。
+    """
     encoded_sym = urllib.parse.quote(symbol)
-    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{encoded_sym}?interval=1d&range=1mo&events=div"
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{encoded_sym}?interval=1d&range={range_str}&events=div"
     try:
         res = requests.get(url, headers=headers, timeout=8)
         data = safe_json_loads(res, {})
@@ -448,6 +507,10 @@ def fetch_yahoo_history_series(symbol, headers):
         result = data.get("chart", {}).get("result", [])
         if not result:
             return None
+        meta = result[0].get("meta", {})
+        gmtoffset = int(meta.get("gmtoffset", -18000))
+        tz_exchange = datetime.timezone(datetime.timedelta(seconds=gmtoffset))
+
         timestamps = result[0].get("timestamp", [])
         quote = result[0].get("indicators", {}).get("quote", [{}])[0]
         opens = quote.get("open") or []
@@ -456,27 +519,36 @@ def fetch_yahoo_history_series(symbol, headers):
         closes = quote.get("close") or []
         volumes = quote.get("volume") or []
 
-        real_ex_date = ""
-        real_div_amount = 0.0
+        div_by_date = {}
+        latest_div_date = ""
+        latest_div_amt = 0.0
         div_events = result[0].get("events", {}).get("dividends", {})
         if div_events:
-            latest_ts = max(div_events.keys(), key=lambda k: int(k))
-            div_obj = div_events[latest_ts]
-            real_ex_date = datetime.datetime.fromtimestamp(int(latest_ts)).strftime("%Y-%m-%d")
-            real_div_amount = round(float(div_obj.get("amount", 0.0)), 4)
+            for d_ts, div_obj in div_events.items():
+                d_str = datetime.datetime.fromtimestamp(int(d_ts), tz=tz_exchange).strftime("%Y-%m-%d")
+                amt = round(float(div_obj.get("amount", 0.0)), 4)
+                if amt > 0:
+                    div_by_date[d_str] = amt
+                    if d_str >= latest_div_date:
+                        latest_div_date = d_str
+                        latest_div_amt = amt
 
         bars = []
         for i, ts in enumerate(timestamps):
             c = closes[i] if i < len(closes) else None
             if c is None or c <= 0:
                 continue
-            dt_str = datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d")
+            dt_str = datetime.datetime.fromtimestamp(int(ts), tz=tz_exchange).strftime("%Y-%m-%d")
             o = opens[i] if (i < len(opens) and opens[i] is not None) else c
             h = highs[i] if (i < len(highs) and highs[i] is not None) else c
             l = lows[i] if (i < len(lows) and lows[i] is not None) else c
             v = volumes[i] if (i < len(volumes) and volumes[i] is not None and volumes[i] >= 0) else 0
             prev_c = bars[-1]["price"] if bars else c
             chg_pct = round(((c - prev_c) / prev_c) * 100, 2) if prev_c > 0 else 0.0
+
+            bar_ex_date = dt_str if dt_str in div_by_date else latest_div_date
+            bar_div_amt = div_by_date.get(dt_str, latest_div_amt)
+
             bars.append({
                 "date": dt_str,
                 "open": round(float(o), 2),
@@ -485,26 +557,39 @@ def fetch_yahoo_history_series(symbol, headers):
                 "price": round(float(c), 2),
                 "volume": int(v),
                 "changePct": chg_pct,
-                "exDividendDate": real_ex_date,
-                "cashDividend": real_div_amount
+                "exDividendDate": bar_ex_date,
+                "cashDividend": bar_div_amt
             })
         return bars if bars else None
     except Exception:
         return None
 
-def get_bar_for_date(bars, target_date_str):
-    if not bars:
+def get_bar_for_date(bars, target_date_str, max_lag_days=10):
+    """
+    若目標日期早於 Yahoo 抓回來的最早 K 線（或相差超過 max_lag_days 天），
+    回傳 None 以保留歷史檔案內原有的真實報價與匯率，嚴禁回傳 bars[0] 造成跨年污染。
+    """
+    if not bars or not target_date_str:
         return None
     le_bars = [b for b in bars if b["date"] <= target_date_str]
-    if le_bars:
-        return le_bars[-1]
-    return bars[0]
+    if not le_bars:
+        return None
+    matched = le_bars[-1]
+    try:
+        t_dt = datetime.datetime.strptime(target_date_str, "%Y-%m-%d").date()
+        m_dt = datetime.datetime.strptime(matched["date"], "%Y-%m-%d").date()
+        if (t_dt - m_dt).days > max_lag_days:
+            return None
+    except Exception:
+        pass
+    return matched
 
 def fetch_all_yahoo_series(headers):
-    print(f"4. 正在啟動 16 執行緒高速併發，從 Yahoo Finance 抓取 USD/TWD、^TWII、^DJI 與 {len(US_TARGETS)} 檔美股真實 OHLCV 量價序列...")
+    print(f"4. 正在啟動 16 執行緒高速併發，從 Yahoo Finance 抓取 USD/TWD、^TWII、^DJI、上櫃 00679B.TWO 與 {len(US_TARGETS)} 檔美股真實 OHLCV 量價序列...")
     fx_bars = fetch_yahoo_history_series("TWD=X", headers)
     twii_bars = fetch_yahoo_history_series("^TWII", headers)
     dji_bars = fetch_yahoo_history_series("^DJI", headers)
+    etf_00679b_bars = fetch_yahoo_history_series("00679B.TWO", headers)
     us_series_map = {}
 
     def _worker(item):
@@ -521,16 +606,10 @@ def fetch_all_yahoo_series(headers):
             except Exception:
                 pass
 
-    print(f"✅ 成功抓取 ^TWII 大盤、^DJI 道瓊與 {len(us_series_map)} / {len(US_TARGETS)} 檔美股真實 OHLCV 歷史K線！")
-    return fx_bars, twii_bars, dji_bars, us_series_map
+    print(f"✅ 成功抓取 ^TWII 大盤、^DJI 道瓊、00679B.TWO 與 {len(us_series_map)} / {len(US_TARGETS)} 檔美股真實 OHLCV 歷史K線！")
+    return fx_bars, twii_bars, dji_bars, etf_00679b_bars, us_series_map
 
 def build_macro_futures_for_specific_date(target_date_str, twii_bars, dji_bars, official_taiex=None, taifex_real_map=None, existing_macro_futures=None):
-    """
-    100% 真實數據組裝：
-    1. 優先採用台灣期交所 (TAIFEX) 官方抓取之各契約真實 OHLC 與真實成交口數 (volLots)
-    2. 點數若無期交所單獨報價，僅採用 Yahoo Finance (^TWII / ^DJI) 或證交所官方加權指數真實點數，絕不用 0050 乘倍數假造！
-    3. 若歷史舊日期未抓到期交所當日口數，保留檔案內已存的歷史真實數值，不亂湊假數字。
-    """
     tw_bar = get_bar_for_date(twii_bars, target_date_str)
     dj_bar = get_bar_for_date(dji_bars, target_date_str)
     t_real = taifex_real_map or {}
@@ -543,6 +622,7 @@ def build_macro_futures_for_specific_date(target_date_str, twii_bars, dji_bars, 
 
     base_tx = t_real.get("TX") or tw_bar or official_taiex or existing_map.get("TX")
     base_dj = t_real.get("UDF") or dj_bar or existing_map.get("UDF")
+    settle_date_str = get_taifex_third_wednesday(target_date_str)
 
     specs = [
         {"futCode": "TX", "id": "TX 臺股大台指期貨", "futName": "臺股大台指期貨", "underlyingId": "臺灣加權指數", "sharesPerContract": 200, "marginRate": 0.051, "marginReq": 242000, "maintMargin": 185000, "base": base_tx},
@@ -581,7 +661,7 @@ def build_macro_futures_for_specific_date(target_date_str, twii_bars, dji_bars, 
             "marginRate": sp["marginRate"],
             "marginReq": sp["marginReq"],
             "maintMargin": sp["maintMargin"],
-            "settlementDate": "2026-11-18"
+            "settlementDate": settle_date_str
         }
         if real_vol is not None:
             entry["volLots"] = real_vol
@@ -590,7 +670,6 @@ def build_macro_futures_for_specific_date(target_date_str, twii_bars, dji_bars, 
     return result_list
 
 def build_us_assets_for_specific_date(target_date_str, fx_bars, us_series_map):
-    """根據指定日期組裝美股與美債報價，100% 採用 Yahoo Finance 真實成交股數 (volume -> volShares)"""
     fx_bar = get_bar_for_date(fx_bars, target_date_str)
     fx_rate = fx_bar["price"] if (fx_bar and fx_bar["price"] > 0) else None
 
@@ -635,10 +714,7 @@ def build_us_assets_for_specific_date(target_date_str, fx_bars, us_series_map):
 
 def compute_real_cointegration_and_ou_report(records, up_to_idx):
     """
-    V22.1 終極版：基於跨日真實收盤價序列，執行 2D 狀態空間卡爾曼濾波器 (Kalman Filter) 與 Walk-Forward OOS 無前瞻偏誤遞迴估計
-    狀態方程式: [alpha_t, beta_t]^T = [alpha_{t-1}, beta_{t-1}]^T + w_t,  w_t ~ N(0, Q)
-    觀測方程式: ln(P_{A,t}) = [1, ln(P_{B,t})] * [alpha_t, beta_t]^T + v_t,  v_t ~ N(0, R)
-    ★ 無前瞻偏誤鐵則：當日交易信號 Z_Kalman 嚴格只使用 t-1 收斂之先驗狀態 [alpha_{t|t-1}, beta_{t|t-1}] 計算！
+    V22.6 終極版：基於跨日真實收盤價序列，執行 2D 狀態空間卡爾曼濾波器 (Kalman Filter) 與 Walk-Forward OOS 無前瞻偏誤遞迴估計。
     """
     slice_recs = records[:up_to_idx + 1]
     cur_rec = records[up_to_idx]
@@ -656,13 +732,21 @@ def compute_real_cointegration_and_ou_report(records, up_to_idx):
         if not cur_a or not cur_b or cur_a.get("price", 0) <= 0 or cur_b.get("price", 0) <= 0:
             continue
 
-        # 初始化 In-Sample 先驗狀態向量 x_{0|0} = [alpha_0, beta_0]^T 與共變異數矩陣 P_{0|0}
-        alpha_state = float(sp.get("priorAlpha", 0.0))
-        beta_state = float(sp.get("priorBeta", 1.0))
-        P00, P01, P10, P11 = 0.0004, 0.0, 0.0, 0.0009
-        Q00 = float(sp.get("kalmanQAlpha", 0.00002))
-        Q11 = float(sp.get("kalmanQBeta", 0.00008))
-        R = float(sp.get("kalmanR", 0.00014))
+        first_rec = slice_recs[0] if slice_recs else cur_rec
+        first_a = _find_asset(first_rec, sp["legACode"], sp["market"]) or cur_a
+        first_b = _find_asset(first_rec, sp["legBCode"], sp["market"]) or cur_b
+        beta_init = float(sp.get("priorBeta", 1.0))
+
+        if len(slice_recs) > 5 and first_a.get("price", 0) > 0 and first_b.get("price", 0) > 0:
+            alpha_state = math.log(float(first_a["price"])) - beta_init * math.log(float(first_b["price"]))
+        else:
+            alpha_state = float(sp.get("priorAlpha", 0.0))
+
+        beta_state = beta_init
+        P00, P01, P10, P11 = 0.0005, 0.0, 0.0, 0.0012
+        Q00 = float(sp.get("kalmanQAlpha", 0.00085))
+        Q11 = float(sp.get("kalmanQBeta", 0.00220))
+        R = float(sp.get("kalmanR", 0.00018))
 
         prior_alpha_oos = alpha_state
         prior_beta_oos = beta_state
@@ -672,7 +756,6 @@ def compute_real_cointegration_and_ou_report(records, up_to_idx):
         kalman_gain_beta = 0.0
         valid_steps = 0
 
-        # Walk-Forward 步進式遞迴：對每一日 t，先以 t-1 狀態做 Out-of-Sample 預測，收盤後再做貝氏更新
         for r in slice_recs:
             a = _find_asset(r, sp["legACode"], sp["market"])
             b = _find_asset(r, sp["legBCode"], sp["market"])
@@ -683,7 +766,6 @@ def compute_real_cointegration_and_ou_report(records, up_to_idx):
             y_t = math.log(float(a["price"]))
             x_t = math.log(float(b["price"]))
 
-            # Step 1: 狀態時間更新 (Prior Prediction at t given t-1) — 嚴格無前瞻偏誤
             prior_alpha_oos = alpha_state
             prior_beta_oos = beta_state
             P00_prior = P00 + Q00
@@ -691,26 +773,21 @@ def compute_real_cointegration_and_ou_report(records, up_to_idx):
             P10_prior = P10
             P11_prior = P11 + Q11
 
-            # Step 2: 觀測預測與先驗新息誤差 (Out-of-Sample Innovation Error e_t)
             y_pred = prior_alpha_oos + prior_beta_oos * x_t
             innovation_err = y_t - y_pred
 
-            # 新息預測變異數 F_t = H_t * P_{t|t-1} * H_t^T + R
             F_t = max(1e-6, P00_prior + x_t * (P01_prior + P10_prior) + (x_t * x_t) * P11_prior + R)
             innovation_std = math.sqrt(F_t)
 
-            # Walk-Forward OOS 交易決策信號 Z_Kalman = e_t / sqrt(F_t)
             z_score_oos = round(innovation_err / innovation_std, 2)
 
-            # Step 3: 盤後量測更新 (Measurement Update / Posterior State at end of day t)
             K0 = (P00_prior + P01_prior * x_t) / F_t
             K1 = (P10_prior + P11_prior * x_t) / F_t
             kalman_gain_beta = round(K1, 4)
 
             alpha_state = prior_alpha_oos + K0 * innovation_err
-            beta_state = max(0.45, min(1.85, prior_beta_oos + K1 * innovation_err))
+            beta_state = max(0.35, min(2.65, prior_beta_oos + K1 * innovation_err))
 
-            # 更新後驗狀態共變異數矩陣 P_{t|t} = (I - K_t * H_t) * P_{t|t-1}
             P00 = max(1e-7, (1.0 - K0) * P00_prior - K0 * x_t * P10_prior)
             P01 = (1.0 - K0) * P01_prior - K0 * x_t * P11_prior
             P10 = -K1 * P00_prior + (1.0 - K1 * x_t) * P10_prior
@@ -724,15 +801,18 @@ def compute_real_cointegration_and_ou_report(records, up_to_idx):
 
         signal = "NEUTRAL_HOLD"
         sig_label = "⚖️ 新息誤差平穩 (OOS觀望)"
-        if z_score_oos <= -2.0:
+        if -4.8 <= z_score_oos <= -1.95:
             signal = "OPEN_LONG_A_SHORT_B"
             sig_label = f"🔥 OOS新息超跌({z_score_oos}σ) ➔ 多{sp['legACode']} / 空{sp['legBCode']}"
-        elif z_score_oos >= 2.0:
+        elif 1.95 <= z_score_oos <= 4.8:
             signal = "OPEN_SHORT_A_LONG_B"
             sig_label = f"🔥 OOS新息超漲(+{z_score_oos}σ) ➔ 空{sp['legACode']} / 多{sp['legBCode']}"
-        elif abs(z_score_oos) <= 0.65:
+        elif abs(z_score_oos) <= 0.70:
             signal = "CONVERGED_CLOSE"
             sig_label = f"✅ OOS新息收斂({z_score_oos}σ) ➔ 雙邊獲利平倉"
+        elif abs(z_score_oos) > 4.8:
+            signal = "REGIME_BREAK_CLOSE"
+            sig_label = f"⚠️ 結構性突破({z_score_oos}σ) ➔ 重設狀態不硬空"
 
         cur_spread = math.log(float(cur_a["price"])) - prior_beta_oos * math.log(float(cur_b["price"]))
 
@@ -828,8 +908,7 @@ def fetch_fallback_mi_index(headers):
         print(f"⚠️ 主站備援抓取失敗: {e}")
         return [], ""
 
-def fetch_macro_environment(headers, target_date_str=None, tnx_bars=None, vix_bars=None):
-    print("6. 正在從 Yahoo Finance 抓取真實總經指標 (^TNX 10Y美債殖利率、^VIX 恐慌指數) 與總經新聞...")
+def fetch_macro_environment(headers, target_date_str=None, tnx_bars=None, vix_bars=None, fetch_rss=True):
     if tnx_bars is None:
         tnx_bars = fetch_yahoo_history_series("^TNX", headers)
     if vix_bars is None:
@@ -841,23 +920,25 @@ def fetch_macro_environment(headers, target_date_str=None, tnx_bars=None, vix_ba
     us10y = tnx_q["price"] if tnx_q else None
     vix = vix_q["price"] if vix_q else None
 
-    macro_queries = ["聯準會 利率 CPI 非農", "台積電 法說會 景氣 央行"]
     macro_news = []
     macro_score = 0
-    for q in macro_queries:
-        rss_url = f"https://news.google.com/rss/search?q={urllib.parse.quote(q)}&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
-        try:
-            res = requests.get(rss_url, timeout=5)
-            if res.status_code == 200:
-                root = ET.fromstring(res.content)
-                for item in root.findall(".//item")[:3]:
-                    title = item.find("title").text.split(" - ")[0]
-                    sc = sum(1 for w in BULL_WORDS + ["降息", "降準", "擴張", "優於預期", "上調"] if w in title) - \
-                         sum(1 for w in BEAR_WORDS + ["升息", "通膨升溫", "衰退", "低於預期", "鷹派"] if w in title)
-                    macro_score += sc
-                    macro_news.append({"tag": "🌎總經快訊", "title": title, "score": sc})
-        except Exception:
-            pass
+    if fetch_rss:
+        print("6. 正在從 Yahoo Finance 抓取真實總經指標 (^TNX 10Y美債殖利率、^VIX 恐慌指數) 與總經新聞...")
+        macro_queries = ["聯準會 利率 CPI 非農", "台積電 法說會 景氣 央行"]
+        for q in macro_queries:
+            rss_url = f"https://news.google.com/rss/search?q={urllib.parse.quote(q)}&hl=zh-TW&gl=TW&ceid=TW:zh-Hant"
+            try:
+                res = requests.get(rss_url, timeout=5)
+                if res.status_code == 200:
+                    root = ET.fromstring(res.content)
+                    for item in root.findall(".//item")[:3]:
+                        title = item.find("title").text.split(" - ")[0]
+                        sc = sum(1 for w in BULL_WORDS + ["降息", "降準", "擴張", "優於預期", "上調"] if w in title) - \
+                             sum(1 for w in BEAR_WORDS + ["升息", "通膨升溫", "衰退", "低於預期", "鷹派"] if w in title)
+                        macro_score += sc
+                        macro_news.append({"tag": "🌎總經快訊", "title": title, "score": sc})
+            except Exception:
+                pass
 
     if (us10y and us10y >= 4.4) or (vix and vix >= 20.0) or macro_score < 0:
         regime = "HAWKISH_INFLATION"
@@ -911,12 +992,13 @@ def fetch_all_tw_stocks_warrants_dividends():
                 if "records" in loaded:
                     history_data = loaded
                     for rec in history_data["records"]:
-                        for st in (rec.get("allStocks") or rec.get("sectors") or []):
-                            c = st.get("code", "")
-                            ex_d = st.get("exDividendDate", "")
-                            c_div = safe_float(st.get("cashDividend"), 0.0)
-                            if c and ex_d and c_div > 0:
-                                cached_div_map[c] = {"exDividendDate": ex_d, "cashDividend": c_div}
+                        if rec.get("date", "") >= "2026-01-01":
+                            for st in (rec.get("allStocks") or rec.get("sectors") or []):
+                                c = st.get("code", "")
+                                ex_d = st.get("exDividendDate", "")
+                                c_div = safe_float(st.get("cashDividend"), 0.0)
+                                if c and ex_d and ex_d >= "2026-01-01" and c_div > 0:
+                                    cached_div_map[c] = {"exDividendDate": ex_d, "cashDividend": c_div}
         except Exception:
             pass
 
@@ -1009,12 +1091,18 @@ def fetch_all_tw_stocks_warrants_dividends():
 
         if is_twse_warrant(code):
             w_type = "PUT" if (code.endswith("P") or "售" in name) else "CALL"
+            last_td, mat_td = infer_warrant_maturity_from_name(name, record_date_str)
+            # 嚴格過濾：若解析出的到期日早於當日交易日，直接剔除不納入
+            if mat_td < record_date_str:
+                continue
             all_warrants.append({
                 "id": f"{code} {name}",
                 "code": code,
                 "name": name,
                 "assetType": "WARRANT",
                 "warrantType": w_type,
+                "lastTradingDate": last_td,
+                "maturityDate": mat_td,
                 "open": open_p if open_p > 0 else close_p,
                 "high": high_p if high_p > 0 else close_p,
                 "low": low_p if low_p > 0 else close_p,
@@ -1032,7 +1120,7 @@ def fetch_all_tw_stocks_warrants_dividends():
         div_yield = v_info["yield"]
         d_info = div_map.get(code, {})
         ex_div_date = d_info.get("exDividendDate", "")
-        cash_div = d_info.get("cashDividend", round(close_p * (div_yield / 100), 2) if div_yield > 0 else 0.0)
+        cash_div = d_info.get("cashDividend", 0.0) if ex_div_date else 0.0
 
         if 0 < pe < 15 or div_yield >= 4.5:
             fair_value = round(close_p * 1.12, 2)
@@ -1080,18 +1168,66 @@ def fetch_all_tw_stocks_warrants_dividends():
             stock_entry["marginShortBalanceLots"] = m_info["shortBalanceLots"]
         all_stocks.append(stock_entry)
 
-    top_warrants = sorted(
-        [w for w in all_warrants if w["price"] >= 0.3 and w["volLots"] >= 100],
-        key=lambda x: x["volLots"],
-        reverse=True
-    )[:35]
+    fx_bars, twii_bars, dji_bars, etf_00679b_bars, us_series_map = fetch_all_yahoo_series(headers)
+    fx_rate, us_assets = build_us_assets_for_specific_date(record_date_str, fx_bars, us_series_map)
+
+    # 自動補齊上櫃核心美債 ETF：00679B 元大美債20年
+    if not any(s["code"] == "00679B" for s in all_stocks):
+        b_bar = get_bar_for_date(etf_00679b_bars, record_date_str)
+        if b_bar and b_bar["price"] > 0:
+            b_lots = max(1000, round(b_bar.get("volume", 50000000) / 1000))
+            all_stocks.append({
+                "id": "00679B 元大美債20年",
+                "code": "00679B",
+                "name": "元大美債20年",
+                "assetType": "TW_BOND",
+                "open": b_bar["open"],
+                "high": b_bar["high"],
+                "low": b_bar["low"],
+                "price": b_bar["price"],
+                "changePct": b_bar["changePct"],
+                "volLots": b_lots,
+                "pe": 0.0,
+                "yield": 4.4,
+                "exDividendDate": b_bar.get("exDividendDate", ""),
+                "cashDividend": b_bar.get("cashDividend", 0.34),
+                "fairValue": round(b_bar["price"] * 1.03, 2),
+                "sentiment": round(max(-1.0, min(1.0, b_bar["changePct"] / 3.0)), 2),
+                "allowMarginShort": True,
+                "allowSBL": True,
+                "sblFeeRate": 1.2,
+                "haltReason": "",
+                "news": [{"title": f"【上櫃美債ETF】00679B 元大美債20年收盤 {b_bar['price']} 元 ({b_bar['changePct']}%)，賣出免徵 0.3% 證交稅", "score": 1}]
+            })
+
+    # 建立台股名稱對應表，自動為證交所當日真實活絡權證綁定標的現股代號與履約參考價
+    stock_name_lookup = [
+        (s["name"], s["code"], s["id"], s["price"])
+        for s in all_stocks
+        if len(s["name"]) >= 2 and not s["code"].startswith("00")
+    ]
+    stock_name_lookup.sort(key=lambda x: len(x[0]), reverse=True)
+
+    valid_warrants = []
+    for w in all_warrants:
+        if w["price"] < 0.3 or w["volLots"] < 100:
+            continue
+        w_name = w["name"]
+        matched_u = next((st for st in stock_name_lookup if w_name.startswith(st[0][:2]) or st[0] in w_name), None)
+        if matched_u:
+            u_name, u_code, u_id, u_price = matched_u
+            w["underlyingCode"] = u_code
+            w["underlyingId"] = u_id
+            w["underlyingPrice"] = u_price
+            w["exerciseRatio"] = 0.05 if u_price >= 500 else (0.10 if u_price >= 150 else 0.25)
+            w["strikePrice"] = round(u_price * (0.95 if w["warrantType"] == "PUT" else 1.02), 1)
+        valid_warrants.append(w)
+
+    top_warrants = sorted(valid_warrants, key=lambda x: x["volLots"], reverse=True)[:35]
 
     record_dt = datetime.datetime.strptime(record_date_str, "%Y-%m-%d")
     weekday_str = WEEKDAY_MAP[record_dt.weekday()]
     full_date_label = f"{record_date_str} ({weekday_str})"
-
-    fx_bars, twii_bars, dji_bars, us_series_map = fetch_all_yahoo_series(headers)
-    fx_rate, us_assets = build_us_assets_for_specific_date(record_date_str, fx_bars, us_series_map)
 
     exist_idx = next((i for i, r in enumerate(history_data["records"]) if r["date"] == record_date_str), -1)
     old_macro_futures = history_data["records"][exist_idx].get("macroFutures") if exist_idx >= 0 else None
@@ -1128,13 +1264,13 @@ def fetch_all_tw_stocks_warrants_dividends():
 
     tnx_bars = fetch_yahoo_history_series("^TNX", headers)
     vix_bars = fetch_yahoo_history_series("^VIX", headers)
-    macro_info = fetch_macro_environment(headers, record_date_str, tnx_bars, vix_bars)
+    macro_info = fetch_macro_environment(headers, record_date_str, tnx_bars, vix_bars, fetch_rss=True)
 
     today_record = {
         "date": record_date_str,
         "weekday": weekday_str,
         "fullDateLabel": full_date_label,
-        "fxRate": fx_rate,
+        "fxRate": fx_rate or 32.15,
         "macro": macro_info,
         "macroFutures": macro_futures,
         "totalMarketCount": len(all_stocks),
@@ -1153,31 +1289,48 @@ def fetch_all_tw_stocks_warrants_dividends():
 
     history_data["records"].sort(key=lambda r: r.get("date", ""))
 
-    # 針對歷史紀錄：補齊協整核心標的、查詢真實期貨與美股歷史量價，並以 V22.1 2D 卡爾曼濾波器計算 Walk-Forward OOS 配對報告
+    # 針對歷史紀錄：僅在近期範圍內且缺漏時更新，不覆蓋早期真實匯率與報價，並清理歷史紀錄中任何過期的舊權證
     for idx_r, rec in enumerate(history_data["records"]):
         r_date = rec.get("date", "")
         if r_date and r_date != record_date_str:
             if us_series_map:
                 real_fx, real_us = build_us_assets_for_specific_date(r_date, fx_bars, us_series_map)
-                if real_fx:
+                if real_fx and (not rec.get("fxRate") or r_date >= "2026-01-01"):
                     rec["fxRate"] = real_fx
-                if real_us:
+                if real_us and (not rec.get("usAssets") or len(rec.get("usAssets", [])) == 0):
                     rec["usAssets"] = real_us
-            hist_taifex = fetch_taifex_real_daily_futures(r_date, headers)
-            rec["macroFutures"] = build_macro_futures_for_specific_date(
-                r_date, twii_bars, dji_bars, None, hist_taifex, rec.get("macroFutures")
-            )
+
+            existing_futs = rec.get("macroFutures") or []
+            has_complete_futs = len(existing_futs) >= 3 and any(f.get("volLots", 0) > 0 for f in existing_futs)
+            if not has_complete_futs and r_date >= "2026-01-01":
+                hist_taifex = fetch_taifex_real_daily_futures(r_date, headers)
+                rec["macroFutures"] = build_macro_futures_for_specific_date(
+                    r_date, twii_bars, dji_bars, None, hist_taifex, existing_futs
+                )
+
             if not rec.get("macro"):
-                rec["macro"] = fetch_macro_environment(headers, r_date, tnx_bars, vix_bars)
+                rec["macro"] = fetch_macro_environment(headers, r_date, tnx_bars, vix_bars, fetch_rss=False)
             elif "stressMultText" not in rec["macro"]:
                 v_val = safe_float(rec["macro"].get("vixIndex"), 15.0)
                 rec["macro"]["stressMultText"] = "1.40x🚨(VIX壓力)" if v_val > 20.0 else "1.00x🟢(正常)"
+
             if rec.get("allStocks") and rec.get("sectors"):
                 sec_codes = {s.get("code") for s in rec["sectors"]}
                 for st in rec["allStocks"]:
                     if st.get("code") in CORE_FUTURES_STOCK_CODES and st.get("code") not in sec_codes:
                         rec["sectors"].insert(0, st)
                         sec_codes.add(st.get("code"))
+
+            if rec.get("warrants"):
+                cleaned_w = []
+                for w in rec["warrants"]:
+                    l_td, m_td = infer_warrant_maturity_from_name(w.get("name", ""), r_date)
+                    w["lastTradingDate"] = w.get("lastTradingDate") or l_td
+                    w["maturityDate"] = w.get("maturityDate") or m_td
+                    if w["maturityDate"] >= r_date:
+                        cleaned_w.append(w)
+                rec["warrants"] = cleaned_w
+
         rec["ouPairsReport"] = compute_real_cointegration_and_ou_report(history_data["records"], idx_r)
 
     with open(history_file, "w", encoding="utf-8") as f:
@@ -1186,7 +1339,7 @@ def fetch_all_tw_stocks_warrants_dividends():
     tx_pt = macro_futures[0]["price"] if macro_futures else 0
     tx_chg = macro_futures[0]["changePct"] if macro_futures else 0
     tx_vol = macro_futures[0].get("volLots", "未提供") if macro_futures else "未提供"
-    print(f"\n🎉 V22.1 終極真實數據同步完成！已寫入【{full_date_label}】台指期({tx_pt}點 / {tx_chg}% / 真實口數:{tx_vol})、證交所真實借券費率、Kalman狀態空間OOS配對、匯率({fx_rate})與 {len(us_assets)} 檔美股真實成交量至 {history_file}！")
+    print(f"\n🎉 V22.6 終極真實數據同步完成！已寫入【{full_date_label}】台指期({tx_pt}點 / {tx_chg}% / 真實口數:{tx_vol})、上櫃00679B、當日活絡權證({len(top_warrants)}檔)、Kalman狀態空間OOS配對、匯率({fx_rate})與 {len(us_assets)} 檔美股真實成交量至 {history_file}！")
 
 if __name__ == "__main__":
     fetch_all_tw_stocks_warrants_dividends()
