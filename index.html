@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>【傳奇大師賽博炒股 V22.4】Kalman雙中性配對(解法A+B)・多空嚴格分流與融券/借券/期貨精準交割・Barra因子＆ERC風險平價</title>
+  <title>【傳奇大師賽博炒股 V22.5】Kalman雙中性配對(解法A+B修正版)・多空嚴格分流與融券/借券/期貨精準交割・Barra因子＆ERC風險平價</title>
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=VT323&display=swap" rel="stylesheet">
   <!-- 引入 SheetJS 支援直接匯出與讀取 .xlsx Excel 檔案 -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -1041,10 +1041,10 @@
 
   <div class="pixel-window">
     <div class="sys-titlebar">
-      <div>🎮 [傳奇大師賽博炒股 V22.4] Kalman雙中性配對(解法A+B)・多空嚴格分流與融券/借券/期貨精準交割・Barra因子＆ERC風險平價</div>
+      <div>🎮 [傳奇大師賽博炒股 V22.5] Kalman雙中性配對(對數β精準修正)・多空分流＆融券90%/SBL借券140%實務交割・Barra因子＆ERC風險平價</div>
       <div class="title-controls">
         <span id="marketPoolBadge" style="font-size:0.76rem; background:#0f2018; padding:2px 8px; border:1.5px solid #00ffcc; color:#00ffcc;">
-          TWSE/TAIFEX EXACT SHORT &amp; LONG/SHORT ISOLATION V22.4
+          TWSE/TAIFEX EXACT SHORT &amp; LONG/SHORT ISOLATION V22.5
         </span>
         <div class="win-ctrl-btns">
           <div class="win-ctrl-btn">_</div>
@@ -1093,9 +1093,9 @@
           </div>
 
           <div class="fee-rule-banner">
-            <div>📡 <strong>V22.4 解法A+B 雙中性對沖</strong>：台股現股放空嚴格以「整張(1000股)」委託，先定空單整張市值再乘上先驗 $\beta_{t|t-1}$ 反推多單零股數；高價股(2330/2454/2382)自動轉單 <strong>TAIFEX 小台積電(QFF)或個股期貨</strong> 放空！</div>
-            <div>⚖️ <strong>多空嚴格分流與融券/借券精準會計</strong>：多翻空或空翻多時自動先結算原部位，絕不混加股數；<strong>融券遇除息前 6 日最後回補日強制回補</strong>，僅 SBL 借券可跨除息並支付權益補償金！</div>
-            <div>🛡️ <strong>因子共變異數 ($\Sigma = B\Omega B^T + \Delta$) ＆ ERC 風險平價</strong>：$VIX > 20$ 自動啟動 $1.4\times$ 相關係數膨脹；期貨維持率統一按「權益數 ÷ 維持保證金(跌破100%追繳)」精算</div>
+            <div>📡 <strong>V22.5 解法A+B 雙中性對沖(對數β精準修正)</strong>：現股放空嚴格以「整張(1000股)」委託，依對數迴歸 $\text{Notional}_B = \beta \cdot \text{Notional}_A$ 反推多單零股數，並內建防裸空回滾機制；高價股自動轉單 <strong>TAIFEX 小台積電(QFF)或個股期貨</strong>！</div>
+            <div>⚖️ <strong>台灣實務稅費與保證金分流</strong>：台股手續費含最低門檻(整張$20/零股$1)，證交稅與期交稅依法無條件捨去(`Math.floor`)；<strong>融券自備 90%(維持率130%) vs. SBL 借券自備 40%(總擔保140%/維持率120%)</strong>！</div>
+            <div>🛡️ <strong>TAIFEX 期貨追繳補足與風險指標斷頭</strong>：盤後跌破維持保證金(100%)優先自動自現金補回原始保證金，若無力補繳或風險指標低於 25% 立即強制代沖銷！</div>
           </div>
 
           <div class="gba-lcd-screen">
@@ -1247,7 +1247,7 @@
       <div class="ledger-modal-body" style="max-height:88vh; overflow-y:auto;">
         <div class="ledger-date-nav-bar" style="background:#142830;">
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-            <span style="font-weight:bold; color:#00ffcc;" id="quantDataSourceLabel">📡 資料來源：Walk-Forward OOS 步進回測 (Kalman 動態 β + 解法A/B雙中性對沖 + 多空分流精準會計)</span>
+            <span style="font-weight:bold; color:#00ffcc;" id="quantDataSourceLabel">📡 資料來源：Walk-Forward OOS 步進回測 (純日報酬序列 i.i.d. 檢定 + 解法A/B雙中性對沖)</span>
             <span style="font-size:0.78rem; color:#cfd8dc;">無風險年利率 Rf = 1.50%｜VIX &gt; 20 自動觸發 Corr × 1.4 壓力共變異數膨脹</span>
           </div>
           <div style="display:flex; gap:6px; flex-wrap:wrap;">
@@ -1294,7 +1294,7 @@
                 <th>已平倉筆數勝率 (Profit Factor)</th>
                 <th>t-Statistic (d.f.)</th>
                 <th>雙尾 p-value (t-test)</th>
-                <th>勝率二項檢定 p-value</th>
+                <th>日勝率二項檢定 p-value</th>
                 <th>統計顯著性結論 (α=0.05)</th>
               </tr>
             </thead>
@@ -1348,7 +1348,7 @@
     </div>
   </div>
 <script>
-function showSystemNotice(msg) {
+    function showSystemNotice(msg) {
       const textEl = document.getElementById('customNoticeText');
       const modalEl = document.getElementById('customNoticeModal');
       if (textEl && modalEl) {
@@ -1363,28 +1363,34 @@ function showSystemNotice(msg) {
     }
 
     /* =========================================================================
-       1. 台灣與美國實務證券/期貨交易規範、Volume 動態滑價常數與放空費率
+       1. 台灣與美國實務證券/期貨交易規範、Volume 動態滑價常數與放空費率 (V22.5 實務校準)
        ========================================================================= */
-    const TW_STOCK_FEE_RATE = 0.0004;                // 台股手續費：2.8折
-    const TW_STOCK_SELL_TAX_RATE = 0.003;            // 台灣證交稅：0.3%
-    const TW_MARGIN_SHORT_INIT_RATE = 0.90;          // 台灣融券保證金：90% (以百元為單位無條件進位)
-    const TW_MARGIN_SHORT_FEE_RATE = 0.0008;         // 台灣融券借券費：0.08%
-    const TW_MARGIN_COLLATERAL_INT_RATE = 0.0015;    // 台灣融券擔保品年息：0.15%
-    const STOCK_SHORT_MAINT_CALL_RATIO = 130.0;      // 台股整戶/整張維持率低於 130% 發出追繳
-    const STOCK_SHORT_STOPOUT_RATIO = 120.0;
+    const TW_STOCK_FEE_RATE = 0.0004;                 // 台股手續費率：約 2.8 折 (0.1425% * 0.28 ≈ 0.0004)
+    const TW_STOCK_MIN_FEE_LOT = 20;                  // 台股整張委託(>=1000股)最低手續費：$20 TWD
+    const TW_STOCK_MIN_FEE_ODD = 1;                   // 台股零股委託(<1000股)最低手續費：$1 TWD
+    const TW_STOCK_SELL_TAX_RATE = 0.003;             // 台灣證交稅：0.3% (依法角以下無條件捨去 Math.floor)
 
-    const TW_WARRANT_FEE_RATE = 0.002;
-    const TW_WARRANT_SELL_TAX_RATE = 0.001;
+    const TW_MARGIN_SHORT_INIT_RATE = 0.90;           // 台灣一般信用融券保證金：90% (以百元為單位無條件進位，總擔保率約190%)
+    const TW_MARGIN_SHORT_FEE_RATE = 0.0008;          // 台灣融券借券費：0.08%
+    const TW_MARGIN_COLLATERAL_INT_RATE = 0.0015;     // 台灣融券擔保品與保證金年息：0.15%
+    const STOCK_SHORT_MAINT_CALL_RATIO = 130.0;       // 台灣一般融券維持率低於 130% 發出追繳
 
-    const TW_FUTURES_FIXED_FEE = 20;                 // 期貨每口單邊手續費：$20 TWD
-    const TW_FUTURES_TAX_RATE = 0.00002;             // 台灣期交稅：0.002% (十萬分之二)
-    const FUTURES_MAINT_MARGIN_RATIO = 0.766;        // TAIFEX 維持保證金約為原始保證金之 76.6% (初始維持率 ≈ 130.5%)
-    const FUTURES_MAINT_CALL_PCT = 100.0;            // 權益數低於維持保證金 100% 觸發盤後追繳/風控
-    const FUTURES_STOPOUT_RISK_RATIO = 25.0;         // 風險指標低於 25% 期貨商強制代為沖銷
+    const TW_SBL_SHORT_INIT_RATE = 0.40;              // 台灣法人 SBL 借券自備保證金：40% (連同賣出價款 100% 合計原始擔保率 140%，以百元進位)
+    const SBL_SHORT_MAINT_CALL_RATIO = 120.0;         // 台灣 SBL 借券維持擔保率低於 120% 須補繳回 140%
 
-    const US_SUBBROKER_FEE_RATE = 0.001;             // 美股複委託手續費：0.1%
-    const US_SEC_SELL_FEE_RATE = 0.0000278;          // 美國 SEC 規費：0.00278%
-    const US_REGT_SHORT_ADD_MARGIN = 0.50;           // 美股 Reg T 自備保證金：50% (總擔保150%)
+    const TW_WARRANT_FEE_RATE = 0.001425;             // 權證手續費率 (最低 $20 TWD)
+    const TW_WARRANT_SELL_TAX_RATE = 0.001;           // 權證交易稅：0.1% (無條件捨去)
+
+    const TW_FUTURES_FIXED_FEE = 20;                  // 期貨每口單邊手續費：$20 TWD
+    const TW_FUTURES_TAX_RATE = 0.00002;              // 台灣期交稅：0.002% (十萬分之二，依法無條件捨去 Math.floor)
+    const FUTURES_MAINT_MARGIN_RATIO = 0.766;         // TAIFEX 維持保證金約為原始保證金之 76.6% (初始維持率 ≈ 130.5%)
+    const FUTURES_MAINT_CALL_PCT = 100.0;             // 權益數低於維持保證金 100% 觸發盤後追繳 (須補回原始保證金)
+    const FUTURES_STOPOUT_RISK_RATIO = 25.0;          // 風險指標 (權益數 ÷ 原始保證金) 低於 25% 期貨商強制代為沖銷
+
+    const US_SUBBROKER_FEE_RATE = 0.001;              // 美股複委託手續費：0.1%
+    const US_SEC_SELL_FEE_RATE = 0.0000278;           // 美國 SEC 估算規費率：0.00278%
+    const US_REGT_SHORT_ADD_MARGIN = 0.50;            // 美股 Reg T 自備保證金：50% (連同賣出價款合計總擔保 150%)
+    const US_REGT_MAINT_CALL_RATIO = 130.0;           // 美股 FINRA Rule 431 空單維持保證金率：總擔保 ÷ 當前市值 >= 130% (即淨值 >= 30% 市值)
     const US_STOCK_DIV_TAX_RATE = 0.30;
     const US_BOND_DIV_TAX_RATE = 0.0;
     const FX_SPREAD_RATE = 0.0005;
@@ -1427,18 +1433,17 @@ function showSystemNotice(msg) {
       '3037': { futCode: 'IRF', futName: '欣興期貨', underlying: '3037 欣興', sharesPerContract: 2000, marginRate: 0.135 }
     };
 
-    // 升級 STORAGE_KEY 為 V22_4_ISOLATED_LONG_SHORT，確保載入多空嚴格分流與精準放空會計引擎
-    const STORAGE_KEY = 'AZHOU_ULTIMATE_V22_4_ISOLATED_LONG_SHORT';
+    // 升級 STORAGE_KEY 為 V22_5_FIXED_EDITION，確保載入最新實務修正引擎
+    const STORAGE_KEY = 'AZHOU_ULTIMATE_V22_5_FIXED_EDITION';
     const WEEKDAYS = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
     let currentPoolTab = 'STOCK';
-
-    const BUILTIN_SCENARIOS = [
+const BUILTIN_SCENARIOS = [
       {
         date: '2026-11-06',
         weekday: '週五',
         fullDateLabel: '2026-11-06 (週五)',
         fxRate: 32.10,
-        chapterTitle: 'Day 1：【Kalman雙中性配對(解法A+B)＋OOS建倉】空單整張定錨＋高價股自動轉單TAIFEX個股期',
+        chapterTitle: 'Day 1：【Kalman雙中性配對(對數β精準修正)＋OOS建倉】空單整張定錨＋高價股自動轉單TAIFEX個股期',
         macro: {
           regime: 'GOLDILOCKS',
           regimeLabel: '🟢 非農軟著陸・Kalman雙中性啟動',
@@ -1452,8 +1457,8 @@ function showSystemNotice(msg) {
           borrowHeatText: '1.12x(溫和)',
           macroScore: 1,
           headlines: [
-            { tag: '📡解法A+B雙中性配對', title: '遵守台股現股放空整張(1000股)法規：先定空單整張市值，再乘上先驗 β_{t|t-1} 反推多單零股數；高價股(2330/2454/2382)自動轉單 TAIFEX 小台積電(QFF)或個股期貨放空！', score: 2 },
-            { tag: '⚖️多空嚴格分流與精準會計', title: '多翻空或空翻多時自動先結算原部位，絕不混加股數；融券於除息前6日強制回補，僅SBL借券可跨除息並支付權益補償金！', score: 2 },
+            { tag: '📡解法A+B雙中性配對', title: '遵守台股現股放空整張(1000股)法規：先定空單整張市值，再依對數迴歸 Notional_B = β × Notional_A 反推多單零股數，並內建防裸空回滾機制；高價股自動轉單 TAIFEX 個股期貨放空！', score: 2 },
+            { tag: '⚖️融券90%與SBL借券140%分流', title: '多翻空或空翻多時自動先結算原部位；散戶融券自備 90% 保證金(維持率130%)且於除息前6日強制回補，法人 SBL 借券自備 40% 擔保金(總擔保140%/維持率120%)可跨除息並支付權益補償金！', score: 2 },
             { tag: '🎙️台股法說會', title: '【台積電法說會】魏哲家宣布 AI 算力需求「是真的且剛開始」，上修全年美元營收成長至近 30%！', score: 2 }
           ]
         },
@@ -1479,7 +1484,7 @@ function showSystemNotice(msg) {
           { id: '2454 聯發科', code: '2454', open: 1310.0, high: 1325.0, low: 1295.0, price: 1315.0, changePct: 0.38, volLots: 12800, pe: 19.8, yield: 4.1, exDividendDate: '2027-01-04', cashDividend: 29.0, fairValue: 1300.0, sentiment: 0.20, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.9, haltReason: '', news: [{ title: '【Kalman動態對沖比】2454 聯發科與 2330 台積電透過狀態空間遞迴更新 β_t', score: 1 }] },
           { id: '2317 鴻海', code: '2317', open: 209.5, high: 217.0, low: 208.5, price: 216.0, changePct: 3.85, volLots: 92000, pe: 16.0, yield: 3.5, exDividendDate: '2026-11-10', cashDividend: 5.40, fairValue: 204.0, sentiment: 0.90, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.8, haltReason: '11/10除息前6日停券', news: [{ title: '【鴻海法說展望】GB200 伺服器第四季大量出貨，與 2382 廣達形成 AI 伺服器狀態空間配對！', score: 2 }] },
           { id: '2382 廣達', code: '2382', open: 318.0, high: 326.0, low: 315.0, price: 322.0, changePct: 1.26, volLots: 38500, pe: 21.5, yield: 2.9, exDividendDate: '2027-04-12', cashDividend: 9.0, fairValue: 310.0, sentiment: 0.55, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.1, haltReason: '', news: [{ title: '2382 廣達與 2317 鴻海卡爾曼濾波殘差保持平穩', score: 1 }] },
-          { id: '2603 長榮', code: '2603', open: 212.0, high: 213.0, low: 205.5, price: 208.5, changePct: -2.35, volLots: 39000, pe: 7.1, yield: 5.9, exDividendDate: '2026-11-10', cashDividend: 10.00, fairValue: 235.0, sentiment: -0.55, allowMarginShort: false, allowSBL: true, sblFeeRate: 2.6, haltReason: '11/10除息前6日停券', news: [{ title: '【解法A嚴格β中性】2609 陽明整張放空 2 張(市值$150,400)，反推 2603 長榮精準買進零股對齊 β 市值，達成 100% 零方向性暴露！', score: 1 }] },
+          { id: '2603 長榮', code: '2603', open: 212.0, high: 213.0, low: 205.5, price: 208.5, changePct: -2.35, volLots: 39000, pe: 7.1, yield: 5.9, exDividendDate: '2026-11-10', cashDividend: 10.00, fairValue: 235.0, sentiment: -0.55, allowMarginShort: false, allowSBL: true, sblFeeRate: 2.6, haltReason: '11/10除息前6日停券', news: [{ title: '【解法A嚴格β中性】2609 陽明 SBL 借券整張放空，反推 2603 長榮精準買進零股對齊 β 市值，達成 100% 零方向性暴露！', score: 1 }] },
           { id: '2609 陽明', code: '2609', open: 72.5, high: 75.8, low: 72.0, price: 75.2, changePct: 3.15, volLots: 64000, pe: 8.4, yield: 2.7, exDividendDate: '2027-07-09', cashDividend: 2.00, fairValue: 69.0, sentiment: 0.30, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.4, haltReason: '', news: [{ title: '【Walk-Forward OOS 配對高估端】2609 陽明急拉 +3.15%，西蒙斯依 t-1 先驗 β_t 執行「整張空陽明、零股配平多長榮」套利！', score: -1 }] },
           { id: '2891 中信金', code: '2891', open: 36.5, high: 36.6, low: 35.9, price: 36.2, changePct: -0.82, volLots: 41000, pe: 10.0, yield: 5.3, exDividendDate: '2026-11-09', cashDividend: 1.80, fairValue: 40.5, sentiment: 0.25, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.5, haltReason: '11/09除息前6日停券', news: [{ title: '【ERC 低波價值核心】2891 中信金異質風險 Δ 極低，獲 ERC 風險平價模型高權重配置', score: 2 }] },
           { id: '1519 華城', code: '1519', open: 625.0, high: 658.0, low: 622.0, price: 655.0, changePct: 5.65, volLots: 14500, pe: 36.8, yield: 1.2, exDividendDate: '2026-12-15', cashDividend: 6.00, fairValue: 575.0, sentiment: 0.95, allowMarginShort: true, allowSBL: true, sblFeeRate: 6.8, haltReason: '', news: [{ title: '1519 華城強攻 +5.65%，高異質波動率使 ERC 模型自動限制其單一部位風險貢獻！', score: 2 }] },
@@ -1512,7 +1517,7 @@ function showSystemNotice(msg) {
           macroScore: -2,
           headlines: [
             { tag: '🚨VIX>20壓力共變異數介入', title: 'VIX 恐慌指數飆升至 21.8 (>20)！系統強制啟動 Regime-Switching 壓力測試：將 Σ = BΩBᵀ + Δ 非對角線相關係數全面乘上 1.4x 膨脹係數，ERC 模型自動轉入防禦配置！', score: -2 },
-            { tag: '📡Kalman雙中性零Beta抗跌', title: '因西蒙斯採用「空單整張定錨＋多單零股配平 β」，大盤下殺時空單獲利完全蓋過多單回檔，展現真正大獎章 Market Neutral 威力！', score: 2 },
+            { tag: '📡Kalman雙中性零Beta抗跌', title: '因西蒙斯採用「空單整張定錨＋多單零股依對數 β 配平」，大盤下殺時空單獲利完全蓋過多單回檔，展現真正大獎章 Market Neutral 威力！', score: 2 },
             { tag: '🔨借券費率動態競價', title: '空頭搶券導致 SBL 競價倍數飆至 1.75x，突破損益平衡點 (Breakeven) 之空單自動觸發風控回補！', score: -1 }
           ]
         },
@@ -1524,9 +1529,9 @@ function showSystemNotice(msg) {
         ],
         usAssets: [
           { id: 'NVDA 輝達 (NVIDIA)', code: 'NVDA', name: '輝達 (NVIDIA)', assetType: 'US_STOCK', usSector: 'AI_SEMI', currency: 'USD', open: 146.5, high: 152.8, low: 145.9, price: 151.6, changePct: 2.57, volShares: 74000000, yield: 0.03, exDividendDate: '', cashDividend: 0.01, isETB: true, borrowFeeRate: 0.35 },
-          { id: 'AAPL 蘋果 (Apple)', code: 'AAPL', name: '蘋果 (Apple)', assetType: 'US_STOCK', usSector: 'BUFFETT_TECH', currency: 'USD', open: 227.5, high: 228.0, low: 223.0, price: 224.2, changePct: -1.88, volShares: 48500000, yield: 0.45, exDividendDate: '2026-11-09', cashDividend: 0.25, isETB: true, borrowFeeRate: 0.25 },
+          { id: 'AAPL 蘋果 (Apple)', code: 'AAPL', name: '蘋果 (Apple)', assetType: 'US_STOCK', usSector: 'BUFFETT_TECH', currency: 'USD', open: 227.5, high: 228.0, low: 223.0, price: 224.2, changePct: -1.77, volShares: 48500000, yield: 0.45, exDividendDate: '2026-11-09', cashDividend: 0.25, isETB: true, borrowFeeRate: 0.25 },
           { id: 'TSLA 特斯拉 (Tesla)', code: 'TSLA', name: '特斯拉 (Tesla)', assetType: 'US_STOCK', usSector: 'MEME_GROWTH', currency: 'USD', open: 295.0, high: 296.0, low: 281.0, price: 284.5, changePct: -5.01, volShares: 86000000, yield: 0.0, exDividendDate: '', cashDividend: 0.0, isETB: true, borrowFeeRate: 1.50 },
-          { id: 'INTC 英特爾 (Intel)', code: 'INTC', name: '英特爾 (Intel)', assetType: 'US_STOCK', usSector: 'AI_SEMI', currency: 'USD', open: 23.2, high: 23.3, low: 21.6, price: 21.8, changePct: -6.84, volShares: 61000000, yield: 0.0, exDividendDate: '2026-11-09', cashDividend: 0.125, isETB: true, borrowFeeRate: 0.85 },
+          { id: 'INTC 英特爾 (Intel)', code: 'INTC', name: '英特爾 (Intel)', assetType: 'US_STOCK', usSector: 'AI_SEMI', currency: 'USD', open: 23.2, high: 23.3, low: 21.6, price: 21.8, changePct: -6.34, volShares: 61000000, yield: 0.0, exDividendDate: '2026-11-09', cashDividend: 0.125, isETB: true, borrowFeeRate: 0.85 },
           { id: 'KO 可口可樂 (Coca-Cola)', code: 'KO', name: '可口可樂 (Coca-Cola)', assetType: 'US_STOCK', usSector: 'BUFFETT_VALUE', currency: 'USD', open: 65.8, high: 66.5, low: 65.6, price: 66.3, changePct: 0.76, volShares: 16200000, yield: 3.05, exDividendDate: '', cashDividend: 0.485, isETB: true, borrowFeeRate: 0.25 },
           { id: 'VST Vistra (AI核能電力)', code: 'VST', name: 'Vistra (AI核能電力)', assetType: 'US_STOCK', usSector: 'AI_POWER', currency: 'USD', open: 136.0, high: 142.0, low: 135.2, price: 141.2, changePct: 3.98, volShares: 10800000, yield: 0.65, exDividendDate: '', cashDividend: 0.22, isETB: true, borrowFeeRate: 0.60 },
           { id: 'GME 遊戲驛站 (GameStop)', code: 'GME', name: 'GameStop', assetType: 'US_STOCK', usSector: 'MEME_GROWTH', currency: 'USD', open: 27.2, high: 31.5, low: 26.8, price: 30.6, changePct: 10.07, volShares: 41000000, yield: 0.0, exDividendDate: '', cashDividend: 0.0, isETB: false, borrowFeeRate: 28.50 },
@@ -1534,13 +1539,13 @@ function showSystemNotice(msg) {
           { id: 'SGOV 美國0-3月極短國庫券', code: 'SGOV', name: '0-3月美債ETF', assetType: 'US_BOND', usSector: 'BOND', currency: 'USD', open: 100.45, high: 100.52, low: 100.42, price: 100.49, changePct: 0.04, volShares: 21000000, yield: 4.85, exDividendDate: '', cashDividend: 0.42, isETB: true, borrowFeeRate: 0.25 }
         ],
         sectors: [
-          { id: '2330 台積電', code: '2330', open: 1055.0, high: 1058.0, low: 1035.0, price: 1045.0, changePct: -1.88, volLots: 51000, pe: 23.6, yield: 1.7, exDividendDate: '2026-11-09', cashDividend: 4.50, fairValue: 1020.0, sentiment: 0.50, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.5, haltReason: '', news: [{ title: '💰【台美同步除息】今日 2330 台積電配息 $4.5 TWD；美股 INTC 除息空方須強制代墊 100% 股息！', score: 2 }] },
+          { id: '2330 台積電', code: '2330', open: 1055.0, high: 1058.0, low: 1035.0, price: 1045.0, changePct: -1.46, volLots: 51000, pe: 23.6, yield: 1.7, exDividendDate: '2026-11-09', cashDividend: 4.50, fairValue: 1020.0, sentiment: 0.50, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.5, haltReason: '', news: [{ title: '💰【台美同步除息】今日 2330 台積電配息 $4.5 TWD (除息參考價 $1,060.5，實務跌幅 -1.46%)；美股 INTC 除息空方須強制代墊 100% 股息！', score: 2 }] },
           { id: '2454 聯發科', code: '2454', open: 1310.0, high: 1315.0, low: 1275.0, price: 1280.0, changePct: -2.66, volLots: 15400, pe: 19.2, yield: 4.2, exDividendDate: '2027-01-04', cashDividend: 29.0, fairValue: 1300.0, sentiment: -0.25, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.9, haltReason: '', news: [{ title: '【Kalman新息收斂中】2454 聯發科回檔 -2.66%，卡爾曼增益 K_t 自動修正對沖比 β_t', score: 0 }] },
           { id: '2317 鴻海', code: '2317', open: 214.0, high: 215.0, low: 206.0, price: 209.0, changePct: -3.24, volLots: 88000, pe: 15.4, yield: 3.6, exDividendDate: '2026-11-10', cashDividend: 5.40, fairValue: 204.0, sentiment: -0.45, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.8, haltReason: '明日除息停券', news: [{ title: 'VIX > 20 觸發壓力共變異數，ERC 風險平價與短債 SGOV 發揮防禦保護', score: -1 }] },
           { id: '2382 廣達', code: '2382', open: 320.0, high: 321.0, low: 308.0, price: 310.0, changePct: -3.73, volLots: 42000, pe: 20.8, yield: 3.0, exDividendDate: '2027-04-12', cashDividend: 9.0, fairValue: 310.0, sentiment: -0.40, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.1, haltReason: '', news: [{ title: '2382 廣達與 2317 鴻海同步修正，Kalman 狀態空間殘差維持穩定', score: -1 }] },
           { id: '2603 長榮', code: '2603', open: 207.0, high: 208.0, low: 201.0, price: 204.0, changePct: -2.16, volLots: 54000, pe: 6.9, yield: 6.1, exDividendDate: '2026-11-10', cashDividend: 10.00, fairValue: 235.0, sentiment: -0.30, allowMarginShort: false, allowSBL: true, sblFeeRate: 2.6, haltReason: '明日除息停券', news: [{ title: '明日 2603 長榮除息配發 $10.0 元！相較於陽明重挫 -6.65%，長榮僅小跌使雙中性配對部位逆勢大賺', score: 1 }] },
           { id: '2609 陽明', code: '2609', open: 74.5, high: 74.8, low: 69.5, price: 70.2, changePct: -6.65, volLots: 78000, pe: 7.9, yield: 2.9, exDividendDate: '2027-07-09', cashDividend: 2.00, fairValue: 69.0, sentiment: -0.75, allowMarginShort: true, allowSBL: true, sblFeeRate: 3.2, haltReason: '', news: [{ title: '【Kalman新息誤差收斂】昨日超漲之 2609 陽明今日補跌 -6.65%，西蒙斯 OOS 整張空單端大賺！', score: -2 }] },
-          { id: '2891 中信金', code: '2891', open: 36.3, high: 37.5, low: 36.2, price: 37.3, changePct: 3.04, volLots: 52000, pe: 10.3, yield: 5.1, exDividendDate: '2026-11-09', cashDividend: 1.80, fairValue: 40.5, sentiment: 0.75, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.5, haltReason: '', news: [{ title: '💰【今日除息秒填息】2891 中信金配發 $1.80 元並逆勢大漲 +3.04%！', score: 2 }] },
+          { id: '2891 中信金', code: '2891', open: 36.3, high: 37.5, low: 36.2, price: 37.3, changePct: 8.43, volLots: 52000, pe: 10.3, yield: 5.1, exDividendDate: '2026-11-09', cashDividend: 1.80, fairValue: 40.5, sentiment: 0.75, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.5, haltReason: '', news: [{ title: '💰【今日除息秒填息】2891 中信金配發 $1.80 元(除息參考價 $34.40)並逆勢大漲收 $37.30！', score: 2 }] },
           { id: '1519 華城', code: '1519', open: 658.0, high: 682.0, low: 652.0, price: 678.0, changePct: 3.51, volLots: 19500, pe: 37.5, yield: 1.1, exDividendDate: '2026-12-15', cashDividend: 6.00, fairValue: 585.0, sentiment: 0.90, allowMarginShort: true, allowSBL: true, sblFeeRate: 9.8, haltReason: '', news: [{ title: '🔨【借券競價費率狂飆】1519 華城逆勢創高 678 元，SBL 競價年息飆至 9.8%！', score: 2 }] },
           { id: '3037 欣興', code: '3037', open: 152.0, high: 153.0, low: 145.5, price: 144.0, changePct: -6.49, volLots: 36000, pe: 26.2, yield: 2.0, exDividendDate: '2026-12-20', cashDividend: 3.00, fairValue: 158.0, sentiment: -0.70, allowMarginShort: true, allowSBL: true, sblFeeRate: 5.6, haltReason: '', news: [{ title: '3037 欣興重挫 -6.49%，李佛摩空單大獲全勝！', score: -2 }] },
           { id: '00679B 元大美債20年', code: '00679B', assetType: 'TW_BOND', open: 29.6, high: 30.2, low: 29.5, price: 30.1, changePct: 2.03, volLots: 75000, pe: 0.0, yield: 4.4, exDividendDate: '2026-11-10', cashDividend: 0.34, fairValue: 31.0, sentiment: 0.65, allowMarginShort: false, allowSBL: true, sblFeeRate: 1.2, haltReason: '明日除息停券', news: [{ title: 'VIX 飆高時 00679B 逆勢上漲 +2.03%，ERC 風險平價防禦效果顯著', score: 2 }] }
@@ -1595,14 +1600,14 @@ function showSystemNotice(msg) {
         sectors: [
           { id: '2330 台積電', code: '2330', open: 1070.0, high: 1100.0, low: 1065.0, price: 1095.0, changePct: 4.78, volLots: 62000, pe: 24.8, yield: 1.5, exDividendDate: '2026-11-09', cashDividend: 4.50, fairValue: 1050.0, sentiment: 0.95, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.5, haltReason: '', news: [{ title: 'Fed 鴿派降息信號＋外資熱錢匯入台股，2330 台積電與美股 NVDA 雙雙暴漲！', score: 2 }] },
           { id: '2454 聯發科', code: '2454', open: 1295.0, high: 1335.0, low: 1290.0, price: 1325.0, changePct: 3.52, volLots: 18900, pe: 20.1, yield: 4.0, exDividendDate: '2027-01-04', cashDividend: 29.0, fairValue: 1320.0, sentiment: 0.80, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.9, haltReason: '', news: [{ title: '【Kalman新息收斂完成】2454 聯發科與 2330 台積電新息 Z-Score 收斂至 +0.16σ，觸發 OOS 配對套利獲利平倉！', score: 2 }] },
-          { id: '2317 鴻海', code: '2317', open: 215.0, high: 225.0, low: 214.0, price: 224.0, changePct: 7.18, volLots: 115000, pe: 16.6, yield: 3.4, exDividendDate: '2026-11-10', cashDividend: 5.40, fairValue: 215.0, sentiment: 0.95, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.8, haltReason: '', news: [{ title: '💰【今日除息秒填息】2317 鴻海爆量 11.5 萬張配發 $5.40 元並狂飆 +7.18%', score: 2 }] },
+          { id: '2317 鴻海', code: '2317', open: 215.0, high: 225.0, low: 214.0, price: 224.0, changePct: 10.02, volLots: 115000, pe: 16.6, yield: 3.4, exDividendDate: '2026-11-10', cashDividend: 5.40, fairValue: 215.0, sentiment: 0.95, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.8, haltReason: '', news: [{ title: '💰【今日除息秒填息】2317 鴻海爆量 11.5 萬張配發 $5.40 元(除息參考價 $203.6)並強攻收 $224.0！', score: 2 }] },
           { id: '2382 廣達', code: '2382', open: 315.0, high: 332.0, low: 314.0, price: 329.0, changePct: 6.13, volLots: 51000, pe: 22.0, yield: 2.8, exDividendDate: '2027-04-12', cashDividend: 9.0, fairValue: 325.0, sentiment: 0.85, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.1, haltReason: '', news: [{ title: '2382 廣達與 2317 鴻海同步大漲，AI 伺服器族群動量因子 (Momentum) 領跑全場', score: 2 }] },
-          { id: '2603 長榮', code: '2603', open: 210.0, high: 223.5, low: 209.0, price: 222.0, changePct: 8.82, volLots: 78000, pe: 7.5, yield: 5.5, exDividendDate: '2026-11-10', cashDividend: 10.00, fairValue: 235.0, sentiment: 0.90, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.6, haltReason: '', news: [{ title: '💰【今日除息大噴發＋Kalman配對收割】2603 長榮配發 $10.0 元並大漲 +8.82%，與陽明新息誤差完全收斂，西蒙斯雙邊平倉大賺！', score: 2 }] },
-          { id: '2609 陽明', code: '2609', open: 70.5, high: 71.8, low: 69.8, price: 71.0, changePct: 1.14, volLots: 52000, pe: 8.0, yield: 2.8, exDividendDate: '2027-07-09', cashDividend: 2.00, fairValue: 69.0, sentiment: 0.25, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.4, haltReason: '', news: [{ title: '【航運Kalman狀態收斂】2609 陽明僅小漲 +1.14% 遠落後長榮 +8.82%，卡爾曼新息 Z_Kalman 回到 -0.15σ，配對空單完美回補！', score: 1 }] },
+          { id: '2603 長榮', code: '2603', open: 210.0, high: 223.5, low: 209.0, price: 222.0, changePct: 14.43, volLots: 78000, pe: 7.5, yield: 5.5, exDividendDate: '2026-11-10', cashDividend: 10.00, fairValue: 235.0, sentiment: 0.90, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.6, haltReason: '', news: [{ title: '💰【今日除息大噴發＋Kalman配對收割】2603 長榮配發 $10.0 元(除息參考價 $194.0)，與陽明新息誤差完全收斂，西蒙斯雙邊平倉大賺！', score: 2 }] },
+          { id: '2609 陽明', code: '2609', open: 70.5, high: 71.8, low: 69.8, price: 71.0, changePct: 1.14, volLots: 52000, pe: 8.0, yield: 2.8, exDividendDate: '2027-07-09', cashDividend: 2.00, fairValue: 69.0, sentiment: 0.25, allowMarginShort: true, allowSBL: true, sblFeeRate: 2.4, haltReason: '', news: [{ title: '【航運Kalman狀態收斂】2609 陽明僅小漲 +1.14% 遠落後長榮，卡爾曼新息 Z_Kalman 回到 -0.15σ，配對空單完美回補！', score: 1 }] },
           { id: '2891 中信金', code: '2891', open: 37.5, high: 38.3, low: 37.4, price: 38.1, changePct: 2.14, volLots: 38000, pe: 10.5, yield: 5.0, exDividendDate: '2026-11-09', cashDividend: 1.80, fairValue: 40.5, sentiment: 0.60, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.5, haltReason: '', news: [{ title: '2891 中信金除息後連拉兩根紅K棒，巴菲特 ERC 低波價值組合穩健創高', score: 1 }] },
           { id: '1519 華城', code: '1519', open: 685.0, high: 755.0, low: 682.0, price: 748.0, changePct: 10.32, volLots: 16000, pe: 38.5, yield: 1.1, exDividendDate: '2026-12-15', cashDividend: 6.00, fairValue: 600.0, sentiment: 0.90, allowMarginShort: true, allowSBL: true, sblFeeRate: 11.5, haltReason: '', news: [{ title: '🔥【軋空慘劇】1519 華城狂飆漲停 748 元！克萊默融券空單維持率跌破追繳線慘遭高滑價強制回補！', score: 2 }] },
           { id: '3037 欣興', code: '3037', open: 145.0, high: 159.0, low: 144.0, price: 158.0, changePct: 9.72, volLots: 42000, pe: 27.8, yield: 1.9, exDividendDate: '2026-12-20', cashDividend: 3.00, fairValue: 158.0, sentiment: 0.75, allowMarginShort: true, allowSBL: true, sblFeeRate: 4.2, haltReason: '', news: [{ title: 'Fed 轉鴿激勵電子股全面反攻，李佛摩迅速買進回補 3037 欣興空單鎖定獲利！', score: 2 }] },
-          { id: '00679B 元大美債20年', code: '00679B', assetType: 'TW_BOND', open: 30.2, high: 30.6, low: 30.1, price: 30.5, changePct: 1.33, volLots: 64000, pe: 0.0, yield: 4.4, exDividendDate: '2026-11-10', cashDividend: 0.34, fairValue: 31.0, sentiment: 0.70, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.2, haltReason: '', news: [{ title: '💰【今日除息】Fed 暗示降息帶動 10Y 殖利率回落至 4.12%，00679B 與 TLT 美債雙雙上漲', score: 1 }] }
+          { id: '00679B 元大美債20年', code: '00679B', assetType: 'TW_BOND', open: 30.2, high: 30.6, low: 30.1, price: 30.5, changePct: 2.49, volLots: 64000, pe: 0.0, yield: 4.4, exDividendDate: '2026-11-10', cashDividend: 0.34, fairValue: 31.0, sentiment: 0.70, allowMarginShort: true, allowSBL: true, sblFeeRate: 1.2, haltReason: '', news: [{ title: '💰【今日除息】Fed 暗示降息帶動 10Y 殖利率回落至 4.12%，00679B 配息 $0.34 元(除息參考價 $29.76)並填息上漲！', score: 1 }] }
         ],
         warrants: [
           { id: '081524 台積電元大45購01', code: '081524', name: '台積電元大45購01', warrantType: 'CALL', underlyingCode: '2330', underlyingId: '2330 台積電', open: 2.40, high: 2.82, low: 2.38, price: 2.78, changePct: 25.79, volLots: 29500 },
@@ -1634,15 +1639,15 @@ function showSystemNotice(msg) {
         id: 1,
         name: '吉姆·西蒙斯',
         job: '文藝復興科技創辦人',
-        style: 'Kalman 雙中性配對(解法A+B) + 短債SGOV/IEF + ERC',
-        targetRatioText: '機構雙中性核心：空單整張定錨反推多單零股；高價股自動轉單 TAIFEX 個股期，並配短債 SGOV 避開升息債災',
+        style: 'Kalman 雙中性配對(對數β精準修正) + 短債SGOV + ERC',
+        targetRatioText: '機構雙中性核心：SBL空單整張定錨(自備40%擔保金)並依 Notional_B = β × Notional_A 反推多單零股；高價股轉單 TAIFEX 個股期',
         headerTheme: 'hdr-theme-simons',
-        ruleDesc: '大獎章雙中性無前瞻引擎（λ=5.0）：(1) 解法A：現股空單以整張(1000股)定錨，反推多單零股數達成 100% β 市值中性；(2) 解法B：超過 240 元高價股空單自動切換 TAIFEX 小台積電(QFF)或個股期貨；(3) 改配免稅短債 SGOV/IEF 免疫長債崩盤！',
+        ruleDesc: '大獎章雙中性無前瞻引擎（λ=5.0）：(1) 解法A：SBL 借券空單以整張(1000股/自備40%擔保金)定錨，依對數迴歸斜率反推多單零股數達成 100% β 市值中性；(2) 解法B：超過 240 元高價股空單自動切換 TAIFEX 小台積電(QFF)或個股期貨；(3) 改配免稅短債 SGOV 免疫長債崩盤！',
         skin: '#f2ccb7', hair: '#d0d0d0', shirt: '#2b580c', accessory: 'simons_beard',
         riskAversionLambda: 5.0,
         cash: 1000000, usdCash: 0, initialCapital: 1000000, totalDividendsReceived: 0, totalFeesPaid: 0,
         holdings: {}, mvoWeights: null, barraExposure: null, todayAction: 'Kalman雙中性配對+ERC平價',
-        monologue: '台股現股放空只能以整張委託！我用【解法A】先定空單整張市值再反推多單零股數，高價股則用【解法B】轉單 TAIFEX 小台積電/個股期貨放空，達成 100% 零 Beta 風險中性！'
+        monologue: '台股現股放空只能以整張委託！我用【解法A】先定 SBL 空單整張市值，再依對數迴歸 Notional_B = β × Notional_A 反推多單零股數，高價股則用【解法B】轉單 TAIFEX 個股期貨放空，達成 100% 零 Beta 風險中性！'
       },
       {
         id: 2,
@@ -2246,8 +2251,7 @@ function showSystemNotice(msg) {
 
       return { weights: w, portVarDaily: Math.max(0.02, portVar), rcSharesPct };
     }
-
-    function computeDynamicErcAndFactorWeights(agent, dayIndex, records) {
+function computeDynamicErcAndFactorWeights(agent, dayIndex, records) {
       const rec = records[dayIndex];
       const { covMatrix, vixVal, isStressRegime, corrInflationMult } = buildBarraFactorAndStressCovarianceMatrix(rec);
       const macro = rec.macro || {};
@@ -2315,7 +2319,8 @@ function showSystemNotice(msg) {
         lambda: agent.riskAversionLambda || 3.5
       };
     }
-function buildMacroForDay(rec, dayIdx) {
+
+    function buildMacroForDay(rec, dayIdx) {
       if (rec.macro && rec.macro.regime) return rec.macro;
       const avgChg = rec.sectors && rec.sectors.length > 0
         ? +(rec.sectors.reduce((acc, s) => acc + s.changePct, 0) / rec.sectors.length).toFixed(2)
@@ -2390,10 +2395,10 @@ function buildMacroForDay(rec, dayIdx) {
         if (inHaltWindow) {
           return { allowed: false, borrowRate: auc.dynamicBorrowRatePct, auctionMult: auc.auctionMultiplier, breakevenRate: auc.breakevenRatePct, tagText: `🚫停券(${item.haltReason || '除息前6日強制回補'})` };
         }
-        return { allowed: true, borrowRate: 0.08, auctionMult: 1.0, breakevenRate: 6.5, tagText: `✅融券可(費0.08%/SBL競價${auc.dynamicBorrowRatePct}%)` };
+        return { allowed: true, borrowRate: 0.08, auctionMult: 1.0, breakevenRate: 6.5, tagText: `✅融券可(自備90%/費0.08%)` };
       }
       if (shortMode === 'SHORT_TW_SBL') {
-        return { allowed: item.allowSBL !== false, borrowRate: auc.dynamicBorrowRatePct, auctionMult: auc.auctionMultiplier, breakevenRate: auc.breakevenRatePct, tagText: `✅SBL競價年息${auc.dynamicBorrowRatePct}%(${auc.auctionMultiplier}x)` };
+        return { allowed: item.allowSBL !== false, borrowRate: auc.dynamicBorrowRatePct, auctionMult: auc.auctionMultiplier, breakevenRate: auc.breakevenRatePct, tagText: `✅SBL可借(自備40%/年息${auc.dynamicBorrowRatePct}%)` };
       }
       return { allowed: false, borrowRate: 0, auctionMult: 1.0, breakevenRate: 0, tagText: '不可放空' };
     }
@@ -2444,7 +2449,7 @@ function buildMacroForDay(rec, dayIdx) {
       const unitNotional = execPrice * multiplier;
 
       const costPerUnit = unitNotional * (marginRate + feeAndTaxRate);
-      const rawQty = Math.floor((budgetNative * 0.995) / costPerUnit);
+      const rawQty = Math.floor((budgetNative * 0.992) / costPerUnit);
 
       if (instType === 'SHORT_TW_MARGIN' || instType === 'SHORT_TW_SBL') {
         return Math.floor(rawQty / 1000) * 1000;
@@ -2537,7 +2542,7 @@ function buildMacroForDay(rec, dayIdx) {
       return true;
     }
 
-    // ★ V22.4 強化：加入配對交易「防裸奔」同步平倉機制！當配對空單因停損或維持率回補時，同步平倉對應的多單端
+    // ★ V22.5 實務升級：區分 TAIFEX 期貨「風險指標 < 25% 直接斷頭」與「盤後跌破維持保證金優先補回原始保證金」，以及融券130% / SBL 120% / RegT 130% 追繳機制
     function maintainCurrencyReserveAndMarginDiscipline(agent, rec, actionTags, monologueParts) {
       const fx = rec.fxRate || 32.15;
       const askRate = fx * (1 + FX_SPREAD_RATE);
@@ -2555,12 +2560,40 @@ function buildMacroForDay(rec, dayIdx) {
         const curPrice = q ? q.price : pos.avgCost;
 
         if (isFuturesLong) {
+          const hitRiskStopout = (ev.riskIndicatorPct !== undefined && ev.riskIndicatorPct < FUTURES_STOPOUT_RISK_RATIO);
           const hitLongFutMarginCall = ev.maintRatioPct < FUTURES_MAINT_CALL_PCT;
           const hitLongFutStopLoss = ev.roiPct <= -15.0;
-          if (hitLongFutMarginCall || hitLongFutStopLoss) {
-            const closeReason = hitLongFutMarginCall
-              ? `🚨【TAIFEX 期貨多單維持率追繳平倉】${instId} 下跌導致維持保證金維持率降至 ${ev.maintRatioPct}%（低於 ${FUTURES_MAINT_CALL_PCT}% 追繳線），執行賣出平倉！`
-              : `🛑【期貨多單停損紀律】${instId} 虧損達 ${ev.roiPct}%，執行賣出平倉鎖定風險！`;
+
+          if (!hitRiskStopout && !hitLongFutStopLoss && hitLongFutMarginCall) {
+            // TAIFEX 盤後追繳實務：若權益數低於維持保證金 (100%) 但風險指標 >= 25%，優先自現金補足至「原始保證金」水準
+            const shortfallToInitialTwd = Math.max(0, Math.ceil(pos.marginDepositedTwd - ev.equityValueTwd));
+            if (shortfallToInitialTwd > 0 && ensureTwdCash(agent, shortfallToInitialTwd, fx)) {
+              agent.cash -= shortfallToInitialTwd;
+              pos.marginDepositedNative += shortfallToInitialTwd;
+              pos.marginDepositedTwd += shortfallToInitialTwd;
+              const evAfter = evaluatePosition(rec, instId, pos);
+              pos.history.push({
+                lotNumber: pos.history.length + 1, date: todayDate, fxRate: fx, currency: 'TWD',
+                instId, instType: pos.instType,
+                actionType: 'WARN', actionLabel: '🏦 期貨盤後追繳補足原始保證金',
+                qty: pos.qty, unitLabel: '口', theoPrice: curPrice, price: curPrice,
+                slipBps: 0, slipCostTwd: 0, brokerFeeTwd: 0, taxCostTwd: 0, borrowOrDivCostTwd: 0,
+                feePaidTwd: 0, feeLabel: `追繳入金 +$${shortfallToInitialTwd.toLocaleString()} TWD`,
+                totalCostNative: shortfallToInitialTwd, totalCostTwd: shortfallToInitialTwd,
+                cumQtyAfter: pos.qty, maintRatioAfter: evAfter.maintRatioPct,
+                reason: `【TAIFEX 盤後追繳實務】權益數跌破維持保證金 (${ev.maintRatioPct}% < 100%)，自動自現金帳戶補繳 $${shortfallToInitialTwd.toLocaleString()} TWD 回復至原始保證金水準！`
+              });
+              actionTags.push(`🏦期貨追繳補保 ${instId.split(' ')[0]}`);
+              continue;
+            }
+          }
+
+          if (hitRiskStopout || hitLongFutMarginCall || hitLongFutStopLoss) {
+            const closeReason = hitRiskStopout
+              ? `🚨【TAIFEX 風險指標低於 25% 強制代為沖銷】${instId} 風險指標驟降至 ${ev.riskIndicatorPct}%，期貨商立即市價代沖銷！`
+              : hitLongFutMarginCall
+                ? `🚨【TAIFEX 期貨多單無力補繳原始保證金平倉】${instId} 維持率降至 ${ev.maintRatioPct}%（低於 100% 追繳線），執行賣出平倉！`
+                : `🛑【期貨多單停損紀律】${instId} 虧損達 ${ev.roiPct}%，執行賣出平倉鎖定風險！`;
             closeOrReducePosition(agent, instId, pos.qty, curPrice, todayDate, fx, closeReason, rec);
             actionTags.push(`🚨期貨多單風控平倉 ${instId.split(' ')[0]}`);
             monologueParts.push(closeReason);
@@ -2572,7 +2605,39 @@ function buildMacroForDay(rec, dayIdx) {
         const isPairedPosition = Boolean(pos.pairTag);
         const stopLossThreshold = isPairedPosition ? -18.0 : -12.0;
         const hitStopLoss = ev.roiPct <= stopLossThreshold;
-        const hitMarginCall = isFuturesShort ? (ev.maintRatioPct < FUTURES_MAINT_CALL_PCT) : (ev.maintRatioPct < 140.0);
+
+        // 依各市場實務設定維持率追繳門檻：期貨 100%、SBL 借券 120%、一般融券 130%、美股 Reg T 130%
+        let maintCallLine = STOCK_SHORT_MAINT_CALL_RATIO;
+        if (isFuturesShort) maintCallLine = FUTURES_MAINT_CALL_PCT;
+        else if (pos.instType === 'SHORT_TW_SBL') maintCallLine = SBL_SHORT_MAINT_CALL_RATIO;
+        else if (pos.instType === 'SHORT_US_REGT') maintCallLine = US_REGT_MAINT_CALL_RATIO;
+
+        const hitFutRiskStopout = isFuturesShort && (ev.riskIndicatorPct !== undefined && ev.riskIndicatorPct < FUTURES_STOPOUT_RISK_RATIO);
+        const hitMarginCall = hitFutRiskStopout || (ev.maintRatioPct < maintCallLine);
+
+        // 若為期貨空單觸及盤後追繳但未觸及 25% 斷頭且未觸及策略停損，嘗試補回原始保證金
+        if (isFuturesShort && !hitFutRiskStopout && !hitStopLoss && hitMarginCall) {
+          const shortfallToInitialTwd = Math.max(0, Math.ceil(pos.marginDepositedTwd - ev.equityValueTwd));
+          if (shortfallToInitialTwd > 0 && ensureTwdCash(agent, shortfallToInitialTwd, fx)) {
+            agent.cash -= shortfallToInitialTwd;
+            pos.marginDepositedNative += shortfallToInitialTwd;
+            pos.marginDepositedTwd += shortfallToInitialTwd;
+            const evAfter = evaluatePosition(rec, instId, pos);
+            pos.history.push({
+              lotNumber: pos.history.length + 1, date: todayDate, fxRate: fx, currency: 'TWD',
+              instId, instType: pos.instType,
+              actionType: 'WARN', actionLabel: '🏦 期貨空單追繳補足原始保證金',
+              qty: pos.qty, unitLabel: '口', theoPrice: curPrice, price: curPrice,
+              slipBps: 0, slipCostTwd: 0, brokerFeeTwd: 0, taxCostTwd: 0, borrowOrDivCostTwd: 0,
+              feePaidTwd: 0, feeLabel: `追繳入金 +$${shortfallToInitialTwd.toLocaleString()} TWD`,
+              totalCostNative: shortfallToInitialTwd, totalCostTwd: shortfallToInitialTwd,
+              cumQtyAfter: pos.qty, maintRatioAfter: evAfter.maintRatioPct,
+              reason: `【TAIFEX 盤後追繳實務】期貨空單權益數跌破維持保證金 (${ev.maintRatioPct}% < 100%)，自動自現金補繳 $${shortfallToInitialTwd.toLocaleString()} TWD 回原始保證金！`
+            });
+            actionTags.push(`🏦期貨空單補保 ${instId.split(' ')[0]}`);
+            continue;
+          }
+        }
 
         const underlyingObj = q ? (q.stockObj || q.usObj) : null;
         const aucInfo = (pos.instType === 'SHORT_TW_SBL' || pos.instType === 'SHORT_US_REGT') && underlyingObj
@@ -2582,8 +2647,10 @@ function buildMacroForDay(rec, dayIdx) {
 
         if (hitStopLoss || hitMarginCall || hitBreakevenStop) {
           let coverReason = '';
-          if (hitMarginCall) {
-            coverReason = `🚨【維持率風控強制平倉】${instId} 逆勢上漲導致維持率降至 ${ev.maintRatioPct}%（低於${isFuturesShort ? '100%期貨維持保證金線' : '140%安全水位'}），自動買進平倉回補！`;
+          if (hitFutRiskStopout) {
+            coverReason = `🚨【TAIFEX 風險指標低於 25% 強制代沖銷】${instId} 風險指標降至 ${ev.riskIndicatorPct}%，期貨商強制市價買進平倉！`;
+          } else if (hitMarginCall) {
+            coverReason = `🚨【維持率跌破法定追繳線強制平倉】${instId} 逆勢上漲導致維持率降至 ${ev.maintRatioPct}%（低於 ${maintCallLine}% 法定追繳線），自動買進平倉回補！`;
           } else if (hitBreakevenStop) {
             coverReason = `🔨【借券動態競價突破損益平衡點 (Breakeven Stop)】${instId} 空頭擁擠導致動態借券年息飆至 ${aucInfo.dynamicBorrowRatePct}%，自動提早回補！`;
           } else {
@@ -2829,14 +2896,15 @@ function buildMacroForDay(rec, dayIdx) {
 
         if (diffPerShare > 0) {
           const grossPayoutTwd = Math.round(diffPerShare * cr * unitsHeld);
-          const exerciseFeeTwd = Math.round(grossPayoutTwd * TW_WARRANT_EXERCISE_FEE_RATE);
+          const exerciseFeeTwd = Math.max(20, Math.floor(grossPayoutTwd * TW_WARRANT_EXERCISE_FEE_RATE));
           const notionalStockSettleTwd = settleP * cr * unitsHeld;
-          const exerciseTaxTwd = Math.round(notionalStockSettleTwd * TW_WARRANT_EXERCISE_STOCK_TAX);
+          const exerciseTaxTwd = Math.floor(notionalStockSettleTwd * TW_WARRANT_EXERCISE_STOCK_TAX);
           const totalExerciseFrictionTwd = exerciseFeeTwd + exerciseTaxTwd;
 
           if (grossPayoutTwd > totalExerciseFrictionTwd) {
             const netPayoutTwd = grossPayoutTwd - totalExerciseFrictionTwd;
-            const realizedPnlTwd = netPayoutTwd - entryCostTwd;
+            const closeTradeNetPnlTwd = netPayoutTwd - entryCostTwd;
+            const realizedPnlTwd = closeTradeNetPnlTwd - (pos.feesPaidOnPosTwd || 0);
             const realizedRoiPct = entryCostTwd > 0 ? +((realizedPnlTwd / entryCostTwd) * 100).toFixed(2) : 0;
             const netSettleUnitPrice = +(netPayoutTwd / unitsHeld).toFixed(3);
 
@@ -2844,7 +2912,7 @@ function buildMacroForDay(rec, dayIdx) {
             agent.totalFeesPaid = (agent.totalFeesPaid || 0) + totalExerciseFrictionTwd;
             pos.cumBrokerFeeTwd = (pos.cumBrokerFeeTwd || 0) + exerciseFeeTwd;
             pos.cumTaxTwd = (pos.cumTaxTwd || 0) + exerciseTaxTwd;
-            pos.feesPaidOnPosTwd = (pos.feesPaidOnPosTwd || 0) + totalExerciseFrictionTwd;
+            pos.feesPaidOnPosTwd = 0;
 
             pos.history.push({
               lotNumber: pos.history.length + 1, date: todayDate, fxRate: fx, currency: 'TWD',
@@ -2880,7 +2948,8 @@ function buildMacroForDay(rec, dayIdx) {
           }
         }
 
-        const realizedPnlTwd = -entryCostTwd;
+        const realizedPnlTwd = -entryCostTwd - (pos.feesPaidOnPosTwd || 0);
+        pos.feesPaidOnPosTwd = 0;
         pos.history.push({
           lotNumber: pos.history.length + 1, date: todayDate, fxRate: fx, currency: 'TWD',
           instId, instType: 'WARRANT',
@@ -3057,7 +3126,7 @@ function buildMacroForDay(rec, dayIdx) {
     }
 
     /* =========================================================================
-       ★ 修正 1：盤後除權息、融券「除息前最後回補日強制回補」與 SBL 借券日息結算
+       ★ 盤後除權息、融券「除息前最後回補日強制回補」與 SBL 借券日息結算
        ========================================================================= */
     function processDailyShortAndDividendSettlement(agent, rec, prevDateStr, actionTags, monologueParts) {
       const todayDate = rec.date;
@@ -3073,7 +3142,7 @@ function buildMacroForDay(rec, dayIdx) {
         const curPrice = q ? q.price : pos.avgCost;
         const underlyingObj = q ? (q.stockObj || q.usObj) : null;
 
-        // 🚨 台股實務鐵則：融券 (SHORT_TW_MARGIN) 遇到除息前 6 日 (或當日除息)，必須於最後回補日強制買進回補，絕不可跨除息！
+        // 台股實務鐵則：融券 (SHORT_TW_MARGIN) 遇到除息前 6 日 (或當日除息)，必須於最後回補日強制買進回補，絕不可跨除息！
         if (pos.instType === 'SHORT_TW_MARGIN' && underlyingObj) {
           const isForceBuybackWindow = isSixDaysBeforeExDiv(todayDate, underlyingObj.exDividendDate) ||
             underlyingObj.exDividendDate === todayDate ||
@@ -3090,7 +3159,7 @@ function buildMacroForDay(rec, dayIdx) {
           }
         }
 
-        // 1. 台灣融券 (SHORT_TW_MARGIN)：不收日息，反而按日計提 +0.15% 融券擔保品與保證金利息（於回補時一併發還）
+        // 1. 台灣融券 (SHORT_TW_MARGIN)：按日計提 +0.15% 融券擔保品與保證金利息（於回補時一併發還）
         if (pos.instType === 'SHORT_TW_MARGIN') {
           const collateralVal = (pos.shortProceedsNative || 0) + (pos.marginDepositedNative || 0);
           const interestEarned = Math.max(1, Math.round((collateralVal * TW_MARGIN_COLLATERAL_INT_RATE * elapsedDays) / 365));
@@ -3163,7 +3232,7 @@ function buildMacroForDay(rec, dayIdx) {
           });
         }
 
-        // 4. 除權息當日結算：台股多頭領息 vs. SBL 借券跨除息權益補償 (融券已在前面強制回補，不會跨除息)
+        // 4. 除權息當日結算：台股多頭領息 vs. SBL 借券跨除息權益補償
         if (pos.instType === 'STOCK' || pos.instType === 'TW_BOND') {
           const stockObj = q ? q.stockObj : null;
           if (stockObj && stockObj.exDividendDate === todayDate && stockObj.cashDividend > 0) {
@@ -3275,7 +3344,7 @@ function buildMacroForDay(rec, dayIdx) {
                 borrowOrDivCostTwd: 0, cumBorrowFeeTwd: pos.accruedBorrowFeeTwd || 0,
                 feePaidTwd: 0, feeLabel: 'TAIFEX除息契約調整金(免預扣稅)',
                 totalCostNative: adjAmountTwd, totalCostTwd: adjAmountTwd, cumQtyAfter: pos.qty, maintRatioAfter: evNow.maintRatioPct,
-                reason: `【TAIFEX 股票期貨除息契約調整】標的除息 $${fSpec.cashDividend} 元，期貨買方自動獲配契約調整權益金 +$${adjAmountTwd.toLocaleString()} TWD！`
+                reason: `【TAIFEX 股票期貨除息契約調整】標的除息 $${fSpec.cashDividend} 元（開盤參考價同步下調），期貨買方自動獲配契約調整權益金 +$${adjAmountTwd.toLocaleString()} TWD！`
               });
               actionTags.push(`⚡期貨除息調整 +$${adjAmountTwd.toLocaleString()}`);
             } else {
@@ -3339,8 +3408,9 @@ function buildMacroForDay(rec, dayIdx) {
         cashPct: +((totalCashTwd / totalNav) * 100).toFixed(1)
       };
     }
-/* =========================================================================
-       ★ V22.4 核心升級：解法 A (空單整張定錨反推多單零股) ＋ 解法 B (高價股轉單 TAIFEX 個股期貨)
+
+    /* =========================================================================
+       ★ V22.5 核心修正：對數配對斜率 β 精準轉換 Notional_B = β × Notional_A ＋ 防裸空回滾機制
        ========================================================================= */
     function executeKalmanWalkForwardPairsForAgent(agent, dayIndex, rec, kalmanPairsList, fx, actionTags, monologueParts) {
       const dateStr = rec.date;
@@ -3396,7 +3466,11 @@ function buildMacroForDay(rec, dayIdx) {
         const shortAsset = isLongA ? pair.legBObj : pair.legAObj;
         if (!longAsset || !shortAsset) return;
 
-        const rawHedgeBeta = isLongA ? (pair.priorBetaOOS || 1.0) : (1.0 / Math.max(0.4, pair.priorBetaOOS || 1.0));
+        // ★ 修正對數配對斜率：ln(P_A) = α + β ln(P_B) 下，要使損益抵銷須滿足 Notional_B = β × Notional_A
+        // 當做多 A / 放空 B (isLongA=true) 時，先定空單 B 市值，則多單 A 目標市值 = Notional_B / β
+        // 當放空 A / 做多 B (isLongA=false) 時，先定空單 A 市值，則多單 B 目標市值 = Notional_A × β
+        const betaPrior = Math.max(0.4, pair.priorBetaOOS || 1.0);
+        const rawHedgeBeta = isLongA ? (1.0 / betaPrior) : betaPrior;
         const hedgeRatio = Math.max(0.65, Math.min(1.45, rawHedgeBeta));
 
         if (pair.market === 'TW') {
@@ -3406,8 +3480,9 @@ function buildMacroForDay(rec, dayIdx) {
           const maxShortBudgetTwd = Math.min(280000, spendableTwd * 0.46);
           const shortElig = checkShortEligibility(rec, shortAsset, 'SHORT_TW_SBL');
 
+          // 法人 SBL 借券自備保證金率為 TW_SBL_SHORT_INIT_RATE (40%)
           let sblShortShares = shortElig.allowed
-            ? calcMaxAffordableQty(maxShortBudgetTwd, shortAsset.price, 1, TW_MARGIN_SHORT_INIT_RATE, 'SHORT_TW_SBL', false, shortAsset.id, rec)
+            ? calcMaxAffordableQty(maxShortBudgetTwd, shortAsset.price, 1, TW_SBL_SHORT_INIT_RATE, 'SHORT_TW_SBL', false, shortAsset.id, rec)
             : 0;
 
           const taifexFutSpec = resolveTaifexFuturesForStock(rec, shortAsset.code);
@@ -3433,12 +3508,12 @@ function buildMacroForDay(rec, dayIdx) {
                   pairTag: `📡Kalman期貨空(${pair.legACode}/${pair.legBCode})`,
                   reason: `📡【解法B・高價股轉單 TAIFEX 個股期貨放空】因 ${shortAsset.id} 股價 $${shortAsset.price} 現股整張門檻高，自動轉單放空 ${futContracts} 口【${taifexFutSpec.id}】（契約總值 $${actualShortNotionalTwd.toLocaleString()}，0借券費）！`
                 });
-                const openedLong = openOrAddPosition(agent, {
+                const openedLong = openedShort ? openOrAddPosition(agent, {
                   id: longAsset.id, instType: longAsset.assetType || 'STOCK', currency: 'TWD', fxRate: fx,
                   unitLabel: '股', qty: longQty, price: longAsset.price, multiplier: 1, marginRate: 1.0, date: dateStr, rec,
                   pairTag: `📡Kalman零股配平多(${pair.legACode}/${pair.legBCode})`,
-                  reason: `📡【解法A+B・多方零股精準配平 β】依空單契約市值 $${actualShortNotionalTwd.toLocaleString()} × 先驗對沖比 β=${hedgeRatio.toFixed(2)}，精準買進【${longAsset.id}】${longQty.toLocaleString()} 股（含零股），達成 100% 雙中性對沖！`
-                });
+                  reason: `📡【解法A+B・多方零股精準配平對數 β】依空單契約市值 $${actualShortNotionalTwd.toLocaleString()} × 目標市值比 ${hedgeRatio.toFixed(2)}（先驗 β=${betaPrior.toFixed(2)}），精準買進【${longAsset.id}】${longQty.toLocaleString()} 股（含零股），達成 100% 雙中性對沖！`
+                }) : false;
 
                 if (openedShort && openedLong) {
                   agent.activePairs[pair.pairId] = {
@@ -3449,12 +3524,18 @@ function buildMacroForDay(rec, dayIdx) {
                   };
                   actionTags.push(`📡解法B期貨配對:多${longAsset.code}/空${taifexFutSpec.futCode}`);
                   monologueParts.push(`針對高價股【${pair.pairName}】（新息 Z=${pair.zScore}σ），我啟動【解法B】放空 ${futContracts} 口 ${taifexFutSpec.futName}，並用零股買進 ${longQty} 股 ${longAsset.code} 精準配平 β！`);
+                } else if (openedShort && !openedLong) {
+                  // 防裸空回滾：若多單因零頭資金不足未成交，立即平倉退回剛建立的空單
+                  const rbPos = agent.holdings[taifexFutSpec.id];
+                  if (rbPos && rbPos.qty > 0) {
+                    coverOrCloseShortPosition(agent, taifexFutSpec.id, rbPos.qty, taifexFutSpec.price, dateStr, fx, '🛡️【配對多單資金不足・自動回滾撤銷空單防裸奔】', rec);
+                  }
                 }
               }
             }
           } else if (sblShortShares >= 1000) {
             const actualShortNotionalTwd = sblShortShares * shortAsset.price;
-            const shortMarginLockedTwd = actualShortNotionalTwd * TW_MARGIN_SHORT_INIT_RATE;
+            const shortMarginLockedTwd = actualShortNotionalTwd * TW_SBL_SHORT_INIT_RATE;
             const targetLongNotionalTwd = actualShortNotionalTwd * hedgeRatio;
             const availableForLongTwd = Math.min(targetLongNotionalTwd, spendableTwd - shortMarginLockedTwd);
 
@@ -3465,16 +3546,16 @@ function buildMacroForDay(rec, dayIdx) {
               const openedShort = openShortPosition(agent, {
                 id: shortAsset.id, instType: 'SHORT_TW_SBL', currency: 'TWD', fxRate: fx,
                 unitLabel: '股', qty: sblShortShares, price: shortAsset.price, multiplier: 1,
-                marginRate: TW_MARGIN_SHORT_INIT_RATE, borrowFeeRate: shortElig.borrowRate, date: dateStr, rec,
+                marginRate: TW_SBL_SHORT_INIT_RATE, borrowFeeRate: shortElig.borrowRate, date: dateStr, rec,
                 pairTag: `📡Kalman整張空(${pair.legACode}/${pair.legBCode})`,
-                reason: `📡【解法A・空單整張定錨】遵守台股 SBL 借券整張(1000股)法規，放空高估端【${shortAsset.id}】${sblShortShares / 1000} 整張（空單總市值 $${Math.round(actualShortNotionalTwd).toLocaleString()} TWD）！`
+                reason: `📡【解法A・SBL空單整張定錨】遵守台股 SBL 借券整張(1000股/自備40%擔保金)法規，放空高估端【${shortAsset.id}】${sblShortShares / 1000} 整張（空單總市值 $${Math.round(actualShortNotionalTwd).toLocaleString()} TWD）！`
               });
-              const openedLong = openOrAddPosition(agent, {
+              const openedLong = openedShort ? openOrAddPosition(agent, {
                 id: longAsset.id, instType: longAsset.assetType || 'STOCK', currency: 'TWD', fxRate: fx,
                 unitLabel: '股', qty: longQty, price: longAsset.price, multiplier: 1, marginRate: 1.0, date: dateStr, rec,
                 pairTag: `📡Kalman零股配平多(${pair.legACode}/${pair.legBCode})`,
-                reason: `📡【解法A・反推多單零股配平 β】根據空單實際整張市值 $${Math.round(actualShortNotionalTwd).toLocaleString()} × 先驗 β=${hedgeRatio.toFixed(2)}，精準買進低估端【${longAsset.id}】${longQty.toLocaleString()} 股（市值 $${Math.round(actualLongNotionalTwd).toLocaleString()}），消除整張截斷誤差！`
-              });
+                reason: `📡【解法A・反推多單零股配平對數 β】根據空單實際整張市值 $${Math.round(actualShortNotionalTwd).toLocaleString()} × 目標市值比 ${hedgeRatio.toFixed(2)}（先驗 β=${betaPrior.toFixed(2)}），精準買進低估端【${longAsset.id}】${longQty.toLocaleString()} 股（市值 $${Math.round(actualLongNotionalTwd).toLocaleString()}），消除整張截斷誤差！`
+              }) : false;
 
               if (openedShort && openedLong) {
                 agent.activePairs[pair.pairId] = {
@@ -3484,15 +3565,19 @@ function buildMacroForDay(rec, dayIdx) {
                   entryDate: dateStr
                 };
                 actionTags.push(`📡解法A配對:空${shortAsset.code}(${sblShortShares / 1000}張)/多${longAsset.code}(${longQty}股)`);
-                monologueParts.push(`遵守台股放空整張法規！我先放空 ${sblShortShares / 1000} 整張【${shortAsset.id}】（市值 $${Math.round(actualShortNotionalTwd).toLocaleString()}），再乘上先驗 β 反推買進 ${longQty} 股【${longAsset.id}】，達成 100% 零偏差 Market Neutral！`);
+                monologueParts.push(`遵守台股放空整張法規！我先放空 ${sblShortShares / 1000} 整張【${shortAsset.id}】（市值 $${Math.round(actualShortNotionalTwd).toLocaleString()}），再依對數 β 反推買進 ${longQty} 股【${longAsset.id}】，達成 100% 零偏差 Market Neutral！`);
+              } else if (openedShort && !openedLong) {
+                const rbPos = agent.holdings[shortAsset.id];
+                if (rbPos && rbPos.qty > 0) {
+                  coverOrCloseShortPosition(agent, shortAsset.id, rbPos.qty, shortAsset.price, dateStr, fx, '🛡️【配對多單資金不足・自動回滾撤銷空單防裸奔】', rec);
+                }
               }
             }
           }
         }
       });
     }
-
-    function recalculateTimeline() {
+function recalculateTimeline() {
       let runningAgents = JSON.parse(JSON.stringify(BASE_AGENTS));
 
       appState.records.forEach((rec, dayIndex) => {
@@ -3922,7 +4007,7 @@ function buildMacroForDay(rec, dayIdx) {
     }
 
     /* =========================================================================
-       ★ 修正 2：openShortPosition (多翻空先自動平倉、建倉稅費內扣、保證金百元進位)
+       ★ V22.5 實務修正：openShortPosition (多翻空先自動平倉、證交稅無條件捨去 Math.floor、最低手續費 $20)
        ========================================================================= */
     function openShortPosition(agent, params) {
       const { id, instType, currency = 'TWD', fxRate = 32.15, unitLabel, qty, price, multiplier, marginRate, fixedMarginReq, borrowFeeRate = 0, date, reason, rec = null, pairTag = '' } = params;
@@ -3934,7 +4019,7 @@ function buildMacroForDay(rec, dayIdx) {
         return false;
       }
 
-      // ★ 關鍵修復：若該標的目前已持有「多頭部位 (如 STOCK / US_STOCK / FUTURES_LONG)」，必須先全數賣出平倉，嚴禁將空單股數加進多單部位！
+      // 若該標的目前已持有「多頭部位」，必須先全數賣出平倉，嚴禁將空單股數加進多單部位
       if (agent.holdings[id] && agent.holdings[id].qty > 0 && !isShortPositionType(agent.holdings[id].instType)) {
         closeOrReducePosition(
           agent, id, agent.holdings[id].qty, price, date, fxRate,
@@ -3942,7 +4027,6 @@ function buildMacroForDay(rec, dayIdx) {
           rec
         );
       }
-      // 若已持有不同類型的空單 (例如原本是融券、現在要改 SBL)，也先平倉舊空單避免屬性覆蓋
       if (agent.holdings[id] && agent.holdings[id].qty > 0 && agent.holdings[id].instType !== instType) {
         coverOrCloseShortPosition(
           agent, id, agent.holdings[id].qty, price, date, fxRate,
@@ -3957,12 +4041,13 @@ function buildMacroForDay(rec, dayIdx) {
 
       const shortGrossProceedsNative = +(qty * execPrice * multiplier).toFixed(2);
 
-      // 依台灣證交所規定：融券保證金以百元為單位（未滿百元無條件進位）
+      // 依台灣證交所規定：融券(90%)與SBL借券(40%)保證金皆以百元為單位（未滿百元無條件進位）
       let requiredMarginNative = 0;
       if (fixedMarginReq) {
         requiredMarginNative = Math.round(fixedMarginReq * qty);
       } else if (instType === 'SHORT_TW_MARGIN' || instType === 'SHORT_TW_SBL') {
-        requiredMarginNative = Math.ceil((shortGrossProceedsNative * marginRate) / 100) * 100;
+        const effMarginRate = marginRate || (instType === 'SHORT_TW_SBL' ? TW_SBL_SHORT_INIT_RATE : TW_MARGIN_SHORT_INIT_RATE);
+        requiredMarginNative = Math.ceil((shortGrossProceedsNative * effMarginRate) / 100) * 100;
       } else {
         requiredMarginNative = isUsd ? +(shortGrossProceedsNative * marginRate).toFixed(2) : Math.round(shortGrossProceedsNative * marginRate);
       }
@@ -3975,20 +4060,20 @@ function buildMacroForDay(rec, dayIdx) {
       if (instType === 'SHORT_US_REGT') {
         feeNative = +(shortGrossProceedsNative * US_SUBBROKER_FEE_RATE).toFixed(2);
         taxNative = +(shortGrossProceedsNative * US_SEC_SELL_FEE_RATE).toFixed(2);
-        feeBreakdownLabel = `手續費$${feeNative}+SEC稅$${taxNative}USD (競價年息${borrowFeeRate}%)`;
+        feeBreakdownLabel = `手續費$${feeNative}+SEC估算規費$${taxNative}USD (競價年息${borrowFeeRate}%)`;
       } else if (instType === 'FUTURES_SHORT') {
         feeNative = qty * TW_FUTURES_FIXED_FEE;
-        taxNative = Math.round(shortGrossProceedsNative * TW_FUTURES_TAX_RATE);
-        feeBreakdownLabel = `期貨做空費$${feeNative}+期交稅$${taxNative}(0.002%/免借券費)`;
+        taxNative = Math.floor(shortGrossProceedsNative * TW_FUTURES_TAX_RATE);
+        feeBreakdownLabel = `期貨做空費$${feeNative}+期交稅$${taxNative}(0.002%無條件捨去/免借券費)`;
       } else if (instType === 'SHORT_TW_SBL') {
-        feeNative = Math.round(shortGrossProceedsNative * TW_STOCK_FEE_RATE);
-        taxNative = Math.round(shortGrossProceedsNative * TW_STOCK_SELL_TAX_RATE);
-        feeBreakdownLabel = `手續費$${feeNative.toLocaleString()}+證交稅$${taxNative.toLocaleString()}(0.3%自賣出價款內扣)+SBL年息${borrowFeeRate}%`;
+        feeNative = Math.max(TW_STOCK_MIN_FEE_LOT, Math.floor(shortGrossProceedsNative * TW_STOCK_FEE_RATE));
+        taxNative = Math.floor(shortGrossProceedsNative * TW_STOCK_SELL_TAX_RATE);
+        feeBreakdownLabel = `手續費$${feeNative.toLocaleString()}+證交稅$${taxNative.toLocaleString()}(0.3%無條件捨去)+SBL年息${borrowFeeRate}%`;
       } else {
-        feeNative = Math.round(shortGrossProceedsNative * TW_STOCK_FEE_RATE);
-        taxNative = Math.round(shortGrossProceedsNative * TW_STOCK_SELL_TAX_RATE);
-        borrowInitFeeNative = Math.round(shortGrossProceedsNative * TW_MARGIN_SHORT_FEE_RATE);
-        feeBreakdownLabel = `手續費$${feeNative.toLocaleString()}+證交稅$${taxNative.toLocaleString()}(0.3%)+融券費$${borrowInitFeeNative.toLocaleString()}(0.08%自賣出價款內扣)`;
+        feeNative = Math.max(TW_STOCK_MIN_FEE_LOT, Math.floor(shortGrossProceedsNative * TW_STOCK_FEE_RATE));
+        taxNative = Math.floor(shortGrossProceedsNative * TW_STOCK_SELL_TAX_RATE);
+        borrowInitFeeNative = Math.max(1, Math.floor(shortGrossProceedsNative * TW_MARGIN_SHORT_FEE_RATE));
+        feeBreakdownLabel = `手續費$${feeNative.toLocaleString()}+證交稅$${taxNative.toLocaleString()}(0.3%)+融券費$${borrowInitFeeNative.toLocaleString()}(0.08%)`;
       }
 
       const totalFeeAndTaxNative = +(feeNative + taxNative + borrowInitFeeNative).toFixed(2);
@@ -4089,9 +4174,6 @@ function buildMacroForDay(rec, dayIdx) {
       return true;
     }
 
-    /* =========================================================================
-       ★ 修正 3：coverOrCloseShortPosition (回補結算正確退還保證金 + 價差損益 + 融券擔保息)
-       ========================================================================= */
     function coverOrCloseShortPosition(agent, instId, coverQty, currentPrice, dateStr, fxRate, reasonText, rec = null) {
       const h = agent.holdings[instId];
       if (!h || h.qty <= 0) return false;
@@ -4117,10 +4199,11 @@ function buildMacroForDay(rec, dayIdx) {
         feeBreakdownLabel = `買進回補手續費 $${feeNative} USD (0.1%)`;
       } else if (h.instType === 'FUTURES_SHORT') {
         feeNative = actual * TW_FUTURES_FIXED_FEE;
-        taxNative = Math.round(coverNotionalNative * TW_FUTURES_TAX_RATE);
-        feeBreakdownLabel = `期貨平倉費 $${feeNative} + 期交稅 $${taxNative} (0.002%)`;
+        taxNative = Math.floor(coverNotionalNative * TW_FUTURES_TAX_RATE);
+        feeBreakdownLabel = `期貨平倉費 $${feeNative} + 期交稅 $${taxNative} (0.002%無條件捨去)`;
       } else {
-        feeNative = Math.round(coverNotionalNative * TW_STOCK_FEE_RATE);
+        const minTwFee = actual >= 1000 ? TW_STOCK_MIN_FEE_LOT : TW_STOCK_MIN_FEE_ODD;
+        feeNative = Math.max(minTwFee, Math.floor(coverNotionalNative * TW_STOCK_FEE_RATE));
         feeBreakdownLabel = `買進回補手續費 $${feeNative.toLocaleString()} (回補免徵0.3%證交稅)`;
       }
 
@@ -4202,15 +4285,12 @@ function buildMacroForDay(rec, dayIdx) {
       return true;
     }
 
-    /* =========================================================================
-       ★ 修正 4：openOrAddPosition (空翻多先自動回補空單，嚴禁多空股數混加！)
-       ========================================================================= */
     function openOrAddPosition(agent, params) {
       const { id, instType, currency = 'TWD', fxRate = 32.15, unitLabel, qty, price, multiplier, marginRate, fixedMarginReq, date, reason, rec = null, pairTag = '' } = params;
       if (qty <= 0) return false;
       const isUsd = currency === 'USD';
 
-      // ★ 關鍵修復：若該標的目前已持有「空頭部位 (如 SHORT_TW_MARGIN / SHORT_TW_SBL / FUTURES_SHORT)」，買進做多前必須先回補空單，嚴禁多空股數混加！
+      // 若該標的目前已持有「空頭部位」，買進做多前必須先回補空單，嚴禁多空股數混加
       if (agent.holdings[id] && agent.holdings[id].qty > 0 && isShortPositionType(agent.holdings[id].instType)) {
         coverOrCloseShortPosition(
           agent, id, agent.holdings[id].qty, price, date, fxRate,
@@ -4234,16 +4314,17 @@ function buildMacroForDay(rec, dayIdx) {
         feeBreakdownLabel = `複委託費 $${feeNative} USD (0.1%)`;
       } else if (instType.startsWith('FUTURES')) {
         const fFee = qty * TW_FUTURES_FIXED_FEE;
-        const fTax = Math.round(notionalNative * TW_FUTURES_TAX_RATE);
+        const fTax = Math.floor(notionalNative * TW_FUTURES_TAX_RATE);
         feeNative = fFee;
         taxNative = fTax;
-        feeBreakdownLabel = `期貨費 $${fFee} + 期交稅 $${fTax} (0.002%)`;
+        feeBreakdownLabel = `期貨費 $${fFee} + 期交稅 $${fTax} (0.002%無條件捨去)`;
       } else if (instType === 'WARRANT') {
-        feeNative = Math.round(notionalNative * TW_WARRANT_FEE_RATE);
-        feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()} (0.2%)`;
+        feeNative = Math.max(TW_STOCK_MIN_FEE_LOT, Math.floor(notionalNative * TW_WARRANT_FEE_RATE));
+        feeBreakdownLabel = `權證手續費 $${feeNative.toLocaleString()} (0.1425%/最低$20)`;
       } else {
-        feeNative = Math.round(notionalNative * TW_STOCK_FEE_RATE);
-        feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()}`;
+        const minTwFee = qty >= 1000 ? TW_STOCK_MIN_FEE_LOT : TW_STOCK_MIN_FEE_ODD;
+        feeNative = Math.max(minTwFee, Math.floor(notionalNative * TW_STOCK_FEE_RATE));
+        feeBreakdownLabel = `台股手續費 $${feeNative.toLocaleString()} (${qty >= 1000 ? '整張最低$20' : '零股最低$1'})`;
       }
 
       const requiredPrincipalNative = fixedMarginReq
@@ -4353,23 +4434,25 @@ function buildMacroForDay(rec, dayIdx) {
       if (isUsd) {
         feeNative = +(closeNotionalNative * US_SUBBROKER_FEE_RATE).toFixed(2);
         taxNative = +(closeNotionalNative * US_SEC_SELL_FEE_RATE).toFixed(2);
-        feeBreakdownLabel = `複委託費 $${feeNative} + 美國SEC費 $${taxNative} USD`;
+        feeBreakdownLabel = `複委託費 $${feeNative} + 美國SEC估算規費 $${taxNative} USD`;
       } else if (h.instType.startsWith('FUTURES')) {
         feeNative = actual * TW_FUTURES_FIXED_FEE;
-        taxNative = Math.round(closeNotionalNative * TW_FUTURES_TAX_RATE);
-        feeBreakdownLabel = `期貨費 $${feeNative} + 期交稅 $${taxNative}`;
+        taxNative = Math.floor(closeNotionalNative * TW_FUTURES_TAX_RATE);
+        feeBreakdownLabel = `期貨費 $${feeNative} + 期交稅 $${taxNative} (無條件捨去)`;
       } else if (h.instType === 'WARRANT') {
-        feeNative = Math.round(closeNotionalNative * TW_WARRANT_FEE_RATE);
-        taxNative = Math.round(closeNotionalNative * TW_WARRANT_SELL_TAX_RATE);
-        feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()}(0.2%) + 權證稅 $${taxNative.toLocaleString()}(0.1%)`;
+        feeNative = Math.max(TW_STOCK_MIN_FEE_LOT, Math.floor(closeNotionalNative * TW_WARRANT_FEE_RATE));
+        taxNative = Math.floor(closeNotionalNative * TW_WARRANT_SELL_TAX_RATE);
+        feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()}(0.1425%) + 權證稅 $${taxNative.toLocaleString()}(0.1%無條件捨去)`;
       } else if (h.instType === 'TW_BOND') {
-        feeNative = Math.round(closeNotionalNative * TW_STOCK_FEE_RATE);
+        const minTwFee = actual >= 1000 ? TW_STOCK_MIN_FEE_LOT : TW_STOCK_MIN_FEE_ODD;
+        feeNative = Math.max(minTwFee, Math.floor(closeNotionalNative * TW_STOCK_FEE_RATE));
         taxNative = 0;
         feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()} + 債券ETF免證交稅($0)`;
       } else {
-        feeNative = Math.round(closeNotionalNative * TW_STOCK_FEE_RATE);
-        taxNative = Math.round(closeNotionalNative * TW_STOCK_SELL_TAX_RATE);
-        feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()} + 台灣證交稅 $${taxNative.toLocaleString()}(0.3%)`;
+        const minTwFee = actual >= 1000 ? TW_STOCK_MIN_FEE_LOT : TW_STOCK_MIN_FEE_ODD;
+        feeNative = Math.max(minTwFee, Math.floor(closeNotionalNative * TW_STOCK_FEE_RATE));
+        taxNative = Math.floor(closeNotionalNative * TW_STOCK_SELL_TAX_RATE);
+        feeBreakdownLabel = `手續費 $${feeNative.toLocaleString()} + 台灣證交稅 $${taxNative.toLocaleString()}(0.3%無條件捨去)`;
       }
 
       const settledOpenFeesTwd = Math.round((h.feesPaidOnPosTwd || 0) * ratio);
@@ -4444,9 +4527,6 @@ function buildMacroForDay(rec, dayIdx) {
       return true;
     }
 
-    /* =========================================================================
-       ★ 修正 5：evaluatePosition (統一修正融券/借券整張維持率與期貨維持保證金率公式)
-       ========================================================================= */
     function evaluatePosition(rec, instId, pos) {
       const fx = rec.fxRate || 32.15;
       const isUsd = pos.currency === 'USD';
@@ -4463,6 +4543,7 @@ function buildMacroForDay(rec, dayIdx) {
         const equityValueTwd = Math.max(0, rawEquityTwd);
         const maintMarginRequiredTwd = Math.max(1, pos.marginDepositedTwd * FUTURES_MAINT_MARGIN_RATIO);
         const maintRatioPct = +((rawEquityTwd / maintMarginRequiredTwd) * 100).toFixed(1);
+        const riskIndicatorPct = +((rawEquityTwd / Math.max(1, pos.marginDepositedTwd)) * 100).toFixed(1);
         const totalNetGainTwd = unrealizedPnlTwd + (pos.dividendsReceivedTwd || 0) - (pos.feesPaidOnPosTwd || 0);
         const roiPct = pos.marginDepositedTwd > 0 ? +((totalNetGainTwd / pos.marginDepositedTwd) * 100).toFixed(1) : 0;
         return {
@@ -4471,6 +4552,7 @@ function buildMacroForDay(rec, dayIdx) {
           equityValueTwd,
           roiPct,
           maintRatioPct,
+          riskIndicatorPct,
           isMarginCall: maintRatioPct < FUTURES_MAINT_CALL_PCT
         };
       }
@@ -4486,7 +4568,11 @@ function buildMacroForDay(rec, dayIdx) {
         const totalCollateralNative = (pos.shortProceedsNative || (pos.avgCost * pos.qty * pos.multiplier)) + pos.marginDepositedNative;
         const maintRatioPct = +((totalCollateralNative / currentShortMarketValNative) * 100).toFixed(1);
 
-        const totalNetGainTwd = unrealizedPnlTwd + (pos.dividendsReceivedTwd || 0) - (pos.feesPaidOnPosTwd || 0);
+        const callLine = pos.instType === 'SHORT_TW_SBL'
+          ? SBL_SHORT_MAINT_CALL_RATIO
+          : (pos.instType === 'SHORT_US_REGT' ? US_REGT_MAINT_CALL_RATIO : STOCK_SHORT_MAINT_CALL_RATIO);
+
+        const totalNetGainTwd = unrealizedPnlTwd + pendingCollateralInt - (pos.feesPaidOnPosTwd || 0);
         const roiPct = pos.marginDepositedTwd > 0 ? +((totalNetGainTwd / pos.marginDepositedTwd) * 100).toFixed(1) : 0;
         return {
           curPrice,
@@ -4494,7 +4580,7 @@ function buildMacroForDay(rec, dayIdx) {
           equityValueTwd,
           roiPct,
           maintRatioPct,
-          isMarginCall: maintRatioPct < STOCK_SHORT_MAINT_CALL_RATIO
+          isMarginCall: maintRatioPct < callLine
         };
       }
 
@@ -4514,7 +4600,8 @@ function buildMacroForDay(rec, dayIdx) {
         return { curPrice, unrealizedPnlTwd, equityValueTwd, roiPct, maintRatioPct: 100, isMarginCall: false };
       }
     }
-let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
+
+    let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
 
     function compileAgentDailyBattleReport(agent, targetDate) {
       const allPosMap = { ...(agent.closedPositions || {}), ...(agent.holdings || {}) };
@@ -4788,9 +4875,6 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
         const isShort = isShortPositionType(pos.instType);
         const sym = isUsd ? 'US$' : '$';
         const { curPrice, unrealizedPnlTwd, roiPct } = evaluatePosition(rec, instId, pos);
-        const displayRoiPct = pos.qty > 0
-          ? roiPct
-          : +(pos.history || []).filter(x => x.realizedRoiPct !== undefined).reduce((acc, x) => acc + Number(x.realizedRoiPct || 0), 0).toFixed(2);
 
         const divEarnedTwd = pos.dividendsReceivedTwd || 0;
         const feesPaidTwd = pos.feesPaidOnPosTwd || 0;
@@ -4798,10 +4882,29 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
         const cumBrokerTwd = pos.cumBrokerFeeTwd || 0;
         const cumTaxTwd = pos.cumTaxTwd || 0;
         const borrowFeeAccrued = pos.accruedBorrowFeeTwd || 0;
+
+        // ★ V22.5 關鍵會計修正：正確加總「歷史已實現損益 + 純多頭現金股息 + 當前在倉未實現淨浮動損益」，不遺漏過往平倉損益、也不重複計算融券擔保息
         const closedRealizedSum = (pos.history || []).reduce((acc, x) => acc + (x.realizedPnlTwd || 0), 0);
-        const totalNetGainTwd = pos.qty > 0
-          ? (unrealizedPnlTwd + divEarnedTwd - feesPaidTwd)
-          : (isShort ? closedRealizedSum : (closedRealizedSum + divEarnedTwd));
+        const pureCashDivTwd = (pos.history || [])
+          .filter(x => x.actionType === 'DIVIDEND')
+          .reduce((acc, x) => acc + Number(x.totalCostTwd || 0), 0);
+
+        const activeNetFloatTwd = pos.qty > 0
+          ? (unrealizedPnlTwd + (pos.accruedCollateralIntTwd || 0) - feesPaidTwd)
+          : 0;
+
+        const totalNetGainTwd = closedRealizedSum + pureCashDivTwd + activeNetFloatTwd;
+
+        // 以累計投入本金作為分母計算已平倉總 ROI，避免將多筆平倉 ROI% 直接相加
+        const totalInvestedCapitalTwd = Math.max(
+          pos.marginDepositedTwd || 0,
+          (pos.lots || []).reduce((acc, l) => acc + Number(l.totalCostTwd || 0), 0),
+          1
+        );
+        const displayRoiPct = pos.qty > 0 && closedRealizedSum === 0
+          ? roiPct
+          : +((totalNetGainTwd / totalInvestedCapitalTwd) * 100).toFixed(2);
+
         const pnlColor = totalNetGainTwd >= 0 ? 'var(--tw-up)' : 'var(--tw-down)';
         const instBarra = computeInstrumentBarraScores(rec, instId, pos.instType);
 
@@ -4838,7 +4941,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
             <span class="ledger-sum-val" style="color:#ad1457;">-${borrowFeeAccrued.toLocaleString()} / +$${divEarnedTwd.toLocaleString()}</span>
           </div>
           <div class="ledger-sum-cell">
-            <span class="ledger-sum-label">扣除所有摩擦後淨損益</span>
+            <span class="ledger-sum-label">扣除所有摩擦後總損益</span>
             <span class="ledger-sum-val" style="color:${pnlColor};">
               ${totalNetGainTwd >= 0 ? '+' : ''}$${totalNetGainTwd.toLocaleString()} (${displayRoiPct >= 0 ? '+' : ''}${displayRoiPct}%)
             </span>
@@ -4849,8 +4952,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
           ...x, instId, _posRef: pos
         }));
       }
-
-      if (activeModalState.filterDate !== 'ALL') {
+if (activeModalState.filterDate !== 'ALL') {
         historyLogs = historyLogs.filter(item => item.date === activeModalState.filterDate);
       }
 
@@ -4870,7 +4972,6 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
           const itemSym = item.currency === 'USD' ? 'US$' : '$';
           const refPos = item._posRef || pos;
 
-          // ★ 關鍵修復：優先以該筆歷史交易紀錄自身的 actionType 與 instType 判定是否為空單，避免歷史多空翻轉時顯示顛倒！
           const isShortPos = item.actionType === 'SHORT_INIT' ||
             item.actionType === 'SHORT_COVER' ||
             isShortPositionType(item.instType || refPos.instType);
@@ -4975,7 +5076,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
               <td style="font-family:'VT323'; font-size:1.08rem; font-weight:bold;">
                 ${itemSym}${Number(item.totalCostNative || 0).toLocaleString()}
                 <div style="font-size:0.72rem;color:#444;">(折合 $${Number(item.totalCostTwd || 0).toLocaleString()} TWD)</div>
-                ${(isShortPos || isFutPos) ? `<div style="font-size:0.72rem;color:#00695c;">維持率:${item.maintRatioAfter || (isFutPos ? 130.5 : 189.6)}%</div>` : ''}
+                ${(isShortPos || isFutPos) ? `<div style="font-size:0.72rem;color:#00695c;">維持率:${item.maintRatioAfter || (isFutPos ? 130.5 : (item.instType === 'SHORT_TW_SBL' ? 140.0 : 189.6))}%</div>` : ''}
               </td>
             </tr>
           `;
@@ -5176,7 +5277,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
         thead.innerHTML = `<tr><th>台股標的</th><th>收盤 / 漲跌</th><th>成交量(動態滑價)</th><th>動態競價借券費 &amp; 損益平衡</th></tr>`;
         const sourcePool = (kw && Array.isArray(rec.allStocks) && rec.allStocks.length > 0) ? rec.allStocks : rec.sectors;
         const list = kw ? sourcePool.filter(s => s.id.toLowerCase().includes(kw)).slice(0, 60) : rec.sectors;
-        document.getElementById('stockCountText').textContent = `台股 ${list.length} 檔 (SBL整張放空/高價股支援個股期)`;
+        document.getElementById('stockCountText').textContent = `台股 ${list.length} 檔 (融券90%/SBL借券40%整張放空)`;
 
         tbody.innerHTML = list.map(s => {
           const isUp = s.changePct >= 0;
@@ -5206,7 +5307,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
         thead.innerHTML = `<tr><th>供應鏈狀態空間配對</th><th>Kalman 先驗 β ➔ 後驗 β (增益 K)</th><th>OOS 先驗新息 Z_Kalman</th><th>解法A+B 雙中性信號</th></tr>`;
         const pairs = (rec.ouPairsReport || runKalmanWalkForwardScanner(appState.records, appState.currentIdx))
           .filter(p => !kw || p.pairName.toLowerCase().includes(kw) || p.legACode.toLowerCase().includes(kw) || p.legBCode.toLowerCase().includes(kw));
-        document.getElementById('stockCountText').textContent = `Kalman 狀態空間配對 ${pairs.length} 組 (解法A整張定錨 + 解法B個股期轉單)`;
+        document.getElementById('stockCountText').textContent = `Kalman 狀態空間配對 ${pairs.length} 組 (對數β市值修正 + 個股期轉單)`;
 
         tbody.innerHTML = pairs.map(p => {
           const zCol = Math.abs(p.zScore) >= 1.95 ? 'var(--tw-up)' : (Math.abs(p.zScore) <= 0.70 ? 'var(--tw-down)' : '#333');
@@ -5238,7 +5339,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
       } else if (currentPoolTab === 'US') {
         thead.innerHTML = `<tr><th>美股 / 美債</th><th>收盤(USD) / 漲跌</th><th>當日Volume(滑價)</th><th>RegT動態競價借券費 &amp; Breakeven</th></tr>`;
         const uList = (rec.usAssets || []).filter(u => !kw || u.id.toLowerCase().includes(kw));
-        document.getElementById('stockCountText').textContent = `美股/美債 ${uList.length} 檔 (HTB借券競價/Volume滑價)`;
+        document.getElementById('stockCountText').textContent = `美股/美債 ${uList.length} 檔 (HTB借券競價/維持率130%)`;
 
         tbody.innerHTML = uList.map(u => {
           const isUp = u.changePct >= 0;
@@ -5798,10 +5899,11 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
     function resetCustomQuantSource() {
       customUploadedQuantSeries = null;
       const lbl = document.getElementById('quantDataSourceLabel');
-      if (lbl) lbl.textContent = '📡 資料來源：Walk-Forward OOS 步進回測 (Kalman 動態 β + 解法A/B雙中性對沖 + 多空分流精準會計)';
+      if (lbl) lbl.textContent = '📡 資料來源：Walk-Forward OOS 步進回測 (純日報酬序列 i.i.d. 檢定 + 解法A/B雙中性對沖)';
       renderQuantStatsModalContent();
     }
 
+    // ★ V22.5 關鍵統計修正：嚴格維持「每日投資組合報酬率 (dailyReturnsPct)」單一母體獨立同分佈檢定，絕不將不同維度的單筆交易累計 ROI 混入 t-test 與二項檢定
     function buildAllAgentsQuantReport() {
       if (customUploadedQuantSeries) return customUploadedQuantSeries;
 
@@ -5896,18 +5998,16 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
         const sharpeAnnual = stdDailyRet > 1e-6 ? ((meanDailyRet - rfDailyPct) / stdDailyRet) * Math.sqrt(252) : 0;
         const sortinoAnnual = downsideStd > 1e-6 ? ((meanDailyRet - rfDailyPct) / downsideStd) * Math.sqrt(252) : (meanDailyRet > 0 ? 9.99 : 0);
 
-        const combinedSample = dailyReturnsPct.length >= 4 ? dailyReturnsPct : [...dailyReturnsPct, ...tradeReturnsPct];
-        const nComb = combinedSample.length;
-        const mComb = nComb > 0 ? combinedSample.reduce((s, v) => s + v, 0) / nComb : 0;
-        const sdComb = nComb > 1
-          ? Math.sqrt(combinedSample.reduce((s, v) => s + (v - mComb) ** 2, 0) / (nComb - 1))
-          : 1;
-        const tStat = sdComb > 1e-8 ? mComb / (sdComb / Math.sqrt(nComb)) : 0;
-        const df = Math.max(1, nComb - 1);
+        // 純日報酬序列之單樣本 t 檢定 (H0: mu_daily = 0, df = nDays - 1)
+        const tStat = (nDays > 1 && stdDailyRet > 1e-8)
+          ? meanDailyRet / (stdDailyRet / Math.sqrt(nDays))
+          : 0;
+        const df = Math.max(1, nDays - 1);
         const pValueT = calcTwoTailedTTestPValue(tStat, df);
 
-        const binomWins = winDays + winTrades;
-        const binomTrials = (winDays + loseDays) + totalTradesCount;
+        // 純日勝率之二項檢定 (H0: p_win = 0.5)
+        const binomWins = winDays;
+        const binomTrials = Math.max(1, winDays + loseDays);
         const pValueBinom = calcBinomialTwoTailedPValue(binomWins, binomTrials);
 
         const finalNav = navSeries[navSeries.length - 1];
@@ -6065,6 +6165,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
         }).join('');
       }
 
+      // 兩兩策略 Welch's t-test 嚴格使用純日報酬序列 dailyReturnsPct
       const pairTable = document.getElementById('quantPairwiseTable');
       let pairHtml = `<thead><tr><th>大師 A ＼ 大師 B</th>${reports.map(r => `<th>${r.name}</th>`).join('')}</tr></thead><tbody>`;
       reports.forEach((rA, i) => {
@@ -6073,9 +6174,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
           if (i === j) {
             pairHtml += `<td style="background:#eee; color:#888; text-align:center;">—</td>`;
           } else {
-            const sampleA = [...rA.dailyReturnsPct, ...rA.tradeReturnsPct];
-            const sampleB = [...rB.dailyReturnsPct, ...rB.tradeReturnsPct];
-            const { tStat, pValue } = calcWelchTwoSampleTTest(sampleA, sampleB);
+            const { tStat, pValue } = calcWelchTwoSampleTTest(rA.dailyReturnsPct, rB.dailyReturnsPct);
             const isSig = pValue < 0.05;
             const bg = isSig ? 'background:#fff8c4; font-weight:bold;' : '';
             const col = tStat > 0 ? 'var(--tw-up)' : 'var(--tw-down)';
@@ -6253,7 +6352,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
       const wb = XLSX.utils.book_new();
 
       const sheet1Rows = [
-        ['傳奇大師名稱', 'Kalman與ERC策略風格', '初始本金(TWD)', '最終總淨值(TWD)', '累積報酬率(%)', '最大回撤 MDD(%)', 'MDD峰谷區間', 'Calmar Ratio', '平均日報酬(%)', '日報酬標準差(%)', '年化夏普值(Sharpe)', '年化索提諾(Sortino)', '交易日勝率(%)', '獲利日數', '虧損日數', '部位勝率(%)', '獲利因子(Profit Factor)', 't-Statistic', '自由度(df)', '雙尾 t檢定 p-value', '二項檢定 p-value', '統計顯著性結論(alpha=0.05)']
+        ['傳奇大師名稱', 'Kalman與ERC策略風格', '初始本金(TWD)', '最終總淨值(TWD)', '累積報酬率(%)', '最大回撤 MDD(%)', 'MDD峰谷區間', 'Calmar Ratio', '平均日報酬(%)', '日報酬標準差(%)', '年化夏普值(Sharpe)', '年化索提諾(Sortino)', '交易日勝率(%)', '獲利日數', '虧損日數', '部位勝率(%)', '獲利因子(Profit Factor)', 't-Statistic', '自由度(df)', '雙尾 t檢定 p-value', '日勝率二項檢定 p-value', '統計顯著性結論(alpha=0.05)']
       ];
       reports.forEach(r => {
         const sigConclusion = r.pValueT < 0.01 ? '極顯著 (p<0.01 ***)' : r.pValueT < 0.05 ? '顯著 (p<0.05 **)' : r.pValueT < 0.10 ? '邊際顯著 (p<0.10 *)' : '無顯著差異 (NS)';
@@ -6292,10 +6391,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
         reports.forEach((rB, j) => {
           if (i === j) row.push('—');
           else {
-            const { tStat, pValue } = calcWelchTwoSampleTTest(
-              [...rA.dailyReturnsPct, ...rA.tradeReturnsPct],
-              [...rB.dailyReturnsPct, ...rB.tradeReturnsPct]
-            );
+            const { tStat, pValue } = calcWelchTwoSampleTTest(rA.dailyReturnsPct, rB.dailyReturnsPct);
             row.push(`t=${tStat.toFixed(3)} (p=${pValue.toFixed(4)})`);
           }
         });
@@ -6358,7 +6454,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
       const ws5 = XLSX.utils.aoa_to_sheet(sheet5Rows);
       XLSX.utils.book_append_sheet(wb, ws5, '5_逐筆交割與滑價競價總帳本');
 
-      const fileName = `傳奇大師量化統計檢定_V22_4_雙中性與多空分流_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      const fileName = `傳奇大師量化統計檢定_V22_5_實務修正版_${new Date().toISOString().slice(0, 10)}.xlsx`;
       XLSX.writeFile(wb, fileName);
     }
 
@@ -6381,7 +6477,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `傳奇大師Kalman雙中性與多空分流報表_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `傳奇大師Kalman雙中性與多空分流報表_V22_5_${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -6469,7 +6565,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
             const downStd = n > 0 ? Math.sqrt(dailyReturnsPct.map(v => Math.min(0, v) ** 2).reduce((s, v) => s + v, 0) / n) : 1;
             const tStat = std > 1e-8 ? mean / (std / Math.sqrt(n)) : 0;
             const pValueT = calcTwoTailedTTestPValue(tStat, Math.max(1, n - 1));
-            const pValueBinom = calcBinomialTwoTailedPValue(winDays, winDays + loseDays);
+            const pValueBinom = calcBinomialTwoTailedPValue(winDays, Math.max(1, winDays + loseDays));
             const initCap = navSeries[0] || 1000000;
             const finalNav = navSeries[navSeries.length - 1] || initCap;
             const totalRoiPct = ((finalNav - initCap) / initCap) * 100;
@@ -6516,7 +6612,7 @@ let activeModalState = { agentId: null, instId: null, filterDate: 'ALL' };
             appState.currentIdx = appState.records.length - 1;
             renderDashboard(true);
             const badge = document.getElementById('marketPoolBadge');
-            if (badge) badge.textContent = `🟢 已同步最新實盤 (${appState.records.length} 期｜解法A+B雙中性+多空分流)`;
+            if (badge) badge.textContent = `🟢 已同步最新實盤 (${appState.records.length} 期｜V22.5對數β修正+多空分流)`;
             return;
           }
         }
