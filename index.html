@@ -6258,21 +6258,36 @@ function openOrAddPosition(agent, params) {
       const tbody = document.getElementById('marketTableBody');
       if (!thead || !tbody) return;
 
-      if (currentPoolTab === 'STOCK') {
+if (currentPoolTab === 'STOCK') {
         thead.innerHTML = `<tr><th>板塊與台股標的</th><th>收盤 / 漲跌</th><th>成交量(微結構滑價)</th><th>制度與借券競價狀態</th></tr>`;
         const hasFilter = kw || currentBoardFilter !== 'ALL' || currentSectorFilter !== 'ALL';
-        const sourcePool = (hasFilter && Array.isArray(rec.allStocks) && rec.allStocks.length > 0) ? rec.allStocks : (rec.sectors || []);
+
+        // ★ 若當前檢視的歷史日期沒有完整 allStocks，自動從最新一期實盤紀錄借用 2,300+ 檔全市場股票池！
+        let fullMarketPool = (Array.isArray(rec.allStocks) && rec.allStocks.length > 0) ? rec.allStocks : null;
+        if (!fullMarketPool && appState && Array.isArray(appState.records)) {
+          for (let i = appState.records.length - 1; i >= 0; i--) {
+            if (Array.isArray(appState.records[i].allStocks) && appState.records[i].allStocks.length > 0) {
+              fullMarketPool = appState.records[i].allStocks;
+              break;
+            }
+          }
+        }
+        const sourcePool = (hasFilter && fullMarketPool) ? fullMarketPool : (rec.sectors || []);
+        const normKw = kw.replace(/台/g, '臺');
 
         const list = sourcePool.filter(s => {
-          if (kw && !s.id.toLowerCase().includes(kw) && !(s.code || '').toLowerCase().includes(kw)) return false;
+          if (kw) {
+            const blob = `${s.id || ''} ${s.code || ''} ${s.name || ''}`.toLowerCase();
+            const normBlob = blob.replace(/台/g, '臺');
+            if (!blob.includes(kw) && !normBlob.includes(normKw)) return false;
+          }
           if (currentSectorFilter !== 'ALL' && s.sectorCat !== currentSectorFilter) return false;
           if (currentBoardFilter === 'MAIN' && (s.boardType === 'EMERGING' || s.boardType === 'GISA' || s.isKY || s.boardType === 'KY')) return false;
           if (currentBoardFilter === 'KY' && !s.isKY && s.boardType !== 'KY') return false;
           if (currentBoardFilter === 'EMERGING' && s.boardType !== 'EMERGING') return false;
           if (currentBoardFilter === 'GISA' && s.boardType !== 'GISA') return false;
           return true;
-        }).slice(0, 80);
-
+        }).slice(0, kw ? 200 : 80);
         const totalPoolLen = rec.totalMarketCount || (rec.allStocks ? rec.allStocks.length : rec.sectors.length);
         document.getElementById('stockCountText').textContent = `顯示 ${list.length} 檔 / 全台股庫 ${totalPoolLen} 檔`;
 
