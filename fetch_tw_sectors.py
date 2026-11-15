@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-【傳奇大師賽博炒股 V25.0 終極真實權證完整版】update_stocks.py
-1. 批發層：一次抓齊 TWSE 上市、TPEx 上櫃、KY 股、TPEx 興櫃與 GISA 創櫃板（嚴格分離純股票與 6 碼權證）
+【傳奇大師賽博炒股 V25.0 終極真實權證與全市場解封完整版】fetch_tw_sectors.py / update_stocks.py
+1. 批發層：一次抓齊 TWSE 上市、TPEx 上櫃、KY 股、TPEx 興櫃與 GISA 創櫃板（完整保留全市場 2,300+ 檔純股票，不再截斷 [:750]）
 2. 四大王牌真實權證引擎：自動回溯最近開盤日之證交所 MI_INDEX (ALLBUT0999) 與櫃買中心 API，優先鎖定「2330 台積電、2317 鴻海、0050 元大台灣50、2454 聯發科」四大標的抓取當日真實掛牌之高量能 6 碼認購/認售權證！
 3. 點穴層：透過 Fugle API 更新焦點股即時五檔委買委賣價差 (fugleSpreadBps)
 4. 跨國與總經層：yfinance 同步真實 ^VIX、^TNX (10Y美債)、^IRX、^TWII (加權指數)、TWD=X 匯率與 Google News 台股即時 RSS 頭條
@@ -615,7 +615,6 @@ def fetch_all_tw_markets_wholesale():
             "sblFeeRate": 4.8 if is_ky else 2.8
         }
 
-    # 確保 0050 元大台灣50 必定存在於股票池中
     if "0050" not in all_stocks_map:
         all_stocks_map["0050"] = {
             "id": "0050 元大台灣50", "code": "0050", "name": "元大台灣50",
@@ -733,11 +732,12 @@ def enrich_top_focus_via_fugle(all_stocks_map):
                 pass
 
     focus_codes = {x["code"] for x in focus_list}
+    # 解開封印：不再截斷 [:750]，完整保留全市場 2,300+ 檔上市、上櫃、KY、興櫃與創櫃股票
     sorted_others = sorted(
         [v for k, v in all_stocks_map.items() if k not in focus_codes],
         key=lambda x: (x.get("boardType") in ("EMERGING", "GISA") or x.get("isKY"), x.get("volLots", 0)),
         reverse=True
-    )[:750]
+    )
     return focus_list, focus_list + sorted_others, len(all_stocks_map)
 
 
@@ -942,6 +942,10 @@ def main():
     else:
         history_data["records"].append(new_rec)
     history_data["records"].sort(key=lambda r: r.get("date", ""))
+
+    # 只在最近 3 期保留完整 2300+ 檔 allStocks，確保 JSON 檔案極速輕量且全市場可搜
+    for r_old in history_data["records"][:-3]:
+        r_old.pop("allStocks", None)
 
     with open(HISTORY_JSON_PATH, "w", encoding="utf-8") as f:
         json.dump(history_data, f, ensure_ascii=False, indent=2)
