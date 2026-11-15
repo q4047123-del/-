@@ -14,9 +14,9 @@ on:
     - cron: '30 5,22 * * 1-5'
       timezone: 'Asia/Taipei'
 
-  workflow_dispatch: # 保留手動一鍵觸發按鈕
+  workflow_dispatch: # 允許在 GitHub Actions 頁面手動點擊按鈕立即執行
 
-# ★ 防撞車機制：若上一次排程還沒跑完，自動取消舊排程，避免高頻率執行時 git push 衝突
+# 防撞車機制：若上一次排程還沒跑完，自動取消舊排程，避免高頻率執行時 git push 衝突
 concurrency:
   group: stock-data-updater
   cancel-in-progress: true
@@ -35,7 +35,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-          cache: 'pip'
 
       - name: Install dependencies
         run: |
