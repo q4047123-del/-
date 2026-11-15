@@ -3363,14 +3363,26 @@ function toggleSectorFilter(secKey) {
     }
 
 function resolveDynamicWarrantLifecycle(raw, specTpl, currentDateStr) {
-      if (raw.maturityDate && (!currentDateStr || raw.maturityDate >= currentDateStr)) {
+      const realRawName = (raw.name || (raw.id ? raw.id.replace(/^\S+\s+/, '') : '') || specTpl.name || '').trim();
+      const isFromDefaultTemplate = DEFAULT_TWSE_WARRANTS_SPEC.some(x => x.code === raw.code);
+
+      // 若是從證交所 API (辦法A) 或 Excel (辦法B) 傳入的真實權證，100% 原封不動保留真實名稱與到期日
+      if (!isFromDefaultTemplate && realRawName) {
+        const inferred = inferWarrantMaturityFromName(realRawName, currentDateStr);
+        const matDate = (raw.maturityDate && (!currentDateStr || raw.maturityDate >= currentDateStr))
+          ? raw.maturityDate
+          : inferred.maturityDate;
+        const lastDate = (raw.lastTradingDate && (!currentDateStr || raw.lastTradingDate <= matDate))
+          ? raw.lastTradingDate
+          : inferred.lastTradingDate;
         return {
-          lastTradingDate: raw.lastTradingDate || raw.maturityDate,
-          maturityDate: raw.maturityDate,
-          dynamicName: (raw.name || specTpl.name || '').trim()
+          lastTradingDate: lastDate,
+          maturityDate: matDate,
+          dynamicName: realRawName
         };
       }
 
+      // 只有在完全沒匯入外部權證的離線預設模式下，才動態調整內建示範權證的月份碼
       const curDt = currentDateStr ? new Date(currentDateStr) : new Date('2026-11-10');
       const curYear = curDt.getFullYear();
       const curMonth = curDt.getMonth() + 1;
@@ -3388,15 +3400,12 @@ function resolveDynamicWarrantLifecycle(raw, specTpl, currentDateStr) {
 
       const maturityDate = `${matYear}-${String(matMonth).padStart(2, '0')}-28`;
       const lastTradingDate = `${matYear}-${String(matMonth).padStart(2, '0')}-24`;
-
       const rocYearDigit = (matYear - 1911) % 10;
       const monthCode = matMonth === 10 ? 'A' : (matMonth === 11 ? 'B' : (matMonth === 12 ? 'C' : String(matMonth)));
-      const baseName = (raw.name || specTpl.name || '').trim();
-      const dynamicName = baseName.replace(/[0-9][1-9ABCabc]([購售])/, `${rocYearDigit}${monthCode}$1`);
+      const dynamicName = realRawName.replace(/[0-9][1-9ABCabc]([購售])/, `${rocYearDigit}${monthCode}$1`);
 
       return { lastTradingDate, maturityDate, dynamicName };
     }
-
     function normalizeWarrantItem(raw, index, matchedStock, currentDateStr) {
       const cleanRawId = (raw.id || `${raw.code || ''} ${raw.name || ''}`).trim();
       const code = (raw.code || cleanRawId.split(' ')[0] || `08000${index}`).trim();
@@ -3498,9 +3507,20 @@ function resolveDynamicWarrantLifecycle(raw, specTpl, currentDateStr) {
       };
     }
 
-    function syncWarrantsWithStocks(stocks, rawWarrants, currentDateStr) {
-      const hasRealWarrants = Array.isArray(rawWarrants) && rawWarrants.length > 0;
-      const sourceList = hasRealWarrants ? rawWarrants : DEFAULT_TWSE_WARRANTS_SPEC;
+function syncWarrantsWithStocks(stocks, rawWarrants, currentDateStr) {
+      let sourceList = (Array.isArray(rawWarrants) && rawWarrants.length > 0) ? rawWarrants : null;
+
+      // 若該期歷史紀錄尚未帶入權證，優先借用最新一期從證交所抓到的真實權證池，告別寫死的 6 檔假模板
+      if (!sourceList && appState && Array.isArray(appState.records)) {
+        for (let i = appState.records.length - 1; i >= 0; i--) {
+          const rW = appState.records[i] && appState.records[i].warrants;
+          if (Array.isArray(rW) && rW.length > 0 && !DEFAULT_TWSE_WARRANTS_SPEC.some(d => d.code === rW[0].code)) {
+            sourceList = rW;
+            break;
+          }
+        }
+      }
+      if (!sourceList) sourceList = DEFAULT_TWSE_WARRANTS_SPEC;
 
       return sourceList.map((w, idx) => {
         const matchedStock = (stocks || []).find(s =>
@@ -3516,8 +3536,7 @@ function resolveDynamicWarrantLifecycle(raw, specTpl, currentDateStr) {
         }
         return true;
       });
-    }
-    function processDailyWarrantMaturitySettlement(agent, rec, actionTags, monologueParts) {
+    }    function processDailyWarrantMaturitySettlement(agent, rec, actionTags, monologueParts) {
       const todayDate = rec.date;
       const fx = rec.fxRate || 32.15;
 
@@ -6381,8 +6400,15 @@ function openOrAddPosition(agent, params) {
         }).join('');
       } else {
         thead.innerHTML = `<tr><th>證交所6碼活絡權證 (購/售P)</th><th>市價/漲跌</th><th>履約價 / 行使比 / 量能滑價</th><th>最後交易日 ➔ 到期結算狀態</th></tr>`;
-        const wList = syncWarrantsWithStocks(rec.sectors, rec.warrants, rec.date).filter(w => !kw || w.id.toLowerCase().includes(kw));
-        document.getElementById('stockCountText').textContent = `TWSE 6碼活絡權證 ${wList.length} 檔 (自動過濾已下市舊權證)`;
+const warrantStockPool = (Array.isArray(rec.allStocks) && rec.allStocks.length > 0) ? rec.allStocks : rec.sectors;
+        const normKw = kw.replace(/台/g, '臺');
+        const wList = syncWarrantsWithStocks(warrantStockPool, rec.warrants, rec.date).filter(w => {
+          if (!kw) return true;
+          const searchBlob = `${w.id || ''} ${w.underlyingCode || ''} ${w.underlyingId || ''}`.toLowerCase();
+          const normBlob = searchBlob.replace(/台/g, '臺');
+          return searchBlob.includes(kw) || normBlob.includes(normKw);
+        });
+        document.getElementById('stockCountText').textContent = `TWSE 6碼活絡權證 ${wList.length} 檔 (支援搜:台積電/2330/鴻海/0050/聯發科)`;
 
         tbody.innerHTML = wList.map(w => {
           const isUp = w.changePct >= 0;
@@ -6394,7 +6420,6 @@ function openOrAddPosition(agent, params) {
             ? `<span style="color:var(--tw-up);font-weight:bold;">價內+${w.moneynessPct}%</span>`
             : `<span style="color:var(--tw-down);">價外${w.moneynessPct}%</span>`;
           const sampleSlip = computeExecutionSlippage(w.price, 'WARRANT', true, w.id, 10, rec);
-
           let statusCell = `<span style="color:#0c8428;font-weight:bold;">🟢上市活絡可交易</span><div style="font-size:0.7rem;color:#555;">最後交易:${w.lastTradingDate}<br>到期日:${w.maturityDate}</div>`;
           if (w.isMaturedToday) {
             statusCell = w.isITM
