@@ -1,41 +1,57 @@
-name: Run Stock Crawler
+name: Fugle Intraday & After-Hours Auto Update
 
 on:
-  workflow_dispatch:
   schedule:
-    # GitHub Actions 採用 UTC 時間
-    # UTC 09:30 等於台灣時間 (UTC+8) 下午 17:30（適合在台股收盤、盤後資料更新後執行）
-    - cron: '30 9 * * 1-5'
+    # 1. 台股盤中即時更新：週一至週五 09:00 ~ 13:45，每 15 分鐘自動執行一次
+    - cron: '*/15 9-13 * * 1-5'
+      timezone: 'Asia/Taipei'
+
+    # 2. 台股收盤與證交所權證/興櫃完整結算：週一至週五 14:30、16:30 各執行一次
+    - cron: '30 14,16 * * 1-5'
+      timezone: 'Asia/Taipei'
+
+    # 3. 美股開盤與跨夜總經 (VIX/美債/NVDA) 同步：週一至週五 22:30 及隔日 05:30 執行
+    - cron: '30 5,22 * * 1-5'
+      timezone: 'Asia/Taipei'
+
+  workflow_dispatch: # 保留手動一鍵觸發按鈕
+
+# ★ 防撞車機制：若上一次排程還沒跑完，自動取消舊排程，避免高頻率執行時 git push 衝突
+concurrency:
+  group: stock-data-updater
+  cancel-in-progress: true
+
+permissions:
+  contents: write
 
 jobs:
-  run-python:
+  run-python-script:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
-          pip install requests yfinance pandas
+          pip install requests yfinance
 
-      - name: Run crawler script
+      - name: Run Stock & Fugle Engine
+        env:
+          FUGLE_API_KEY: ${{ secrets.FUGLE_API_KEY }}
         run: |
-          python fetch_tw_sectors.py
+          python update_stocks.py
 
-      - name: Commit and push updated json
+      - name: Commit and push generated JSON back to repo
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global http.version HTTP/1.1
           git add tw_stocks_history.json
-          git diff --staged --quiet || git commit -m "Auto-update stock history json via Python"
-          git push origin HEAD
+          git diff --staged --quiet || git commit -m "Auto-update intraday & Fugle stock data [skip ci]"
+          git pull --rebase origin main || true
+          git push
