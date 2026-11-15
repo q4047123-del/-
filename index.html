@@ -2116,17 +2116,21 @@
       else renderMarketTable();
     }
 
-    function toggleSectorFilter(secKey) {
-      if (currentSectorFilter === secKey) {
-        currentSectorFilter = 'ALL';
-      } else {
-        currentSectorFilter = secKey;
-      }
-      renderSectorHeatmap();
-      if (currentPoolTab !== 'STOCK') switchPoolTab('STOCK');
-      else renderMarketTable();
-    }
-
+function toggleSectorFilter(secKey) {
+   if (currentSectorFilter === secKey) {
+     currentSectorFilter = 'ALL';
+   } else {
+     currentSectorFilter = secKey;
+     currentBoardFilter = 'ALL';
+     const bar = document.getElementById('boardFilterBar');
+     if (bar) {
+       bar.querySelectorAll('.board-pill-btn').forEach((btn, idx) => btn.classList.toggle('active', idx === 0));
+     }
+   }
+   renderSectorHeatmap();
+   if (currentPoolTab !== 'STOCK') switchPoolTab('STOCK');
+   else renderMarketTable();
+ }
     function renderSectorHeatmap() {
       const gridEl = document.getElementById('sectorHeatmapGrid');
       if (!gridEl) return;
@@ -3358,16 +3362,64 @@
       return { lastTradingDate, maturityDate };
     }
 
+function resolveDynamicWarrantLifecycle(raw, specTpl, currentDateStr) {
+      if (raw.maturityDate && (!currentDateStr || raw.maturityDate >= currentDateStr)) {
+        return {
+          lastTradingDate: raw.lastTradingDate || raw.maturityDate,
+          maturityDate: raw.maturityDate,
+          dynamicName: (raw.name || specTpl.name || '').trim()
+        };
+      }
+
+      const curDt = currentDateStr ? new Date(currentDateStr) : new Date('2026-11-10');
+      const curYear = curDt.getFullYear();
+      const curMonth = curDt.getMonth() + 1;
+      const curDay = curDt.getDate();
+
+      let matYear = curYear;
+      let matMonth = curMonth % 2 === 1 ? curMonth + 1 : curMonth;
+      if (curMonth === matMonth && curDay > 28) {
+        matMonth += 2;
+        if (matMonth > 12) {
+          matMonth -= 12;
+          matYear += 1;
+        }
+      }
+
+      const maturityDate = `${matYear}-${String(matMonth).padStart(2, '0')}-28`;
+      const lastTradingDate = `${matYear}-${String(matMonth).padStart(2, '0')}-24`;
+
+      const rocYearDigit = (matYear - 1911) % 10;
+      const monthCode = matMonth === 10 ? 'A' : (matMonth === 11 ? 'B' : (matMonth === 12 ? 'C' : String(matMonth)));
+      const baseName = (raw.name || specTpl.name || '').trim();
+      const dynamicName = baseName.replace(/[0-9][1-9ABCabc]([購售])/, `${rocYearDigit}${monthCode}$1`);
+
+      return { lastTradingDate, maturityDate, dynamicName };
+    }
+
     function normalizeWarrantItem(raw, index, matchedStock, currentDateStr) {
-      const cleanId = (raw.id || `${raw.code || ''} ${raw.name || ''}`).trim();
-      const code = (raw.code || cleanId.split(' ')[0] || `08000${index}`).trim();
-      const name = (raw.name || cleanId.replace(code, '')).trim();
-      const wType = raw.warrantType || (code.endsWith('P') || name.includes('售') ? 'PUT' : 'CALL');
+      const cleanRawId = (raw.id || `${raw.code || ''} ${raw.name || ''}`).trim();
+      const code = (raw.code || cleanRawId.split(' ')[0] || `08000${index}`).trim();
       const specTpl = DEFAULT_TWSE_WARRANTS_SPEC.find(x => x.code === code) || {};
+      const wType = raw.warrantType || specTpl.warrantType || (code.endsWith('P') || cleanRawId.includes('售') ? 'PUT' : 'CALL');
+
+      const { lastTradingDate, maturityDate, dynamicName } = resolveDynamicWarrantLifecycle(raw, specTpl, currentDateStr);
+      const name = dynamicName || (raw.name || cleanRawId.replace(code, '')).trim();
+      const cleanId = `${code} ${name}`;
 
       const underlyingPrice = matchedStock ? matchedStock.price : (Number(raw.underlyingPrice) || 200);
-      let strikePrice = Number(raw.strikePrice) || specTpl.strikePrice || +(underlyingPrice * (wType === 'PUT' ? 0.96 : 1.02)).toFixed(1);
-      let exerciseRatio = Number(raw.exerciseRatio) || specTpl.exerciseRatio || (underlyingPrice > 500 ? 0.05 : 0.20);
+      const underlyingChgPct = matchedStock ? (Number(matchedStock.changePct) || 0) : 0;
+
+      let strikePrice = Number(raw.strikePrice) || specTpl.strikePrice || +(underlyingPrice * (wType === 'PUT' ? 0.96 : 1.04)).toFixed(1);
+      const isDeepOtmTpl = name.includes('深度價外');
+      if (Math.abs(underlyingPrice - strikePrice) / Math.max(1, underlyingPrice) > 0.30) {
+        const targetMult = wType === 'PUT' ? 0.95 : (isDeepOtmTpl ? 1.18 : 1.02);
+        strikePrice = underlyingPrice >= 500
+          ? Math.round((underlyingPrice * targetMult) / 10) * 10
+          : +(underlyingPrice * targetMult).toFixed(1);
+      }
+
+      let exerciseRatio = Number(raw.exerciseRatio) || specTpl.exerciseRatio || (underlyingPrice >= 1000 ? 0.02 : (underlyingPrice >= 400 ? 0.05 : 0.20));
 
       if (matchedStock && matchedStock.exDividendDate === currentDateStr && matchedStock.cashDividend > 0) {
         const prevStockP = matchedStock.price + matchedStock.cashDividend;
@@ -3375,10 +3427,6 @@
         strikePrice = +(strikePrice * adjFactor).toFixed(2);
         exerciseRatio = +(exerciseRatio / adjFactor).toFixed(4);
       }
-
-      const inferredDates = inferWarrantMaturityFromName(name, currentDateStr);
-      const maturityDate = raw.maturityDate || inferredDates.maturityDate;
-      const lastTradingDate = raw.lastTradingDate || inferredDates.lastTradingDate;
 
       const settlementPrice60m = matchedStock
         ? +((matchedStock.high + matchedStock.low + matchedStock.price * 2) / 4).toFixed(2)
@@ -3392,41 +3440,61 @@
         ? Math.max(0, (settlementPrice60m - strikePrice) * exerciseRatio)
         : Math.max(0, (strikePrice - settlementPrice60m) * exerciseRatio);
 
-      const isMaturedToday = Boolean(currentDateStr && currentDateStr >= maturityDate);
+      const daysToMaturity = currentDateStr
+        ? Math.max(0, Math.round((new Date(maturityDate) - new Date(currentDateStr)) / 86400000))
+        : 30;
+      const isExpiredAfterMaturity = Boolean(currentDateStr && currentDateStr > maturityDate);
+      const isMaturedToday = Boolean(currentDateStr && currentDateStr === maturityDate);
       const isHaltedBeforeMaturity = Boolean(currentDateStr && currentDateStr > lastTradingDate && currentDateStr < maturityDate);
-
-      let price = Number(raw.price) || specTpl.basePrice || 1.5;
-      if (isMaturedToday) {
-        price = settleIntrinsicUnitVal > 0 ? +(settleIntrinsicUnitVal).toFixed(2) : 0.01;
-      }
-
-      const changePct = Number(raw.changePct) || 0;
-      const prevClose = +(Math.max(0.05, price / (1 + changePct / 100))).toFixed(2);
-      const open = Number(raw.open) || +(prevClose * (1 + (changePct * 0.3) / 100)).toFixed(2);
-      const high = Number(raw.high) || +(Math.max(open, price) * 1.02).toFixed(2);
-      const low = Number(raw.low) || +(Math.min(open, price) * 0.98).toFixed(2);
 
       const moneynessPct = wType === 'CALL'
         ? +(((underlyingPrice - strikePrice) / strikePrice) * 100).toFixed(1)
         : +(((strikePrice - underlyingPrice) / strikePrice) * 100).toFixed(1);
       const isITM = moneynessPct > 0;
 
+      const thetaDecayFactor = Math.sqrt(Math.min(60, daysToMaturity) / 45);
+      const baseTimeRate = isDeepOtmTpl ? 0.018 : (isITM ? 0.032 : 0.045);
+      const theoTimeVal = isMaturedToday
+        ? 0.0
+        : Math.max(0.04, underlyingPrice * exerciseRatio * baseTimeRate * thetaDecayFactor * Math.exp(-Math.max(0, -moneynessPct) / 18));
+      const dynamicTheoPrice = +(intrinsicUnitVal + theoTimeVal).toFixed(2);
+
+      let price = Number(raw.price) || 0;
+      if (isMaturedToday || isExpiredAfterMaturity) {
+        price = settleIntrinsicUnitVal > 0 ? +(settleIntrinsicUnitVal).toFixed(2) : 0.01;
+      } else if (price <= 0 || price < intrinsicUnitVal || (!raw.price && matchedStock)) {
+        price = Math.max(0.12, dynamicTheoPrice);
+      }
+
+      const approxDelta = isITM ? Math.min(0.88, 0.55 + moneynessPct / 40) : Math.max(0.18, 0.48 + moneynessPct / 35);
       const effLeverage = price > 0.02
-        ? +Math.min(25, Math.max(1.2, (underlyingPrice * exerciseRatio) / price * (isITM ? 0.78 : 0.42))).toFixed(1)
+        ? +Math.min(12.5, Math.max(1.5, (underlyingPrice * exerciseRatio / price) * approxDelta)).toFixed(1)
         : 0.0;
+
+      let changePct = Number(raw.changePct);
+      if (isNaN(changePct) || (changePct === 0 && underlyingChgPct !== 0)) {
+        const dirSign = wType === 'PUT' ? -1 : 1;
+        changePct = +Math.max(-45.0, Math.min(85.0, underlyingChgPct * dirSign * effLeverage * 0.85)).toFixed(2);
+      }
+
+      const prevClose = +(Math.max(0.05, price / (1 + changePct / 100))).toFixed(2);
+      const open = Number(raw.open) || +(prevClose * (1 + (changePct * 0.3) / 100)).toFixed(2);
+      const high = Number(raw.high) || +(Math.max(open, price) * 1.02).toFixed(2);
+      const low = Number(raw.low) || +(Math.min(open, price) * 0.98).toFixed(2);
+      const dynamicVolLots = Number(raw.volLots) || (matchedStock ? Math.max(1500, Math.round((matchedStock.volLots || 15000) * 0.32)) : 12000);
 
       return {
         id: cleanId, code, name, warrantType: wType,
         underlyingCode: raw.underlyingCode || specTpl.underlyingCode || (matchedStock ? matchedStock.code : ''),
         underlyingId: raw.underlyingId || specTpl.underlyingId || (matchedStock ? matchedStock.id : ''),
         underlyingPrice, strikePrice, exerciseRatio,
-        lastTradingDate, maturityDate, settlementPrice60m,
+        lastTradingDate, maturityDate, daysToMaturity, settlementPrice60m,
         intrinsicUnitVal: +intrinsicUnitVal.toFixed(3),
         settleIntrinsicUnitVal: +settleIntrinsicUnitVal.toFixed(3),
         moneynessPct, isITM, effLeverage,
-        isHaltedBeforeMaturity, isMaturedToday,
+        isHaltedBeforeMaturity, isMaturedToday, isExpiredAfterMaturity,
         open, high, low, price, changePct,
-        volLots: Number(raw.volLots) || 12000
+        volLots: dynamicVolLots
       };
     }
 
@@ -3443,13 +3511,12 @@
         );
         return normalizeWarrantItem(w, idx, matchedStock || null, currentDateStr);
       }).filter(w => {
-        if (hasRealWarrants && currentDateStr && w.maturityDate < currentDateStr) {
+        if (w.isExpiredAfterMaturity) {
           return false;
         }
         return true;
       });
     }
-
     function processDailyWarrantMaturitySettlement(agent, rec, actionTags, monologueParts) {
       const todayDate = rec.date;
       const fx = rec.fxRate || 32.15;
@@ -3571,9 +3638,8 @@
       renderDashboard(true);
     }
 
-    function buildMacroFuturesForDay(rec, dayIdx) {
-      if (Array.isArray(rec.macroFutures) && rec.macroFutures.length >= 2) {
-        const cleaned = rec.macroFutures.filter(m => m.futCode !== 'XEF').map(m => {
+function buildMacroFuturesForDay(rec, dayIdx) {
+      if (Array.isArray(rec.macroFutures) && rec.macroFutures.length >= 2 && rec.macroFutures[0].price > 15000) {        const cleaned = rec.macroFutures.filter(m => m.futCode !== 'XEF').map(m => {
           if (m.futCode === 'TX') return { ...m, sharesPerContract: 200, marginReq: 242000, maintMargin: 185000, volLots: m.volLots || 110000 };
           if (m.futCode === 'MTX') return { ...m, sharesPerContract: 50, marginReq: 60500, maintMargin: 46250, volLots: m.volLots || 210000 };
           if (m.futCode === 'TMF') return { ...m, sharesPerContract: 10, marginReq: 12100, maintMargin: 9250, volLots: m.volLots || 165000 };
@@ -3600,13 +3666,13 @@
       let txClose = Number(rec.taiexPrice || rec.taiex || 0);
       let txChangePct = Number(rec.taiexChangePct || 0);
 
-      if (!txClose || txClose <= 0) {
-        if (etf0050 && etf0050.price > 0) {
-          txClose = Math.round(etf0050.price * 118.5);
-          txChangePct = etf0050.changePct;
-        } else if (tsmc2330 && tsmc2330.price > 0) {
+if (!txClose || txClose <= 0) {
+        if (tsmc2330 && tsmc2330.price > 0) {
           txClose = Math.round(tsmc2330.price * 21.65);
           txChangePct = tsmc2330.changePct;
+        } else if (etf0050 && etf0050.price > 0) {
+          txClose = Math.round(etf0050.price * (etf0050.price < 80 ? 474.0 : 118.5));
+          txChangePct = etf0050.changePct;
         } else {
           txChangePct = rec.sectors && rec.sectors.length > 0
             ? +(rec.sectors.reduce((acc, s) => acc + s.changePct, 0) / rec.sectors.length).toFixed(2)
@@ -5164,10 +5230,18 @@ function triggerManualExDividendToday() {
       return true;
     }
 
-    function openOrAddPosition(agent, params) {
+function openOrAddPosition(agent, params) {
       const { id, instType, currency = 'TWD', fxRate = 32.15, unitLabel, qty, price, multiplier, marginRate, fixedMarginReq, date, reason, rec = null, pairTag = '' } = params;
       if (qty <= 0) return false;
       const isUsd = currency === 'USD';
+
+      // ★ 嚴格攔截：若為權證 (WARRANT)，檢查是否已過最後交易日 (停牌待結算) 或已到期，若是則拒絕買進！
+      if (instType === 'WARRANT' && rec && Array.isArray(rec.warrants)) {
+        const wCheck = rec.warrants.find(w => w.id === id || w.code === (id || '').split(' ')[0]);
+        if (!wCheck || wCheck.isHaltedBeforeMaturity || wCheck.isMaturedToday || wCheck.isExpiredAfterMaturity || (date && wCheck.lastTradingDate && date > wCheck.lastTradingDate)) {
+          return false;
+        }
+      }
 
       if (agent.holdings[id] && agent.holdings[id].qty > 0 && isShortPositionType(agent.holdings[id].instType)) {
         coverOrCloseShortPosition(
