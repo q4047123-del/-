@@ -2973,7 +2973,7 @@ function toggleSectorFilter(secKey) {
       return { allowed: false, borrowRate: 0, auctionMult: 1.0, breakevenRate: 0, tagText: '不可放空' };
     }
 // 自動預填你的預設 Fugle API Key（若輸入框為空則自動帶入）
-    const DEFAULT_USER_FUGLE_KEY = 'MjkzM2Y1ODQtNjNhOC00OTk0LTg0MzgtYTA4M2M0YjM1OGU5IDU4Zjg3Yzg5LTY5NjMtNGRjNy1hNDRjLTg4NjI2YzYxYTgwNw==';
+    const DEFAULT_USER_FUGLE_KEY = '';
     setTimeout(() => {
       const kEl = document.getElementById('fugleApiKeyInput');
       if (kEl && !kEl.value) kEl.value = DEFAULT_USER_FUGLE_KEY;
