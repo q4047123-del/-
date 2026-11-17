@@ -158924,17 +158924,17 @@
       "weekday": "週二",
       "fullDateLabel": "2026-11-17 (週二)",
       "fxRate": 32.91,
-      "taiexPrice": 40092,
-      "taiexChangePct": -2.31,
+      "taiexPrice": 41040,
+      "taiexChangePct": -6.03,
       "macro": {
         "regime": "HAWKISH_INFLATION",
-        "regimeLabel": "🔴 VIX=23.05 避險升溫・ERC風控防禦",
+        "regimeLabel": "🔴 VIX=24.85 避險升溫・ERC風控防禦",
         "regimeColor": "#ff8a80",
-        "fedRate": "4.12%",
-        "us10yYield": "5.12%▼",
-        "vixIndex": "23.05▲",
+        "fedRate": "4.14%",
+        "us10yYield": "5.12%",
+        "vixIndex": "24.85▲",
         "stressMultText": "1.40x🚨(VIX壓力)",
-        "borrowHeatText": "1.75x▲(搶券)",
+        "borrowHeatText": "1.84x▲(搶券)",
         "macroScore": -2,
         "headlines": [
           {
@@ -158944,22 +158944,22 @@
           },
           {
             "tag": "📰台股即時頭條",
-            "title": "快訊／神奇買盤上班了！台積電帶頭翻紅　台股殺千點驚天V轉 - ETtoday財經雲",
+            "title": "傳奇投資人家族大砍台積電持股94％ 科技股逃命波？ - 自由財經",
+            "score": 1
+          },
+          {
+            "tag": "📰台股即時頭條",
+            "title": "【1117台股盤後】台股巨震1,747點險守4萬大關！市場聚焦輝達財報能否救世，急跌地板股策略鎖定【志聖】、【新日興】、【帆宣】｜豐雲學堂2026 年 11 月 - 永豐金證券",
             "score": -2
           },
           {
             "tag": "📰台股即時頭條",
-            "title": "台幣匯率升值、貶值對台股有什麼影響？從歷史數據看懂外資動向與受惠股｜豐雲學堂2026 年 11 月 - 永豐金證券",
-            "score": 1
-          },
-          {
-            "tag": "📰台股即時頭條",
-            "title": "台積電(2330) 個股概覽 | 個股 - 股市 - CMoney",
+            "title": "台積電揭優良供應商名單：這些企業 2026 又入榜！35 家完整名單一次看 - 經理人",
             "score": 1
           },
           {
             "tag": "🌐真實總經與台指期實盤",
-            "title": "【台美實盤同步】加權指數收 40,092 點 (-2.31%)｜VIX 恐慌指數 23.05▲｜10Y 美債殖利率 5.12%▼｜USD/TWD 匯率 32.91",
+            "title": "【台美實盤同步】加權指數收 41,040 點 (-6.03%)｜VIX 恐慌指數 24.85▲｜10Y 美債殖利率 5.12%｜USD/TWD 匯率 32.91",
             "score": -2
           },
           {
@@ -158969,7 +158969,7 @@
           },
           {
             "tag": "🇺🇸美股AI算力連動",
-            "title": "【跨國算力風向球】輝達 (NVDA) 收 US$156.14 (-4.12%)，牽動台積電、世芯-KY 與興櫃 AI 設備族群",
+            "title": "【跨國算力風向球】輝達 (NVDA) 收 US$155.27 (-0.55%)，牽動台積電、世芯-KY 與興櫃 AI 設備族群",
             "score": -1
           }
         ]
@@ -158980,11 +158980,11 @@
           "futCode": "TX",
           "futName": "臺股大台指期貨",
           "underlyingId": "臺灣加權指數",
-          "open": 40751,
-          "high": 40836,
-          "low": 40022,
-          "price": 40092,
-          "changePct": -2.31,
+          "open": 42849,
+          "high": 42934,
+          "low": 40970,
+          "price": 41040,
+          "changePct": -6.03,
           "volLots": 115000,
           "sharesPerContract": 200,
           "marginRate": 0.051,
@@ -158997,11 +158997,11 @@
           "futCode": "MTX",
           "futName": "小型臺指期貨",
           "underlyingId": "臺灣加權指數",
-          "open": 40751,
-          "high": 40836,
-          "low": 40022,
-          "price": 40092,
-          "changePct": -2.31,
+          "open": 42849,
+          "high": 42934,
+          "low": 40970,
+          "price": 41040,
+          "changePct": -6.03,
           "volLots": 215000,
           "sharesPerContract": 50,
           "marginRate": 0.051,
@@ -159014,11 +159014,11 @@
           "futCode": "TMF",
           "futName": "微型臺指期貨",
           "underlyingId": "臺灣加權指數",
-          "open": 40751,
-          "high": 40836,
-          "low": 40022,
-          "price": 40092,
-          "changePct": -2.31,
+          "open": 42849,
+          "high": 42934,
+          "low": 40970,
+          "price": 41040,
+          "changePct": -6.03,
           "volLots": 168000,
           "sharesPerContract": 10,
           "marginRate": 0.051,
@@ -159028,7 +159028,7 @@
         }
       ],
       "totalMarketCount": 2652,
-      "chapterTitle": "全台股四板塊實盤 (2652檔同步｜台指 40,092 點｜VIX 23.05▲)",
+      "chapterTitle": "全台股四板塊實盤 (2652檔同步｜台指 41,040 點｜VIX 24.85▲)",
       "usAssets": [
         {
           "id": "NVDA 輝達 (NVIDIA)",
@@ -159037,12 +159037,12 @@
           "assetType": "US_STOCK",
           "usSector": "AI_SEMI",
           "currency": "USD",
-          "open": 159.02,
-          "high": 163.2,
-          "low": 155.01,
-          "price": 156.14,
-          "changePct": -4.12,
-          "volShares": 331405000,
+          "open": 156.91,
+          "high": 157.46,
+          "low": 150.33,
+          "price": 155.27,
+          "changePct": -0.55,
+          "volShares": 147240269,
           "yield": 0.03,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -159056,12 +159056,12 @@
           "assetType": "US_STOCK",
           "usSector": "BUFFETT_TECH",
           "currency": "USD",
-          "open": 357.13,
-          "high": 357.13,
-          "low": 351.31,
-          "price": 352.78,
-          "changePct": -0.98,
-          "volShares": 45945500,
+          "open": 352.92,
+          "high": 355.36,
+          "low": 350.39,
+          "price": 351.99,
+          "changePct": -0.22,
+          "volShares": 10781530,
           "yield": 0.45,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -159075,12 +159075,12 @@
           "assetType": "US_STOCK",
           "usSector": "MEME_GROWTH",
           "currency": "USD",
-          "open": 387.0,
-          "high": 389.8,
-          "low": 375.63,
-          "price": 379.74,
-          "changePct": -2.69,
-          "volShares": 30156600,
+          "open": 382.28,
+          "high": 382.84,
+          "low": 374.15,
+          "price": 379.15,
+          "changePct": -0.16,
+          "volShares": 9448114,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -159094,12 +159094,12 @@
           "assetType": "US_STOCK",
           "usSector": "AI_SEMI",
           "currency": "USD",
-          "open": 56.71,
-          "high": 57.2,
-          "low": 54.89,
-          "price": 55.47,
-          "changePct": -7.02,
-          "volShares": 103100900,
+          "open": 55.15,
+          "high": 55.21,
+          "low": 52.42,
+          "price": 53.9,
+          "changePct": -2.83,
+          "volShares": 41296614,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -159113,12 +159113,12 @@
           "assetType": "US_STOCK",
           "usSector": "BUFFETT_VALUE",
           "currency": "USD",
-          "open": 100.01,
-          "high": 100.56,
-          "low": 99.08,
-          "price": 99.48,
-          "changePct": 0.23,
-          "volShares": 18577400,
+          "open": 98.79,
+          "high": 99.61,
+          "low": 98.53,
+          "price": 99.17,
+          "changePct": -0.31,
+          "volShares": 4294123,
           "yield": 3.05,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -159132,12 +159132,12 @@
           "assetType": "US_STOCK",
           "usSector": "AI_POWER",
           "currency": "USD",
-          "open": 129.21,
-          "high": 131.38,
-          "low": 127.43,
-          "price": 130.16,
-          "changePct": -2.14,
-          "volShares": 4795800,
+          "open": 130.92,
+          "high": 133.49,
+          "low": 127.04,
+          "price": 129.45,
+          "changePct": -0.55,
+          "volShares": 1439660,
           "yield": 0.65,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -159151,12 +159151,12 @@
           "assetType": "US_STOCK",
           "usSector": "MEME_GROWTH",
           "currency": "USD",
-          "open": 25.58,
-          "high": 26.24,
-          "low": 25.41,
-          "price": 25.6,
-          "changePct": -0.97,
-          "volShares": 4637000,
+          "open": 25.65,
+          "high": 25.93,
+          "low": 25.2,
+          "price": 25.26,
+          "changePct": -1.33,
+          "volShares": 1404367,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -159170,12 +159170,12 @@
           "assetType": "US_BOND",
           "usSector": "BOND",
           "currency": "USD",
-          "open": 79.51,
-          "high": 79.76,
-          "low": 79.28,
-          "price": 79.38,
-          "changePct": 0.0,
-          "volShares": 30921300,
+          "open": 79.3,
+          "high": 79.67,
+          "low": 79.24,
+          "price": 79.55,
+          "changePct": 0.21,
+          "volShares": 10798566,
           "yield": 4.45,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -159189,12 +159189,12 @@
           "assetType": "US_BOND",
           "usSector": "BOND",
           "currency": "USD",
-          "open": 100.57,
-          "high": 100.58,
-          "low": 100.56,
+          "open": 100.58,
+          "high": 100.59,
+          "low": 100.58,
           "price": 100.58,
-          "changePct": 0.02,
-          "volShares": 24543100,
+          "changePct": 0.0,
+          "volShares": 8422456,
           "yield": 4.85,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -159575,7 +159575,7 @@
           "low": 26.01,
           "price": 26.07,
           "changePct": -0.04,
-          "volLots": 15800,
+          "volLots": 19800,
           "pe": 0.0,
           "yield": 4.5,
           "fairValue": 26.07,
@@ -159584,7 +159584,7 @@
           "sblFeeRate": 2.8,
           "news": [
             {
-              "title": "🏛️【🏛️上櫃盤後微結構】00679B 元大美債20年 收 $26.07 (-0.04%)，成交量 15,800 張｜PE=0.0倍、殖利率 4.5%",
+              "title": "🏛️【🏛️上櫃盤後微結構】00679B 元大美債20年 收 $26.07 (-0.04%)，成交量 19,800 張｜PE=0.0倍、殖利率 4.5%",
               "score": -1
             }
           ]
@@ -161246,7 +161246,7 @@
           "low": 26.01,
           "price": 26.07,
           "changePct": -0.04,
-          "volLots": 15800,
+          "volLots": 19800,
           "pe": 0.0,
           "yield": 4.5,
           "fairValue": 26.07,
@@ -161255,7 +161255,7 @@
           "sblFeeRate": 2.8,
           "news": [
             {
-              "title": "🏛️【🏛️上櫃盤後微結構】00679B 元大美債20年 收 $26.07 (-0.04%)，成交量 15,800 張｜PE=0.0倍、殖利率 4.5%",
+              "title": "🏛️【🏛️上櫃盤後微結構】00679B 元大美債20年 收 $26.07 (-0.04%)，成交量 19,800 張｜PE=0.0倍、殖利率 4.5%",
               "score": -1
             }
           ]
@@ -178376,6 +178376,33 @@
           ]
         },
         {
+          "id": "8069 元太",
+          "code": "8069",
+          "name": "元太",
+          "boardType": "OTC",
+          "isKY": false,
+          "sectorCat": "SERVER_PC",
+          "assetType": "STOCK",
+          "open": 136.0,
+          "high": 144.0,
+          "low": 132.0,
+          "price": 139.0,
+          "changePct": 1.09,
+          "volLots": 11894,
+          "pe": 21.0,
+          "yield": 2.8,
+          "fairValue": 138.32,
+          "allowMarginShort": true,
+          "allowSBL": true,
+          "sblFeeRate": 2.8,
+          "news": [
+            {
+              "title": "🏛️【🏛️上櫃盤後微結構】8069 元太 收 $139.0 (+1.09%)，成交量 11,894 張｜PE=21.0倍、殖利率 2.8%",
+              "score": 1
+            }
+          ]
+        },
+        {
           "id": "3706 神達",
           "code": "3706",
           "name": "神達",
@@ -178403,33 +178430,6 @@
             {
               "title": "🛡️【波克夏價值護城河】3706 神達 具備高現金殖利率 (6.32%) 與低本益比 (12.41倍) 雙重安全墊",
               "score": 2
-            }
-          ]
-        },
-        {
-          "id": "8069 元太",
-          "code": "8069",
-          "name": "元太",
-          "boardType": "OTC",
-          "isKY": false,
-          "sectorCat": "SERVER_PC",
-          "assetType": "STOCK",
-          "open": 136.0,
-          "high": 144.0,
-          "low": 132.0,
-          "price": 139.0,
-          "changePct": 1.09,
-          "volLots": 11459,
-          "pe": 21.0,
-          "yield": 2.8,
-          "fairValue": 138.32,
-          "allowMarginShort": true,
-          "allowSBL": true,
-          "sblFeeRate": 2.8,
-          "news": [
-            {
-              "title": "🏛️【🏛️上櫃盤後微結構】8069 元太 收 $139.0 (+1.09%)，成交量 11,459 張｜PE=21.0倍、殖利率 2.8%",
-              "score": 1
             }
           ]
         },
@@ -178924,6 +178924,33 @@
           ]
         },
         {
+          "id": "6274 台燿",
+          "code": "6274",
+          "name": "台燿",
+          "boardType": "OTC",
+          "isKY": false,
+          "sectorCat": "SERVER_PC",
+          "assetType": "STOCK",
+          "open": 791.0,
+          "high": 824.0,
+          "low": 790.0,
+          "price": 790.0,
+          "changePct": -9.92,
+          "volLots": 9114,
+          "pe": 21.0,
+          "yield": 2.8,
+          "fairValue": 826.91,
+          "allowMarginShort": true,
+          "allowSBL": true,
+          "sblFeeRate": 2.8,
+          "news": [
+            {
+              "title": "📉【🏛️上櫃回測均線】6274 台燿 隨盤勢修正 -9.92% 收 $790.0（量 9,114 張，PE=21.0倍、殖利率 2.8%），巴菲特與西蒙斯評估低接安全邊際",
+              "score": -2
+            }
+          ]
+        },
+        {
           "id": "8415 大國鋼",
           "code": "8415",
           "name": "大國鋼",
@@ -179063,33 +179090,6 @@
             {
               "title": "🏛️【🏛️上市盤後微結構】2515 中工 收 $10.1 (-2.42%)，成交量 8,814 張｜PE=23.49倍、殖利率 4.95%",
               "score": -1
-            }
-          ]
-        },
-        {
-          "id": "6274 台燿",
-          "code": "6274",
-          "name": "台燿",
-          "boardType": "OTC",
-          "isKY": false,
-          "sectorCat": "SERVER_PC",
-          "assetType": "STOCK",
-          "open": 791.0,
-          "high": 824.0,
-          "low": 790.0,
-          "price": 790.0,
-          "changePct": -9.92,
-          "volLots": 8814,
-          "pe": 21.0,
-          "yield": 2.8,
-          "fairValue": 826.91,
-          "allowMarginShort": true,
-          "allowSBL": true,
-          "sblFeeRate": 2.8,
-          "news": [
-            {
-              "title": "📉【🏛️上櫃回測均線】6274 台燿 隨盤勢修正 -9.92% 收 $790.0（量 8,814 張，PE=21.0倍、殖利率 2.8%），巴菲特與西蒙斯評估低接安全邊際",
-              "score": -2
             }
           ]
         },
@@ -186427,6 +186427,37 @@
           ]
         },
         {
+          "id": "3293 鈊象",
+          "code": "3293",
+          "name": "鈊象",
+          "boardType": "OTC",
+          "isKY": false,
+          "sectorCat": "SERVER_PC",
+          "assetType": "STOCK",
+          "open": 780.0,
+          "high": 803.0,
+          "low": 773.0,
+          "price": 790.0,
+          "changePct": 1.94,
+          "volLots": 2483,
+          "pe": 21.0,
+          "yield": 2.8,
+          "fairValue": 783.16,
+          "allowMarginShort": true,
+          "allowSBL": true,
+          "sblFeeRate": 2.8,
+          "news": [
+            {
+              "title": "🏛️【🏛️上櫃盤後微結構】3293 鈊象 收 $790.0 (+1.94%)，成交量 2,483 張｜PE=21.0倍、殖利率 2.8%",
+              "score": 1
+            },
+            {
+              "title": "⚡【AI算力與電力基建咽喉】3293 鈊象 受惠北美雲端資本支出與電網升級需求，阿申納入核心算力輪動池",
+              "score": 2
+            }
+          ]
+        },
+        {
           "id": "2436 偉詮電",
           "code": "2436",
           "name": "偉詮電",
@@ -187025,37 +187056,6 @@
             {
               "title": "📉【🏛️上市回測均線】8926 台汽電 隨盤勢修正 -2.64% 收 $48.0（量 2,297 張，PE=12.18倍、殖利率 4.42%），巴菲特與西蒙斯評估低接安全邊際",
               "score": -2
-            }
-          ]
-        },
-        {
-          "id": "3293 鈊象",
-          "code": "3293",
-          "name": "鈊象",
-          "boardType": "OTC",
-          "isKY": false,
-          "sectorCat": "SERVER_PC",
-          "assetType": "STOCK",
-          "open": 780.0,
-          "high": 803.0,
-          "low": 773.0,
-          "price": 790.0,
-          "changePct": 1.94,
-          "volLots": 2283,
-          "pe": 21.0,
-          "yield": 2.8,
-          "fairValue": 783.16,
-          "allowMarginShort": true,
-          "allowSBL": true,
-          "sblFeeRate": 2.8,
-          "news": [
-            {
-              "title": "🏛️【🏛️上櫃盤後微結構】3293 鈊象 收 $790.0 (+1.94%)，成交量 2,283 張｜PE=21.0倍、殖利率 2.8%",
-              "score": 1
-            },
-            {
-              "title": "⚡【AI算力與電力基建咽喉】3293 鈊象 受惠北美雲端資本支出與電網升級需求，阿申納入核心算力輪動池",
-              "score": 2
             }
           ]
         },
@@ -192178,6 +192178,33 @@
           ]
         },
         {
+          "id": "7704 明遠精密",
+          "code": "7704",
+          "name": "明遠精密",
+          "boardType": "OTC",
+          "isKY": false,
+          "sectorCat": "SERVER_PC",
+          "assetType": "STOCK",
+          "open": 69.7,
+          "high": 70.8,
+          "low": 66.5,
+          "price": 66.7,
+          "changePct": -7.87,
+          "volLots": 1214,
+          "pe": 21.0,
+          "yield": 2.8,
+          "fairValue": 69.15,
+          "allowMarginShort": true,
+          "allowSBL": true,
+          "sblFeeRate": 2.8,
+          "news": [
+            {
+              "title": "📉【🏛️上櫃回測均線】7704 明遠精密 隨盤勢修正 -7.87% 收 $66.7（量 1,214 張，PE=21.0倍、殖利率 2.8%），巴菲特與西蒙斯評估低接安全邊際",
+              "score": -2
+            }
+          ]
+        },
+        {
           "id": "2405 輔信",
           "code": "2405",
           "name": "輔信",
@@ -196942,6 +196969,33 @@
           ]
         },
         {
+          "id": "5274 信驊",
+          "code": "5274",
+          "name": "信驊",
+          "boardType": "OTC",
+          "isKY": false,
+          "sectorCat": "SERVER_PC",
+          "assetType": "STOCK",
+          "open": 9720.0,
+          "high": 10220.0,
+          "low": 9720.0,
+          "price": 9875.0,
+          "changePct": -8.56,
+          "volLots": 745,
+          "pe": 21.0,
+          "yield": 2.8,
+          "fairValue": 10270.62,
+          "allowMarginShort": true,
+          "allowSBL": true,
+          "sblFeeRate": 2.8,
+          "news": [
+            {
+              "title": "📉【🏛️上櫃回測均線】5274 信驊 隨盤勢修正 -8.56% 收 $9875.0（量 745 張，PE=21.0倍、殖利率 2.8%），巴菲特與西蒙斯評估低接安全邊際",
+              "score": -2
+            }
+          ]
+        },
+        {
           "id": "2038 海光",
           "code": "2038",
           "name": "海光",
@@ -197135,33 +197189,6 @@
             {
               "title": "🛡️【波克夏價值護城河】2006 東和鋼鐵 具備高現金殖利率 (5.15%) 與低本益比 (9.96倍) 雙重安全墊",
               "score": 2
-            }
-          ]
-        },
-        {
-          "id": "5274 信驊",
-          "code": "5274",
-          "name": "信驊",
-          "boardType": "OTC",
-          "isKY": false,
-          "sectorCat": "SERVER_PC",
-          "assetType": "STOCK",
-          "open": 9720.0,
-          "high": 10220.0,
-          "low": 9720.0,
-          "price": 9875.0,
-          "changePct": -8.56,
-          "volLots": 731,
-          "pe": 21.0,
-          "yield": 2.8,
-          "fairValue": 10270.62,
-          "allowMarginShort": true,
-          "allowSBL": true,
-          "sblFeeRate": 2.8,
-          "news": [
-            {
-              "title": "📉【🏛️上櫃回測均線】5274 信驊 隨盤勢修正 -8.56% 收 $9875.0（量 731 張，PE=21.0倍、殖利率 2.8%），巴菲特與西蒙斯評估低接安全邊際",
-              "score": -2
             }
           ]
         },
@@ -197922,33 +197949,6 @@
             {
               "title": "🏛️【🏛️上市盤後微結構】2461 光群雷 收 $16.1 (+0.0%)，成交量 676 張｜PE=20.91倍、殖利率 3.2%",
               "score": 1
-            }
-          ]
-        },
-        {
-          "id": "7704 明遠精密",
-          "code": "7704",
-          "name": "明遠精密",
-          "boardType": "OTC",
-          "isKY": false,
-          "sectorCat": "SERVER_PC",
-          "assetType": "STOCK",
-          "open": 69.7,
-          "high": 70.8,
-          "low": 66.5,
-          "price": 66.7,
-          "changePct": -7.87,
-          "volLots": 674,
-          "pe": 21.0,
-          "yield": 2.8,
-          "fairValue": 69.15,
-          "allowMarginShort": true,
-          "allowSBL": true,
-          "sblFeeRate": 2.8,
-          "news": [
-            {
-              "title": "📉【🏛️上櫃回測均線】7704 明遠精密 隨盤勢修正 -7.87% 收 $66.7（量 674 張，PE=21.0倍、殖利率 2.8%），巴菲特與西蒙斯評估低接安全邊際",
-              "score": -2
             }
           ]
         },
@@ -201717,6 +201717,33 @@
             {
               "title": "🏛️【🏛️上櫃盤後微結構】5206 坤悅 收 $25.55 (+0.59%)，成交量 456 張｜PE=21.0倍、殖利率 2.8%",
               "score": 1
+            }
+          ]
+        },
+        {
+          "id": "8272 全景軟體",
+          "code": "8272",
+          "name": "全景軟體",
+          "boardType": "OTC",
+          "isKY": false,
+          "sectorCat": "SERVER_PC",
+          "assetType": "STOCK",
+          "open": 107.5,
+          "high": 107.5,
+          "low": 107.5,
+          "price": 107.5,
+          "changePct": -9.66,
+          "volLots": 456,
+          "pe": 21.0,
+          "yield": 2.8,
+          "fairValue": 112.39,
+          "allowMarginShort": true,
+          "allowSBL": true,
+          "sblFeeRate": 2.8,
+          "news": [
+            {
+              "title": "📉【🏛️上櫃回測均線】8272 全景軟體 隨盤勢修正 -9.66% 收 $107.5（量 456 張，PE=21.0倍、殖利率 2.8%），巴菲特與西蒙斯評估低接安全邊際",
+              "score": -2
             }
           ]
         },
@@ -214039,33 +214066,6 @@
             {
               "title": "⚡【AI算力與電力基建咽喉】6654 天正國際 受惠北美雲端資本支出與電網升級需求，阿申納入核心算力輪動池",
               "score": 2
-            }
-          ]
-        },
-        {
-          "id": "8272 全景軟體",
-          "code": "8272",
-          "name": "全景軟體",
-          "boardType": "OTC",
-          "isKY": false,
-          "sectorCat": "SERVER_PC",
-          "assetType": "STOCK",
-          "open": 107.5,
-          "high": 107.5,
-          "low": 107.5,
-          "price": 107.5,
-          "changePct": -9.66,
-          "volLots": 141,
-          "pe": 21.0,
-          "yield": 2.8,
-          "fairValue": 112.39,
-          "allowMarginShort": true,
-          "allowSBL": true,
-          "sblFeeRate": 2.8,
-          "news": [
-            {
-              "title": "📉【🏛️上櫃回測均線】8272 全景軟體 隨盤勢修正 -9.66% 收 $107.5（量 141 張，PE=21.0倍、殖利率 2.8%），巴菲特與西蒙斯評估低接安全邊際",
-              "score": -2
             }
           ]
         },
