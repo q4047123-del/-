@@ -7726,23 +7726,30 @@ const warrantStockPool = (Array.isArray(rec.allStocks) && rec.allStocks.length >
 
 // 2. 若在 http/https 伺服器環境下才嘗試讀取同目錄下的 tw_stocks_history.json (避免 file:// 觸發 CORS 紅字)
       if (window.location.protocol.startsWith('http')) {
-        // ★ 啟動每 15 秒背景自動刷新（跟著 Python 盤中即時更新）
+// ★ 啟動每 15 秒背景自動刷新（保留使用者目前正在看的日期）
         setInterval(async () => {
           try {
+            const wasOnLatest = appState.currentIdx === appState.records.length - 1;
+            const viewingDate = appState.records[appState.currentIdx]?.date;
+
             const r = await fetch(`./tw_stocks_history.json?t=${Date.now()}`, { cache: 'no-store' });
             if (r.ok) {
               const latestData = await r.json();
               if (applyRawJsonDataToState(latestData)) {
                 recalculateTimeline();
-                appState.currentIdx = appState.records.length - 1;
-                renderDashboard(false); // false 代表靜默更新數字，不重播打字機動畫
+                if (wasOnLatest) {
+                  appState.currentIdx = appState.records.length - 1;
+                } else if (viewingDate) {
+                  const keptIdx = appState.records.findIndex(rec => rec.date === viewingDate);
+                  appState.currentIdx = keptIdx >= 0 ? keptIdx : Math.min(appState.currentIdx, appState.records.length - 1);
+                }
+                renderDashboard(false);
                 const badge = document.getElementById('marketPoolBadge');
                 if (badge) badge.textContent = `🟢 盤中即時同步中 (${new Date().toLocaleTimeString('zh-TW', { hour12: false })})`;
               }
             }
           } catch (e) {}
         }, 15000);
-
         try {
           const res = await fetch(`./tw_stocks_history.json?t=${Date.now()}`, { cache: 'no-store' });
           if (res.ok) {
