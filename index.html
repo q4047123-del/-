@@ -7724,8 +7724,25 @@ const warrantStockPool = (Array.isArray(rec.allStocks) && rec.allStocks.length >
         console.error('初始劇本渲染錯誤:', initErr);
       }
 
-      // 2. 若在 http/https 伺服器環境下才嘗試讀取同目錄下的 tw_stocks_history.json (避免 file:// 觸發 CORS 紅字)
+// 2. 若在 http/https 伺服器環境下才嘗試讀取同目錄下的 tw_stocks_history.json (避免 file:// 觸發 CORS 紅字)
       if (window.location.protocol.startsWith('http')) {
+        // ★ 啟動每 15 秒背景自動刷新（跟著 Python 盤中即時更新）
+        setInterval(async () => {
+          try {
+            const r = await fetch(`./tw_stocks_history.json?t=${Date.now()}`, { cache: 'no-store' });
+            if (r.ok) {
+              const latestData = await r.json();
+              if (applyRawJsonDataToState(latestData)) {
+                recalculateTimeline();
+                appState.currentIdx = appState.records.length - 1;
+                renderDashboard(false); // false 代表靜默更新數字，不重播打字機動畫
+                const badge = document.getElementById('marketPoolBadge');
+                if (badge) badge.textContent = `🟢 盤中即時同步中 (${new Date().toLocaleTimeString('zh-TW', { hour12: false })})`;
+              }
+            }
+          } catch (e) {}
+        }, 15000);
+
         try {
           const res = await fetch(`./tw_stocks_history.json?t=${Date.now()}`, { cache: 'no-store' });
           if (res.ok) {
@@ -7741,7 +7758,6 @@ const warrantStockPool = (Array.isArray(rec.allStocks) && rec.allStocks.length >
           }
         } catch (err) {}
       }
-
       // 3. 檢查瀏覽器 LocalStorage 快取
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
