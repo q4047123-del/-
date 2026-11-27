@@ -148604,18 +148604,18 @@
       "date": "2026-11-27",
       "weekday": "週五",
       "fullDateLabel": "2026-11-27 (週五)",
-      "fxRate": 32.93,
-      "taiexPrice": 39308,
-      "taiexChangePct": 0.4,
+      "fxRate": 32.96,
+      "taiexPrice": 39152,
+      "taiexChangePct": 2.5,
       "macro": {
         "regime": "HAWKISH_INFLATION",
-        "regimeLabel": "🔴 VIX=24.7 避險升溫・ERC風控防禦",
+        "regimeLabel": "🔴 VIX=24.8 避險升溫・ERC風控防禦",
         "regimeColor": "#ff8a80",
-        "fedRate": "4.16%",
-        "us10yYield": "4.85%▼",
-        "vixIndex": "24.70▼",
+        "fedRate": "4.15%",
+        "us10yYield": "4.93%▲",
+        "vixIndex": "24.80▼",
         "stressMultText": "1.40x🚨(VIX壓力)",
-        "borrowHeatText": "1.83x▲(搶券)",
+        "borrowHeatText": "1.84x▲(搶券)",
         "macroScore": -2,
         "headlines": [
           {
@@ -148625,22 +148625,22 @@
           },
           {
             "tag": "📰台股即時頭條",
-            "title": "【1127台股盤前】台股強彈956點、台幣升回33元內，美股感恩節休市！外資連9賣對作內資撐盤，投本比鎖定【中砂】、【群聯】、【貿聯-KY】｜豐雲學堂2026 年 11 月 - 永豐金證券",
+            "title": "【1127台股盤後】美股感恩節休市，台股震盪收漲 156 點！外資連續 10 日賣超，投本比鎖定【中砂】、【金像電】、【中華電】 - 永豐金證券",
             "score": 2
           },
           {
             "tag": "📰台股即時頭條",
-            "title": "〈台股開盤〉台積電扮演撐盤神山 領台股盤中一度漲逾300點收復10日線 - 鉅亨網",
-            "score": 2
-          },
-          {
-            "tag": "📰台股即時頭條",
-            "title": "4年前台積電、4年後美光 張善政轟：別把產業當選舉工具 - Yahoo股市",
+            "title": "【Follow法人】外資提款台積電189億元 永豐金等3金釵、中華電也同步遭甩賣 - Yahoo股市",
             "score": 1
           },
           {
+            "tag": "📰台股即時頭條",
+            "title": "2026年10月台股基金排行｜台股10月重挫2728點，投資人越跌越買！0050、正 2 吸金破千億，行情進入修正怎麼佈局？ - 永豐金證券",
+            "score": -2
+          },
+          {
             "tag": "🌐真實總經與台指期實盤",
-            "title": "【台美實盤同步】加權指數 39,308 點 (+0.40%)｜VIX 24.7▼｜10Y美債 4.85%▼｜匯率 32.93",
+            "title": "【台美實盤同步】加權指數 39,152 點 (+2.50%)｜VIX 24.8▼｜10Y美債 4.93%▲｜匯率 32.96",
             "score": 2
           }
         ]
@@ -148651,11 +148651,11 @@
           "futCode": "TX",
           "futName": "臺股大台指期貨",
           "underlyingId": "臺灣加權指數",
-          "open": 39198,
-          "high": 39393,
-          "low": 39128,
-          "price": 39308,
-          "changePct": 0.4,
+          "open": 38479,
+          "high": 39237,
+          "low": 38409,
+          "price": 39152,
+          "changePct": 2.5,
           "volLots": 115000,
           "sharesPerContract": 200,
           "marginRate": 0.051,
@@ -148668,11 +148668,11 @@
           "futCode": "MTX",
           "futName": "小型臺指期貨",
           "underlyingId": "臺灣加權指數",
-          "open": 39198,
-          "high": 39393,
-          "low": 39128,
-          "price": 39308,
-          "changePct": 0.4,
+          "open": 38479,
+          "high": 39237,
+          "low": 38409,
+          "price": 39152,
+          "changePct": 2.5,
           "volLots": 215000,
           "sharesPerContract": 50,
           "marginRate": 0.051,
@@ -148685,11 +148685,11 @@
           "futCode": "TMF",
           "futName": "微型臺指期貨",
           "underlyingId": "臺灣加權指數",
-          "open": 39198,
-          "high": 39393,
-          "low": 39128,
-          "price": 39308,
-          "changePct": 0.4,
+          "open": 38479,
+          "high": 39237,
+          "low": 38409,
+          "price": 39152,
+          "changePct": 2.5,
           "volLots": 168000,
           "sharesPerContract": 10,
           "marginRate": 0.051,
@@ -148699,7 +148699,7 @@
         }
       ],
       "totalMarketCount": 2663,
-      "chapterTitle": "全台股四板塊實盤 (2663檔同步｜更新 17:13:46)",
+      "chapterTitle": "全台股四板塊實盤 (2663檔同步｜更新 00:53:06)",
       "usAssets": [
         {
           "id": "NVDA 輝達 (NVIDIA)",
@@ -148708,12 +148708,12 @@
           "assetType": "US_STOCK",
           "usSector": "AI_SEMI",
           "currency": "USD",
-          "open": 144.06,
-          "high": 150.37,
-          "low": 141.17,
-          "price": 149.3,
-          "changePct": -3.91,
-          "volShares": 366571900,
+          "open": 151.94,
+          "high": 151.98,
+          "low": 145.39,
+          "price": 149.09,
+          "changePct": -0.14,
+          "volShares": 125335121,
           "yield": 0.03,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -148727,12 +148727,12 @@
           "assetType": "US_STOCK",
           "usSector": "BUFFETT_TECH",
           "currency": "USD",
-          "open": 353.48,
-          "high": 356.75,
-          "low": 345.13,
-          "price": 355.58,
-          "changePct": 0.43,
-          "volShares": 54285300,
+          "open": 358.44,
+          "high": 359.5,
+          "low": 355.64,
+          "price": 358.11,
+          "changePct": 0.71,
+          "volShares": 10706370,
           "yield": 0.45,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -148746,12 +148746,12 @@
           "assetType": "US_STOCK",
           "usSector": "MEME_GROWTH",
           "currency": "USD",
-          "open": 370.52,
-          "high": 383.73,
-          "low": 357.64,
-          "price": 380.14,
-          "changePct": -1.18,
-          "volShares": 34915800,
+          "open": 391.33,
+          "high": 401.18,
+          "low": 384.66,
+          "price": 400.52,
+          "changePct": 5.36,
+          "volShares": 17295995,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -148765,12 +148765,12 @@
           "assetType": "US_STOCK",
           "usSector": "AI_SEMI",
           "currency": "USD",
-          "open": 52.01,
-          "high": 55.0,
-          "low": 49.16,
-          "price": 54.47,
-          "changePct": -0.6,
-          "volShares": 129277900,
+          "open": 56.47,
+          "high": 56.66,
+          "low": 54.55,
+          "price": 56.53,
+          "changePct": 3.77,
+          "volShares": 45795116,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -148784,12 +148784,12 @@
           "assetType": "US_STOCK",
           "usSector": "BUFFETT_VALUE",
           "currency": "USD",
-          "open": 98.11,
-          "high": 98.78,
-          "low": 97.49,
-          "price": 97.59,
-          "changePct": -0.03,
-          "volShares": 24905500,
+          "open": 96.79,
+          "high": 97.55,
+          "low": 96.52,
+          "price": 97.54,
+          "changePct": -0.06,
+          "volShares": 5248892,
           "yield": 3.05,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -148803,12 +148803,12 @@
           "assetType": "US_STOCK",
           "usSector": "AI_POWER",
           "currency": "USD",
-          "open": 117.08,
-          "high": 121.87,
-          "low": 115.51,
-          "price": 121.32,
-          "changePct": 0.5,
-          "volShares": 4709900,
+          "open": 124.15,
+          "high": 124.29,
+          "low": 120.8,
+          "price": 122.92,
+          "changePct": 1.32,
+          "volShares": 879416,
           "yield": 0.65,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -148822,12 +148822,12 @@
           "assetType": "US_STOCK",
           "usSector": "MEME_GROWTH",
           "currency": "USD",
-          "open": 27.27,
-          "high": 27.48,
-          "low": 26.17,
-          "price": 26.97,
-          "changePct": -1.86,
-          "volShares": 6647100,
+          "open": 26.73,
+          "high": 27.09,
+          "low": 26.23,
+          "price": 26.35,
+          "changePct": -2.3,
+          "volShares": 1556732,
           "yield": 0.0,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -148841,12 +148841,12 @@
           "assetType": "US_BOND",
           "usSector": "BOND",
           "currency": "USD",
-          "open": 82.37,
-          "high": 82.81,
-          "low": 82.17,
-          "price": 82.24,
-          "changePct": 0.92,
-          "volShares": 48998300,
+          "open": 81.82,
+          "high": 81.94,
+          "low": 81.23,
+          "price": 81.29,
+          "changePct": -1.16,
+          "volShares": 19631944,
           "yield": 4.45,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -148860,12 +148860,12 @@
           "assetType": "US_BOND",
           "usSector": "BOND",
           "currency": "USD",
-          "open": 100.67,
-          "high": 100.68,
-          "low": 100.67,
-          "price": 100.68,
+          "open": 100.7,
+          "high": 100.71,
+          "low": 100.7,
+          "price": 100.7,
           "changePct": 0.02,
-          "volShares": 31710200,
+          "volShares": 11625126,
           "yield": 4.85,
           "exDividendDate": "",
           "cashDividend": 0.0,
@@ -167491,6 +167491,37 @@
           ]
         },
         {
+          "id": "5347 世界",
+          "code": "5347",
+          "name": "世界",
+          "boardType": "OTC",
+          "isKY": false,
+          "sectorCat": "SERVER_PC",
+          "assetType": "STOCK",
+          "open": 119.5,
+          "high": 122.0,
+          "low": 118.5,
+          "price": 121.5,
+          "changePct": 1.67,
+          "volLots": 13224,
+          "pe": 21.0,
+          "yield": 2.8,
+          "fairValue": 120.59,
+          "allowMarginShort": true,
+          "allowSBL": true,
+          "sblFeeRate": 2.8,
+          "news": [
+            {
+              "title": "🏛️【🏛️上櫃即時行情】5347 世界 現價 $121.5 (+1.67%)，量 13,224 張｜PE=21.0倍",
+              "score": 1
+            },
+            {
+              "title": "⚡【AI算力與電力基建】5347 世界 動量轉強，納入核心輪動池",
+              "score": 2
+            }
+          ]
+        },
+        {
           "id": "00795B 中信美國公債20年",
           "code": "00795B",
           "name": "中信美國公債20年",
@@ -167660,37 +167691,6 @@
             },
             {
               "title": "⚡【AI算力與電力基建】8150 南茂 動量轉強，納入核心輪動池",
-              "score": 2
-            }
-          ]
-        },
-        {
-          "id": "5347 世界",
-          "code": "5347",
-          "name": "世界",
-          "boardType": "OTC",
-          "isKY": false,
-          "sectorCat": "SERVER_PC",
-          "assetType": "STOCK",
-          "open": 119.5,
-          "high": 122.0,
-          "low": 118.5,
-          "price": 121.5,
-          "changePct": 1.67,
-          "volLots": 12883,
-          "pe": 21.0,
-          "yield": 2.8,
-          "fairValue": 120.59,
-          "allowMarginShort": true,
-          "allowSBL": true,
-          "sblFeeRate": 2.8,
-          "news": [
-            {
-              "title": "🏛️【🏛️上櫃即時行情】5347 世界 現價 $121.5 (+1.67%)，量 12,883 張｜PE=21.0倍",
-              "score": 1
-            },
-            {
-              "title": "⚡【AI算力與電力基建】5347 世界 動量轉強，納入核心輪動池",
               "score": 2
             }
           ]
@@ -183793,6 +183793,33 @@
           ]
         },
         {
+          "id": "6223 旺矽",
+          "code": "6223",
+          "name": "旺矽",
+          "boardType": "OTC",
+          "isKY": false,
+          "sectorCat": "AI_SEMI",
+          "assetType": "STOCK",
+          "open": 4105.0,
+          "high": 4230.0,
+          "low": 3905.0,
+          "price": 3930.0,
+          "changePct": -4.5,
+          "volLots": 720,
+          "pe": 21.0,
+          "yield": 2.8,
+          "fairValue": 4011.23,
+          "allowMarginShort": true,
+          "allowSBL": true,
+          "sblFeeRate": 2.8,
+          "news": [
+            {
+              "title": "📉【🏛️上櫃回測均線】6223 旺矽 修正 -4.5% 至 $3930.0（量 720 張，PE=21.0倍）",
+              "score": -2
+            }
+          ]
+        },
+        {
           "id": "4167 松瑞藥",
           "code": "4167",
           "name": "松瑞藥",
@@ -183874,33 +183901,6 @@
             {
               "title": "⚡【AI算力與電力基建】009807 台新標普科技精選 動量轉強，納入核心輪動池",
               "score": 2
-            }
-          ]
-        },
-        {
-          "id": "6223 旺矽",
-          "code": "6223",
-          "name": "旺矽",
-          "boardType": "OTC",
-          "isKY": false,
-          "sectorCat": "AI_SEMI",
-          "assetType": "STOCK",
-          "open": 4105.0,
-          "high": 4230.0,
-          "low": 3905.0,
-          "price": 3930.0,
-          "changePct": -4.5,
-          "volLots": 710,
-          "pe": 21.0,
-          "yield": 2.8,
-          "fairValue": 4011.23,
-          "allowMarginShort": true,
-          "allowSBL": true,
-          "sblFeeRate": 2.8,
-          "news": [
-            {
-              "title": "📉【🏛️上櫃回測均線】6223 旺矽 修正 -4.5% 至 $3930.0（量 710 張，PE=21.0倍）",
-              "score": -2
             }
           ]
         },
@@ -186295,6 +186295,37 @@
           ]
         },
         {
+          "id": "6664 群翊",
+          "code": "6664",
+          "name": "群翊",
+          "boardType": "OTC",
+          "isKY": false,
+          "sectorCat": "SERVER_PC",
+          "assetType": "STOCK",
+          "open": 251.5,
+          "high": 262.5,
+          "low": 249.5,
+          "price": 257.5,
+          "changePct": 3.83,
+          "volLots": 570,
+          "pe": 21.0,
+          "yield": 2.8,
+          "fairValue": 253.14,
+          "allowMarginShort": true,
+          "allowSBL": true,
+          "sblFeeRate": 2.8,
+          "news": [
+            {
+              "title": "🔥【🏛️上櫃帶量突破】6664 群翊 強攻 +3.83% 至 $257.5（量 570 張）",
+              "score": 2
+            },
+            {
+              "title": "⚡【AI算力與電力基建】6664 群翊 動量轉強，納入核心輪動池",
+              "score": 2
+            }
+          ]
+        },
+        {
           "id": "3504 揚明光",
           "code": "3504",
           "name": "揚明光",
@@ -188669,6 +188700,37 @@
           ]
         },
         {
+          "id": "5274 信驊",
+          "code": "5274",
+          "name": "信驊",
+          "boardType": "OTC",
+          "isKY": false,
+          "sectorCat": "SERVER_PC",
+          "assetType": "STOCK",
+          "open": 9485.0,
+          "high": 9700.0,
+          "low": 9115.0,
+          "price": 9600.0,
+          "changePct": 2.35,
+          "volLots": 450,
+          "pe": 21.0,
+          "yield": 2.8,
+          "fairValue": 9499.54,
+          "allowMarginShort": true,
+          "allowSBL": true,
+          "sblFeeRate": 2.8,
+          "news": [
+            {
+              "title": "🏛️【🏛️上櫃即時行情】5274 信驊 現價 $9600.0 (+2.35%)，量 450 張｜PE=21.0倍",
+              "score": 1
+            },
+            {
+              "title": "⚡【AI算力與電力基建】5274 信驊 動量轉強，納入核心輪動池",
+              "score": 2
+            }
+          ]
+        },
+        {
           "id": "6469 大樹",
           "code": "6469",
           "name": "大樹",
@@ -188835,37 +188897,6 @@
             {
               "title": "📉【🏛️上櫃回測均線】6218 豪勉 修正 -3.5% 至 $30.35（量 446 張，PE=21.0倍）",
               "score": -2
-            }
-          ]
-        },
-        {
-          "id": "5274 信驊",
-          "code": "5274",
-          "name": "信驊",
-          "boardType": "OTC",
-          "isKY": false,
-          "sectorCat": "SERVER_PC",
-          "assetType": "STOCK",
-          "open": 9485.0,
-          "high": 9700.0,
-          "low": 9115.0,
-          "price": 9600.0,
-          "changePct": 2.35,
-          "volLots": 445,
-          "pe": 21.0,
-          "yield": 2.8,
-          "fairValue": 9499.54,
-          "allowMarginShort": true,
-          "allowSBL": true,
-          "sblFeeRate": 2.8,
-          "news": [
-            {
-              "title": "🏛️【🏛️上櫃即時行情】5274 信驊 現價 $9600.0 (+2.35%)，量 445 張｜PE=21.0倍",
-              "score": 1
-            },
-            {
-              "title": "⚡【AI算力與電力基建】5274 信驊 動量轉強，納入核心輪動池",
-              "score": 2
             }
           ]
         },
@@ -192144,37 +192175,6 @@
             },
             {
               "title": "🛡️【波克夏價值護城河】1524 耿鼎 殖利率 5.96%、本益比 10.68 倍",
-              "score": 2
-            }
-          ]
-        },
-        {
-          "id": "6664 群翊",
-          "code": "6664",
-          "name": "群翊",
-          "boardType": "OTC",
-          "isKY": false,
-          "sectorCat": "SERVER_PC",
-          "assetType": "STOCK",
-          "open": 251.5,
-          "high": 262.5,
-          "low": 249.5,
-          "price": 257.5,
-          "changePct": 3.83,
-          "volLots": 320,
-          "pe": 21.0,
-          "yield": 2.8,
-          "fairValue": 253.14,
-          "allowMarginShort": true,
-          "allowSBL": true,
-          "sblFeeRate": 2.8,
-          "news": [
-            {
-              "title": "🔥【🏛️上櫃帶量突破】6664 群翊 強攻 +3.83% 至 $257.5（量 320 張）",
-              "score": 2
-            },
-            {
-              "title": "⚡【AI算力與電力基建】6664 群翊 動量轉強，納入核心輪動池",
               "score": 2
             }
           ]
